@@ -1,0 +1,36 @@
+{
+  "webhooks": {
+    "slack": {
+      "enabled": false,
+      "url": "https://hooks.slack.com/services/YOUR/SLACK/WEBHOOK",
+      "channel": "#deployments",
+      "username": "Deploy Bot"
+    },
+    "discord": {
+      "enabled": false,
+      "url": "https://discord.com/api/webhooks/YOUR/DISCORD/WEBHOOK",
+      "channel": "deployments"
+    },
+    "telegram": {
+      "enabled": false,
+      "bot_token": "YOUR_BOT_TOKEN",
+      "chat_id": "YOUR_CHAT_ID"
+    },
+    "email": {
+      "enabled": false,
+      "smtp_host": "smtp.gmail.com",
+      "smtp_port": 587,
+      "smtp_user": "your-email@gmail.com",
+      "smtp_pass": "your-app-password",
+      "to": ["admin@raunaimer.adv.br"],
+      "from": "deploy@raunaimer.adv.br"
+    }
+  },
+  "notifications": {
+    "on_success": true,
+    "on_failure": true,
+    "on_start": false,
+    "include_logs": false,
+    "include_status": true
+  }
+} 

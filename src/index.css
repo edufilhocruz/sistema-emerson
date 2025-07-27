@@ -1,0 +1,219 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Poppins:wght@400;500;600;700&family=Open+Sans:wght@400;500;600;700&display=swap');
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* CondoAdmin Design System - Gold Theme with Enhanced Animations */
+
+@layer base {
+  :root {
+    /* Primary Gold Theme */
+    --primary-gold: 40 45% 55%;
+    --primary-gold-hover: 43 50% 65%;
+    --primary-gold-light: 45 55% 85%;
+    --primary-gold-dark: 38 40% 45%;
+    
+    /* Background Colors */
+    --background: 0 0% 100%;
+    --background-secondary: 220 15% 97%;
+    --sidebar-bg: 220 14% 97%;
+    --card-gradient: linear-gradient(145deg, hsl(0 0% 100%), hsl(220 15% 98%));
+    
+    /* Text Colors */
+    --foreground: 0 0% 0%;
+    --text-secondary: 0 0% 33%;
+    --text-muted: 0 0% 65%;
+    
+    /* Card & Surface Colors */
+    --card: 0 0% 100%;
+    --card-foreground: 0 0% 0%;
+    --card-hover: 220 15% 99%;
+    
+    /* Border & Input */
+    --border: 220 13% 91%;
+    --input: 220 13% 91%;
+    --ring: 40 45% 55%;
+    
+    /* Status Colors */
+    --success: 120 50% 45%;
+    --success-light: 120 50% 95%;
+    --warning: 45 100% 55%;
+    --warning-light: 45 100% 95%;
+    --danger: 0 70% 55%;
+    --danger-light: 0 70% 95%;
+    --info: 220 70% 55%;
+    --info-light: 220 70% 95%;
+    
+    /* Chart Colors */
+    --chart-primary: 40 45% 55%;
+    --chart-secondary: 220 13% 91%;
+    
+    /* Animation & Shadows */
+    --radius: 0.75rem;
+    --shadow-sm: 0 1px 3px 0 hsl(0 0% 0% / 0.1), 0 1px 2px 0 hsl(0 0% 0% / 0.06);
+    --shadow-md: 0 4px 6px -1px hsl(0 0% 0% / 0.1), 0 2px 4px -1px hsl(0 0% 0% / 0.06);
+    --shadow-lg: 0 10px 15px -3px hsl(0 0% 0% / 0.1), 0 4px 6px -2px hsl(0 0% 0% / 0.05);
+    --shadow-gold: 0 4px 12px hsl(var(--primary-gold) / 0.15);
+    
+    /* Transitions */
+    --transition-fast: 150ms cubic-bezier(0.4, 0, 0.2, 1);
+    --transition-normal: 300ms cubic-bezier(0.4, 0, 0.2, 1);
+    --transition-slow: 500ms cubic-bezier(0.4, 0, 0.2, 1);
+    
+    /* Legacy shadcn variables for compatibility */
+    --primary: 40 45% 55%;
+    --primary-foreground: 0 0% 100%;
+    --secondary: 220 14% 97%;
+    --secondary-foreground: 0 0% 0%;
+    --muted: 220 14% 97%;
+    --muted-foreground: 0 0% 45%;
+    --accent: 220 14% 97%;
+    --accent-foreground: 0 0% 0%;
+    --destructive: 0 70% 55%;
+    --destructive-foreground: 0 0% 100%;
+    --popover: 0 0% 100%;
+    --popover-foreground: 0 0% 0%;
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+
+  body {
+    @apply bg-background text-foreground font-sans;
+  }
+}
+
+@layer components {
+  /* Enhanced Animation Classes */
+  .animate-fade-in {
+    animation: fadeIn var(--transition-normal) ease-out;
+  }
+  
+  .animate-slide-up {
+    animation: slideUp var(--transition-normal) ease-out;
+  }
+  
+  .animate-scale-in {
+    animation: scaleIn var(--transition-fast) ease-out;
+  }
+  
+  .animate-float {
+    animation: float 3s ease-in-out infinite;
+  }
+  
+  /* Card Enhancement */
+  .card-enhanced {
+    @apply bg-card border border-border rounded-xl shadow-sm transition-all duration-300;
+    background: var(--card-gradient);
+  }
+  
+  .card-enhanced:hover {
+    @apply shadow-lg;
+    box-shadow: var(--shadow-gold);
+    transform: translateY(-2px);
+  }
+  
+  /* Sidebar Link Enhancement */
+  .sidebar-link {
+    @apply flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium transition-all duration-300;
+    @apply text-text-secondary hover:bg-gold-hover hover:text-white hover:shadow-md;
+  }
+  
+  .sidebar-link.active {
+    @apply bg-gold text-white shadow-md;
+    box-shadow: var(--shadow-gold);
+  }
+  
+  .sidebar-link:hover {
+    transform: translateX(4px);
+  }
+  
+  /* Status Badge Enhancement */
+  .status-badge {
+    @apply inline-flex items-center px-3 py-1 rounded-full text-xs font-medium transition-all duration-200;
+  }
+  
+  .status-badge.success {
+    @apply bg-success-light text-success border border-success/20;
+  }
+  
+  .status-badge.info {
+    @apply bg-info-light text-info border border-info/20;
+  }
+  
+  .status-badge.danger {
+    @apply bg-danger-light text-danger border border-danger/20;
+  }
+  
+  /* Table Enhancement */
+  .table-row {
+    @apply transition-all duration-200 hover:bg-card-hover;
+  }
+  
+  /* Button Enhancement */
+  .btn-primary {
+    @apply bg-gold hover:bg-gold-hover text-white font-semibold px-6 py-2.5 rounded-lg;
+    @apply transition-all duration-300 hover:shadow-lg hover:-translate-y-0.5;
+    box-shadow: var(--shadow-gold);
+  }
+}
+
+@layer utilities {
+  /* Custom Animations */
+  @keyframes fadeIn {
+    from {
+      opacity: 0;
+      transform: translateY(20px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+  
+  @keyframes slideUp {
+    from {
+      opacity: 0;
+      transform: translateY(30px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+  
+  @keyframes scaleIn {
+    from {
+      opacity: 0;
+      transform: scale(0.95);
+    }
+    to {
+      opacity: 1;
+      transform: scale(1);
+    }
+  }
+  
+  @keyframes float {
+    0%, 100% {
+      transform: translateY(0px);
+    }
+    50% {
+      transform: translateY(-10px);
+    }
+  }
+  
+  /* Stagger Animation */
+  .stagger-animation > * {
+    opacity: 0;
+    animation: fadeIn var(--transition-normal) ease-out forwards;
+  }
+  
+  .stagger-animation > *:nth-child(1) { animation-delay: 0.1s; }
+  .stagger-animation > *:nth-child(2) { animation-delay: 0.2s; }
+  .stagger-animation > *:nth-child(3) { animation-delay: 0.3s; }
+  .stagger-animation > *:nth-child(4) { animation-delay: 0.4s; }
+  .stagger-animation > *:nth-child(5) { animation-delay: 0.5s; }
+}

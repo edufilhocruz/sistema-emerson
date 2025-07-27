@@ -1,0 +1,98 @@
+name: Deploy to Production
+
+on:
+  push:
+    branches: [ main, master ]
+  workflow_dispatch: # Permite execução manual
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: 🚀 Checkout code
+      uses: actions/checkout@v4
+      
+    - name: 📦 Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '18'
+        cache: 'npm'
+        
+    - name: 🔧 Setup SSH
+      uses: webfactory/ssh-agent@v0.8.0
+      with:
+        ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY }}
+        
+    - name: 🔐 Add server to known hosts
+      run: |
+        mkdir -p ~/.ssh
+        ssh-keyscan -H ${{ secrets.SERVER_HOST }} >> ~/.ssh/known_hosts
+        
+    - name: 📦 Install dependencies (Frontend)
+      run: npm install
+      
+    - name: 📦 Install dependencies (Backend)
+      run: |
+        cd backend
+        npm install
+        cd ..
+        
+    - name: 🔨 Build Frontend
+      run: npm run build
+      
+    - name: 🔨 Build Backend
+      run: |
+        cd backend
+        npm run build
+        cd ..
+        
+    - name: 📤 Deploy to server
+      run: |
+        # Criar arquivo de deploy temporário
+        cat > deploy-remote.sh << 'EOF'
+        #!/bin/bash
+        set -e
+        
+        echo "🚀 Iniciando deploy remoto..."
+        
+        # Navegar para o diretório do projeto
+        cd /var/www/sistema_raunaimer
+        
+        # Fazer pull das mudanças
+        git pull origin main
+        
+        # Instalar dependências
+        npm install
+        cd backend && npm install && cd ..
+        
+        # Build das aplicações
+        npm run build
+        cd backend && npm run build && cd ..
+        
+        # Parar aplicações existentes
+        pm2 stop all 2>/dev/null || true
+        pm2 delete all 2>/dev/null || true
+        
+        # Iniciar com PM2
+        pm2 start ecosystem.config.js --env production
+        
+        # Salvar configuração
+        pm2 save
+        
+        echo "✅ Deploy concluído com sucesso!"
+        pm2 status
+        EOF
+        
+        # Copiar arquivo para o servidor
+        scp deploy-remote.sh ${{ secrets.SERVER_USER }}@${{ secrets.SERVER_HOST }}:/tmp/
+        
+        # Executar deploy no servidor
+        ssh ${{ secrets.SERVER_USER }}@${{ secrets.SERVER_HOST }} << 'EOF'
+        chmod +x /tmp/deploy-remote.sh
+        /tmp/deploy-remote.sh
+        rm /tmp/deploy-remote.sh
+        EOF
+        
+    - name: ✅ Deploy completed
+      run: echo "Deploy concluído com sucesso!" 

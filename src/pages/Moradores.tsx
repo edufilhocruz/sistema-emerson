@@ -1,0 +1,215 @@
+import { useState, useMemo } from 'react';
+import { DateRange } from 'react-day-picker';
+import { Header } from "@/components/layout/Header";
+import { Sidebar } from "@/components/layout/Sidebar";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Skeleton } from '@/components/ui/skeleton';
+import { Dialog, DialogContent, DialogTitle } from '@/components/ui/dialog';
+import { useMoradores } from '@/features/moradores/hooks/useMoradores';
+import { MoradoresTable } from '@/features/moradores/components/MoradoresTable';
+import { MoradoresActions } from '@/features/moradores/components/MoradoresActions';
+import { MoradorForm } from '@/features/moradores/components/MoradorForm';
+import { MoradorFormData } from '@/features/moradores/types';
+import { MoradoresFilters } from '@/features/moradores/components/MoradoresFilters';
+import moradorService from '@/features/moradores/services/moradorService';
+import { toast } from '@/components/ui/use-toast';
+import cobrancaService from '@/features/cobranca/services/cobrancaService';
+
+const MoradoresPage = () => {
+    const { moradores, loading, error, refresh } = useMoradores();
+    const [isFormOpen, setIsFormOpen] = useState(false);
+    const [searchTerm, setSearchTerm] = useState('');
+    const [dateRange, setDateRange] = useState<DateRange | undefined>();
+    const [selectedMorador, setSelectedMorador] = useState<any | null>(null);
+    const [editId, setEditId] = useState<string | null>(null);
+    const [filtros, setFiltros] = useState({
+        statusPagamento: undefined,
+        tipoCobranca: undefined,
+        condominioId: undefined,
+        statusEnvio: undefined,
+    });
+    const [historicoOpen, setHistoricoOpen] = useState(false);
+    const [moradorHistorico, setMoradorHistorico] = useState<any | null>(null);
+    const [historico, setHistorico] = useState<any[]>([]);
+    const [loadingHistorico, setLoadingHistorico] = useState(false);
+    const [salvoOpen, setSalvoOpen] = useState(false);
+
+    const filteredMoradores = useMemo(() => {
+        return moradores.filter(morador => {
+            const searchMatch = !searchTerm ||
+                morador.nome.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                morador.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                (morador.condominio?.nome?.toLowerCase().includes(searchTerm.toLowerCase())) ||
+                morador.apartamento.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                morador.bloco.toLowerCase().includes(searchTerm.toLowerCase());
+
+            // Filtro avançado
+            const statusPagamentoMatch = !filtros.statusPagamento || morador.statusPagamento === filtros.statusPagamento;
+            const tipoCobrancaMatch = !filtros.tipoCobranca || morador.ultimaCobrancaTipo === filtros.tipoCobranca;
+            const condominioMatch = !filtros.condominioId || morador.condominio?.id === filtros.condominioId;
+            const statusEnvioMatch = !filtros.statusEnvio || morador.ultimaCobrancaStatusEnvio === filtros.statusEnvio;
+
+            return searchMatch && statusPagamentoMatch && tipoCobrancaMatch && condominioMatch && statusEnvioMatch;
+        });
+    }, [moradores, searchTerm, filtros]);
+
+    const handleSaveMorador = async (data: any) => {
+        console.log('Tentando salvar morador:', data, 'editId:', editId);
+        try {
+            if (editId) {
+                const res = await moradorService.updateMorador(editId, data);
+                console.log('Resposta updateMorador:', res);
+                setSalvoOpen(true);
+                setTimeout(() => setSalvoOpen(false), 2000);
+                toast({ title: 'Morador atualizado com sucesso!' });
+            } else {
+                const res = await moradorService.createMorador(data);
+                console.log('Resposta createMorador:', res);
+                setSalvoOpen(true);
+                setTimeout(() => setSalvoOpen(false), 2000);
+                toast({ title: 'Morador criado com sucesso!' });
+            }
+            setIsFormOpen(false);
+            setEditId(null);
+            setSelectedMorador(null);
+            refresh();
+        } catch (err) {
+            console.error('Erro ao salvar morador:', err);
+            let description = 'Não foi possível salvar o morador.';
+            if (err?.response?.data?.message) {
+                description = err.response.data.message;
+            }
+            toast({ variant: 'destructive', title: 'Erro', description });
+        }
+    };
+
+    const handleEdit = (morador: any) => {
+        setSelectedMorador({
+            ...morador,
+            condominioId: morador.condominioId || morador.condominio?.id,
+        });
+        setEditId(morador.id);
+        setIsFormOpen(true);
+    };
+
+    const handleDelete = async (morador: any) => {
+        try {
+            await moradorService.deleteMorador(morador.id);
+            toast({ title: 'Morador excluído com sucesso!' });
+            refresh();
+        } catch (err) {
+            toast({ variant: 'destructive', title: 'Erro', description: 'Não foi possível excluir o morador.' });
+        }
+    };
+
+    const handleFiltros = (f: any) => setFiltros(f);
+    const handleLimparFiltros = () => setFiltros({ statusPagamento: undefined, tipoCobranca: undefined, condominioId: undefined, statusEnvio: undefined });
+
+    const handleVerHistorico = async (morador: any) => {
+        setMoradorHistorico(morador);
+        setHistoricoOpen(true);
+        setLoadingHistorico(true);
+        try {
+            const data = await cobrancaService.getHistoricoCobrancasPorMorador(morador.id);
+            setHistorico(data);
+        } catch (err) {
+            setHistorico([]);
+        } finally {
+            setLoadingHistorico(false);
+        }
+    };
+
+    return (
+        <>
+            <div className="flex h-screen bg-bg-secondary">
+                <Sidebar />
+                <main className="flex-1 flex flex-col overflow-hidden">
+                    <Header title="Gestão de Moradores" />
+                    <div className="flex-1 overflow-y-auto p-6 lg:p-8 space-y-6">
+                        <MoradoresActions 
+                            onAddClick={() => setIsFormOpen(true)}
+                            onSearchChange={setSearchTerm}
+                        />
+                        <Card className="rounded-2xl shadow-sm border">
+                            <CardHeader>
+                                <CardTitle>Lista de Moradores</CardTitle>
+                                <div className="flex justify-between items-center">
+                                  <CardDescription>Visualize e gerencie todos os moradores cadastrados.</CardDescription>
+                                  <MoradoresFilters onFilter={handleFiltros} onClear={handleLimparFiltros} />
+                                </div>
+                            </CardHeader>
+                            <CardContent>
+                                {loading && <Skeleton className="h-[300px] w-full" />}
+                                {!loading && !error && <MoradoresTable 
+                                    moradores={filteredMoradores} 
+                                    onEdit={handleEdit} 
+                                    onDelete={handleDelete} 
+                                    onVerHistorico={handleVerHistorico}
+                                />}
+                                {error && <p className="text-destructive text-center py-10">{error}</p>}
+                            </CardContent>
+                        </Card>
+                    </div>
+                </main>
+            </div>
+            <Dialog open={isFormOpen} onOpenChange={(open) => { setIsFormOpen(open); if (!open) { setEditId(null); setSelectedMorador(null); } }}>
+                <DialogContent>
+                    <MoradorForm onSave={handleSaveMorador} defaultValues={selectedMorador || undefined} />
+                </DialogContent>
+            </Dialog>
+            <Dialog open={historicoOpen} onOpenChange={(open) => { setHistoricoOpen(open); if (!open) { setMoradorHistorico(null); setHistorico([]); } }}>
+                <DialogContent className="max-w-2xl">
+                    <Card className="rounded-2xl shadow-sm border">
+                        <CardHeader>
+                            <CardTitle>Histórico de Cobranças</CardTitle>
+                            <CardDescription>
+                                {moradorHistorico?.nome} - {moradorHistorico?.bloco}-{moradorHistorico?.apartamento}
+                            </CardDescription>
+                        </CardHeader>
+                        <CardContent>
+                            {loadingHistorico ? (
+                                <Skeleton className="h-[120px] w-full" />
+                            ) : historico.length === 0 ? (
+                                <div className="text-center text-muted-foreground py-8">Nenhuma cobrança encontrada para este morador.</div>
+                            ) : (
+                                <table className="w-full text-sm">
+                                    <thead>
+                                        <tr>
+                                            <th className="text-left">Data de Envio</th>
+                                            <th className="text-left">Vencimento</th>
+                                            <th className="text-left">Valor</th>
+                                            <th className="text-left">Status</th>
+                                            <th className="text-left">Status Envio</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {historico.map((c) => (
+                                            <tr key={c.id} className="border-b last:border-0">
+                                                <td>{c.dataEnvio ? new Date(c.dataEnvio).toLocaleDateString('pt-BR') : '-'}</td>
+                                                <td>{c.vencimento ? new Date(c.vencimento).toLocaleDateString('pt-BR') : '-'}</td>
+                                                <td>R$ {Number(c.valor).toLocaleString('pt-BR', { minimumFractionDigits: 2 })}</td>
+                                                <td>{c.status}</td>
+                                                <td>{c.statusEnvio}</td>
+                                            </tr>
+                                        ))}
+                                    </tbody>
+                                </table>
+                            )}
+                        </CardContent>
+                    </Card>
+                </DialogContent>
+            </Dialog>
+            <Dialog open={salvoOpen} onOpenChange={setSalvoOpen}>
+              <DialogContent className="max-w-xs">
+                <DialogTitle className="sr-only">Confirmação</DialogTitle>
+                <div className="flex flex-col items-center gap-4 p-8">
+                  <svg width="48" height="48" fill="none" viewBox="0 0 24 24"><circle cx="12" cy="12" r="12" fill="#22c55e" fillOpacity="0.15"/><path d="M7 13l3 3 7-7" stroke="#22c55e" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/></svg>
+                  <div className="text-green-700 text-lg font-bold">Informações salvas!</div>
+                </div>
+              </DialogContent>
+            </Dialog>
+        </>
+    );
+};
+
+export default MoradoresPage;
