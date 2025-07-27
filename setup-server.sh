@@ -54,6 +54,9 @@ log "👤 Criando usuário deploy..."
 useradd -m -s /bin/bash deploy || true
 usermod -aG sudo deploy
 
+# Configurar sudo sem senha para deploy
+echo "deploy ALL=(ALL) NOPASSWD:ALL" | sudo tee /etc/sudoers.d/deploy
+
 # Configurar SSH para deploy
 log "🔑 Configurando SSH..."
 mkdir -p /home/deploy/.ssh

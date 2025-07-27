@@ -19,15 +19,16 @@ jobs:
         node-version: '18'
         cache: 'npm'
         
-    - name: 🔧 Setup SSH
-      uses: webfactory/ssh-agent@v0.8.0
-      with:
-        ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY }}
-        
     - name: 🔐 Add server to known hosts
       run: |
         mkdir -p ~/.ssh
         ssh-keyscan -H ${{ secrets.SERVER_HOST }} >> ~/.ssh/known_hosts
+        
+    - name: 🔧 Setup SSH with password
+      run: |
+        # Instalar sshpass para autenticação por senha
+        sudo apt-get update
+        sudo apt-get install -y sshpass
         
     - name: 📦 Install dependencies (Frontend)
       run: npm install
@@ -62,6 +63,9 @@ jobs:
         # Fazer pull das mudanças
         git pull origin main
         
+        # Configurar permissões
+        chown -R deploy:deploy /var/www/sistema_raunaimer
+        
         # Instalar dependências
         npm install
         cd backend && npm install && cd ..
@@ -84,11 +88,11 @@ jobs:
         pm2 status
         EOF
         
-        # Copiar arquivo para o servidor
-        scp deploy-remote.sh ${{ secrets.SERVER_USER }}@${{ secrets.SERVER_HOST }}:/tmp/
+        # Copiar arquivo para o servidor usando sshpass
+        sshpass -p '${{ secrets.SSH_PASSWORD }}' scp -o StrictHostKeyChecking=no deploy-remote.sh root@${{ secrets.SERVER_HOST }}:/tmp/
         
-        # Executar deploy no servidor
-        ssh ${{ secrets.SERVER_USER }}@${{ secrets.SERVER_HOST }} << 'EOF'
+        # Executar deploy no servidor usando sshpass
+        sshpass -p '${{ secrets.SSH_PASSWORD }}' ssh -o StrictHostKeyChecking=no root@${{ secrets.SERVER_HOST }} << 'EOF'
         chmod +x /tmp/deploy-remote.sh
         /tmp/deploy-remote.sh
         rm /tmp/deploy-remote.sh

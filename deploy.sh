@@ -39,6 +39,18 @@ if ! command -v serve &> /dev/null; then
     npm install -g serve
 fi
 
+# Verificar se sshpass está instalado (para autenticação por senha)
+if ! command -v sshpass &> /dev/null; then
+    warn "SSHPass não está instalado. Instalando..."
+    if command -v apt-get &> /dev/null; then
+        sudo apt-get update && sudo apt-get install -y sshpass
+    elif command -v brew &> /dev/null; then
+        brew install sshpass
+    else
+        error "SSHPass não pode ser instalado automaticamente. Instale manualmente."
+    fi
+fi
+
 # Criar diretório de logs se não existir
 mkdir -p logs
 

@@ -54,17 +54,17 @@ cat ~/.ssh/github_actions
 
 Clique em **New repository secret** e adicione:
 
-#### `SSH_PRIVATE_KEY`
-- **Nome**: `SSH_PRIVATE_KEY`
-- **Valor**: Cole toda a chave privada SSH (incluindo `-----BEGIN OPENSSH PRIVATE KEY-----` e `-----END OPENSSH PRIVATE KEY-----`)
+#### `SSH_PASSWORD`
+- **Nome**: `SSH_PASSWORD`
+- **Valor**: `Du@05arqbO#259Q`
 
 #### `SERVER_HOST`
 - **Nome**: `SERVER_HOST`
-- **Valor**: `app.raunaimer.adv.br` (ou IP do servidor se preferir)
+- **Valor**: `191.252.111.245`
 
 #### `SERVER_USER`
 - **Nome**: `SERVER_USER`
-- **Valor**: `deploy`
+- **Valor**: `root`
 
 ## 🚀 Passo 3: Configurar o Servidor
 
