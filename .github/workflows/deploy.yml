@@ -30,22 +30,37 @@ jobs:
         sudo apt-get update
         sudo apt-get install -y sshpass
         
+    - name: 🧹 Clean cache
+      run: |
+        npm cache clean --force
+        rm -rf node_modules package-lock.json
+        
     - name: 📦 Install dependencies (Frontend)
-      run: npm install
-      
+      run: |
+        npm install --verbose
+        npm list --depth=0
+        
     - name: 📦 Install dependencies (Backend)
       run: |
         cd backend
-        npm install
+        npm install --verbose
+        npm list --depth=0
         cd ..
         
     - name: 🔨 Build Frontend
-      run: npm run build
-      
+      run: |
+        echo "🔨 Iniciando build do frontend..."
+        npm run build
+        echo "✅ Build do frontend concluído!"
+        ls -la dist/
+        
     - name: 🔨 Build Backend
       run: |
+        echo "🔨 Iniciando build do backend..."
         cd backend
         npm run build
+        echo "✅ Build do backend concluído!"
+        ls -la dist/
         cd ..
         
     - name: 📤 Deploy to server
