@@ -54,7 +54,7 @@ module.exports = {
       user: 'deploy',
       host: 'seu-servidor.com',
       ref: 'origin/main',
-      repo: 'git@github.com:edufilhocruz/sistema_raunaimer.git',
+      repo: 'git@github.com:edufilhocruz/sistema-raunaimer-v2.git',
       path: '/var/www/sistema_raunaimer',
       'pre-deploy-local': '',
       'post-deploy': 'npm install && npm run build && pm2 reload ecosystem.config.js --env production',

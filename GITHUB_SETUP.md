@@ -79,7 +79,7 @@ sudo ./setup-server.sh
 
 ```bash
 # Como usuário deploy
-sudo -u deploy git clone https://github.com/edufilhocruz/sistema_raunaimer.git /var/www/sistema_raunaimer
+sudo -u deploy git clone https://github.com/edufilhocruz/sistema-raunaimer-v2.git /var/www/sistema_raunaimer
 ```
 
 ### 3.3 Configurar variáveis de ambiente
