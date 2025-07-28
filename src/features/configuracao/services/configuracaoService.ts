@@ -82,7 +82,7 @@ const configuracaoService = {
     await apiClient.post('/email-config/test', {
       to,
       subject: 'Teste de E-mail',
-      text: 'Este é um teste de envio.'
+      text: 'Esse é um email de teste.'
     });
   },
 
