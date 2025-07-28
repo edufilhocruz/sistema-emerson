@@ -37,8 +37,8 @@ export class CobrancaService {
       valor = morador.valorAluguel;
     }
 
-    // Cria a cobrança com status inicial de ENVIADO
-    const cobranca = await this.repository.create({ ...createCobrancaDto, valor, statusEnvio: StatusEnvio.ENVIADO });
+    // Cria a cobrança com status inicial de NAO_ENVIADO
+    const cobranca = await this.repository.create({ ...createCobrancaDto, valor, statusEnvio: StatusEnvio.NAO_ENVIADO });
 
     // Substitui os placeholders do modelo de carta
     const mesReferencia = (() => {
@@ -58,6 +58,8 @@ export class CobrancaService {
         text: conteudo,
       });
       console.log(`Email enviado com sucesso para: ${morador.email}`);
+      // Atualiza o status da cobrança para ENVIADO
+      await this.repository.update(cobranca.id, { statusEnvio: StatusEnvio.ENVIADO });
     } catch (error) {
       console.error(`Erro ao enviar email para ${morador.email}:`, error.message);
       // Atualiza o status da cobrança para ERRO
