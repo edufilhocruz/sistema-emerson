@@ -84,6 +84,7 @@ export class CobrancaProcessor {
               valor: Number(row.valor),
               vencimento: new Date(), // Vencimento placeholder, pode ser adicionado à planilha
               status: 'PENDENTE',
+              statusEnvio: 'ENVIADO', // Status inicial
               condominioId: condominioId, // ID Dinâmico
               moradorId: morador.id,
               modeloCartaId: modeloCartaId, // ID Dinâmico
@@ -107,13 +108,26 @@ export class CobrancaProcessor {
             .replace(/{{valor}}/gi, cobranca.valor.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' }))
             .replace(/{{mes_referencia}}/gi, mesReferencia);
 
-          // Envia o e-mail de cobrança usando a configuração centralizada
-          await this.emailConfigService.sendMail({
-            to: row.email,
-            subject: `Cobrança - ${condominio?.nome || ''}`,
-            text: conteudo,
-          });
-          sucesso++;
+          // Tenta enviar o e-mail de cobrança, mas não falha se der erro
+          try {
+            await this.emailConfigService.sendMail({
+              to: row.email,
+              subject: `Cobrança - ${condominio?.nome || ''}`,
+              text: conteudo,
+            });
+            console.log(`WORKER: Email enviado com sucesso para: ${row.email}`);
+            sucesso++;
+          } catch (error) {
+            console.error(`WORKER: Erro ao enviar email para ${row.email}:`, error.message);
+            // Atualiza o status da cobrança para ERRO
+            await this.prisma.cobranca.update({
+              where: { id: cobranca.id },
+              data: { statusEnvio: 'ERRO' }
+            });
+            // Ainda conta como sucesso para a cobrança, mas marca o erro
+            sucesso++;
+            detalhesErros.push(`Linha ${linha}: Email não enviado - ${error.message}`);
+          }
         } catch (error) {
           // Captura erros por linha, permitindo que o resto do arquivo continue
           detalhesErros.push(`Linha ${linha}: ${error.message}`);
