@@ -2,7 +2,7 @@ export default {
   apps: [
     {
       name: 'raunaimer-backend',
-      script: 'dist/main.js',
+      script: 'dist/src/main.js',
       cwd: './backend',
       instances: 1,
       autorestart: true,
