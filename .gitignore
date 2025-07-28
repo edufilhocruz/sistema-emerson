@@ -1,20 +1,46 @@
-# Logs
-logs
-*.log
-npm-debug.log*
-yarn-debug.log*
-yarn-error.log*
-pnpm-debug.log*
-lerna-debug.log*
+# =====================
+# Arquivos sensíveis e de deploy
+DEPLOY.md
+DEPLOY_CHECKLIST.md
+GITHUB_SETUP.md
+deploy.sh
+domain-config.md
+ecosystem.config.cjs
+ecosystem.config.js
+env.production
+.env*
+docker-compose.yml
+Dockerfile
+nginx-temp.conf
+nginx.conf
+webhook-config.json
+setup-ssl.sh
+setup-server.sh
+README_DEPLOY.md
+README.md
+push-to-github.sh
 
-# Dependencies
-node_modules
+# Backend (arquivos sensíveis)
+/backend/Dockerfile
+/backend/README.md
+/backend/prisma/seed.ts
+/backend/prisma/schema.prisma
+/backend/prisma/.env*
+/backend/.env*
 
-# Build outputs
-dist
-dist-ssr
+# Testes e workflows
+/.github/
 
-# Environment variables
+# node_modules e builds
+node_modules/
+dist/
+
+# Dados locais e temporários
+postgres-data/
+redis-data/
+backend.zip
+
+# Outros arquivos de ambiente
 .env
 .env.local
 .env.development
@@ -23,21 +49,8 @@ dist-ssr
 .env.staging
 *.env
 
-# Local files
-*.local
-
-# Editor directories and files
-.vscode/*
-!.vscode/extensions.json
-.idea
+# Editor e sistema
+.vscode/
+.idea/
 .DS_Store
-*.suo
-*.ntvs*
-*.njsproj
-*.sln
 *.sw?
-
-# Project specific
-/generated/prisma
-postgres-data/
-redis-data/backend.zip
