@@ -41,9 +41,9 @@ sudo apt-get install redis-server
 sudo -u postgres psql
 
 -- Criar usuário e banco
-CREATE USER raunaimer WITH PASSWORD 'qbO#259Qq';
-CREATE DATABASE raunaimer OWNER raunaimer;
-GRANT ALL PRIVILEGES ON DATABASE raunaimer TO raunaimer;
+CREATE USER 
+CREATE DATABASE
+GRANT ALL PRIVILEGES ON DATABASE
 \q
 ```
 
