@@ -29,6 +29,8 @@ export class EmailConfigService {
     }
     
     try {
+      console.log('Criando transporter com configuração:', { host: config.host, port: config.port, secure: config.secure, user: config.user });
+      
       const transporter = nodemailer.createTransport({
         host: config.host,
         port: config.port,
@@ -36,9 +38,12 @@ export class EmailConfigService {
         auth: { user: config.user, pass: config.pass },
       });
       
+      console.log('Verificando conexão...');
       // Verifica a conexão antes de tentar enviar
       await transporter.verify();
+      console.log('Conexão verificada com sucesso');
       
+      console.log('Enviando email...');
       const result = await transporter.sendMail({
         from: config.from,
         to,
