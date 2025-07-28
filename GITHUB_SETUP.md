@@ -52,20 +52,6 @@ cat ~/.ssh/github_actions
 
 ### 2.2 Adicionar secrets
 
-Clique em **New repository secret** e adicione:
-
-#### `SSH_PASSWORD`
-- **Nome**: `SSH_PASSWORD`
-- **Valor**: `Du@05arqbO#259Q`
-
-#### `SERVER_HOST`
-- **Nome**: `SERVER_HOST`
-- **Valor**: `191.252.111.245`
-
-#### `SERVER_USER`
-- **Nome**: `SERVER_USER`
-- **Valor**: `root`
-
 ## 🚀 Passo 3: Configurar o Servidor
 
 ### 3.1 Executar script de configuração
