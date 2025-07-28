@@ -1,0 +1,139 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Condominio {
+  id              String      @id @default(uuid())
+  nome            String
+  cnpj            String      @unique
+  cep             String
+  logradouro      String
+  numero          String
+  complemento     String?
+  bairro          String
+  cidade          String
+  estado          String
+  administradora  String?
+  moradores       Morador[]
+  cobrancas       Cobranca[]
+
+  createdAt       DateTime    @default(now())
+  updatedAt       DateTime    @updatedAt
+}
+
+model Morador {
+  id              String      @id @default(uuid())
+  nome            String
+  email           String      @unique
+  bloco           String
+  apartamento     String
+  telefone        String
+  condominio      Condominio  @relation(fields: [condominioId], references: [id])
+  condominioId    String
+  cobrancas       Cobranca[]
+  statusPagamento StatusPagamento @default(PENDENTE)
+  valorAluguel    Float?
+  createdAt       DateTime    @default(now())
+  updatedAt       DateTime    @updatedAt
+}
+
+model ModeloCarta {
+  id              String      @id @default(uuid())
+  titulo          String
+  conteudo        String
+  cobrancas       Cobranca[]
+
+  createdAt       DateTime    @default(now())
+  updatedAt       DateTime    @updatedAt
+}
+
+model Cobranca {
+  id              String      @id @default(uuid())
+  valor           Float
+  vencimento      DateTime
+  status          StatusCobranca @default(PENDENTE)
+  statusEnvio     StatusEnvio @default(NAO_ENVIADO)
+  
+  condominio      Condominio  @relation(fields: [condominioId], references: [id])
+  condominioId    String
+  morador         Morador     @relation(fields: [moradorId], references: [id])
+  moradorId       String
+  modeloCarta     ModeloCarta @relation(fields: [modeloCartaId], references: [id])
+  modeloCartaId   String
+
+  dataEnvio       DateTime    @default(now())
+  createdAt       DateTime    @default(now())
+  updatedAt       DateTime    @updatedAt
+}
+
+model EmailConfig {
+  id        String   @id @default(uuid())
+  host      String
+  port      Int
+  user      String
+  pass      String
+  from      String
+  secure    Boolean  @default(false)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+enum StatusCobranca {
+  PENDENTE
+  PAGO
+  ATRASADO
+}
+
+enum StatusPagamento {
+  EM_DIA
+  ATRASADO
+  PENDENTE
+}
+
+enum StatusEnvio {
+  ENVIADO
+  ERRO
+  NAO_ENVIADO
+}
+
+model Usuario {
+  id         String   @id @default(uuid())
+  nome       String
+  email      String   @unique
+  senha      String
+  role       String
+  foto       String?  // Foto do usuário (base64, URL ou caminho do arquivo)
+  permissoes PermissaoUsuario[]
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+}
+
+model Permissao {
+  id        String   @id @default(uuid())
+  nome      String   @unique
+  usuarios  PermissaoUsuario[]
+}
+
+model PermissaoUsuario {
+  id           String   @id @default(uuid())
+  usuario      Usuario  @relation(fields: [usuarioId], references: [id])
+  usuarioId    String
+  permissao    Permissao @relation(fields: [permissaoId], references: [id])
+  permissaoId  String
+}
+
+model LogAuditoria {
+  id         String   @id @default(uuid())
+  usuario    String
+  acao       String
+  ip         String
+  createdAt  DateTime @default(now())
+}
