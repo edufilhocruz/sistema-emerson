@@ -24,18 +24,28 @@ export class EmailConfigService {
   async sendMail({ to, subject, text, html }: { to: string, subject: string, text?: string, html?: string }) {
     const config = await this.getConfig();
     if (!config) throw new Error('Configuração de e-mail não encontrada');
-    const transporter = nodemailer.createTransport({
-      host: config.host,
-      port: config.port,
-      secure: config.secure,
-      auth: { user: config.user, pass: config.pass },
-    });
-    return transporter.sendMail({
-      from: config.from,
-      to,
-      subject,
-      text,
-      html,
-    });
+    
+    try {
+      const transporter = nodemailer.createTransport({
+        host: config.host,
+        port: config.port,
+        secure: config.secure,
+        auth: { user: config.user, pass: config.pass },
+      });
+      
+      // Verifica a conexão antes de tentar enviar
+      await transporter.verify();
+      
+      return await transporter.sendMail({
+        from: config.from,
+        to,
+        subject,
+        text,
+        html,
+      });
+    } catch (error) {
+      console.error('Erro no serviço de email:', error.message);
+      throw error; // Re-lança o erro para ser capturado pelo serviço de cobrança
+    }
   }
 } 
