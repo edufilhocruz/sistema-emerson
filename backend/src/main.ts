@@ -44,7 +44,7 @@ async function bootstrap() {
   
   // Configuração explícita do CORS para maior compatibilidade
   app.enableCors({
-    origin: 'https://localhost:8080', // Permite requisições do seu frontend
+    origin: ['http://localhost:3000', 'http://191.252.111.245', 'http://app.raunaimer.adv.br', 'https://app.raunaimer.adv.br'], // Permite requisições do frontend
     methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
     credentials: true,
   });
