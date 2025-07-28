@@ -52,7 +52,7 @@ async function bootstrap() {
   // Define um prefixo global para todas as rotas da API
   app.setGlobalPrefix('api');
 
-  await app.listen(3000);
+  await app.listen(3001);
   console.log(`Application is running on: ${await app.getUrl()}`);
 }
 bootstrap();
