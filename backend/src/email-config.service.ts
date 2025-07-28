@@ -23,7 +23,10 @@ export class EmailConfigService {
 
   async sendMail({ to, subject, text, html }: { to: string, subject: string, text?: string, html?: string }) {
     const config = await this.getConfig();
-    if (!config) throw new Error('Configuração de e-mail não encontrada');
+    if (!config) {
+      console.error('Configuração de e-mail não encontrada');
+      return { success: false, error: 'Configuração de e-mail não encontrada' };
+    }
     
     try {
       const transporter = nodemailer.createTransport({
@@ -36,16 +39,19 @@ export class EmailConfigService {
       // Verifica a conexão antes de tentar enviar
       await transporter.verify();
       
-      return await transporter.sendMail({
+      const result = await transporter.sendMail({
         from: config.from,
         to,
         subject,
         text,
         html,
       });
+      
+      console.log('Email enviado com sucesso:', result.messageId);
+      return { success: true, messageId: result.messageId };
     } catch (error) {
       console.error('Erro no serviço de email:', error.message);
-      throw error; // Re-lança o erro para ser capturado pelo serviço de cobrança
+      return { success: false, error: error.message };
     }
   }
 } 
