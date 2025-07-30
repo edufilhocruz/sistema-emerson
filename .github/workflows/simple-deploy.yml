@@ -1,0 +1,43 @@
+name: Simple Deploy
+
+on:
+  push:
+    branches: [ main ]
+  workflow_dispatch:
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v4
+      
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '18'
+        
+    - name: Install dependencies
+      run: |
+        npm install
+        cd backend && npm install && cd ..
+        
+    - name: Build applications
+      run: |
+        npm run build
+        cd backend && npm run build && cd ..
+        
+    - name: Test build
+      run: |
+        echo "✅ Frontend build:"
+        ls -la dist/
+        echo "✅ Backend build:"
+        ls -la backend/dist/
+        
+    - name: Deploy to server
+      run: |
+        echo "🚀 Deploy seria executado aqui..."
+        echo "SERVER_HOST: ${{ secrets.SERVER_HOST }}"
+        echo "SERVER_USER: ${{ secrets.SERVER_USER }}"
+        echo "SERVER_PASSWORD: ${{ secrets.SERVER_PASSWORD }}" 
