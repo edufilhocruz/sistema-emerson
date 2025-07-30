@@ -85,7 +85,7 @@ export const EnviarCobrancaForm = () => {
                   <FormLabel>1. Selecione o Condomínio</FormLabel>
                   <Select onValueChange={(value) => { field.onChange(value); setSelectedCondominio(value); form.resetField("moradorId"); }} disabled={loadingCondos}>
                     <FormControl><SelectTrigger><SelectValue placeholder={loadingCondos ? "Carregando..." : "Escolha um condomínio..."} /></SelectTrigger></FormControl>
-                    <SelectContent>{condominioOptions.map(c => <SelectItem key={c.value} value={c.value}>{c.label}</SelectItem>)}</SelectContent>
+                    <SelectContent>{condominioOptions.map(c => <SelectItem key={c.value} value={c.value}>{c.label} (ID: {c.value})</SelectItem>)}</SelectContent>
                   </Select><FormMessage />
                 </FormItem>
               )} />

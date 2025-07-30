@@ -16,7 +16,7 @@ export class CobrancaRepository {
     return this.prisma.cobranca.findMany({
       include: {
         morador: { select: { nome: true } },
-        condominio: { select: { nome: true } },
+        condominio: { select: { id: true, nome: true } },
       },
     });
   }
@@ -24,7 +24,11 @@ export class CobrancaRepository {
   findOne(id: string) {
     return this.prisma.cobranca.findUnique({
       where: { id },
-      include: { morador: true, condominio: true, modeloCarta: true },
+      include: { 
+        morador: true, 
+        condominio: { select: { id: true, nome: true } }, 
+        modeloCarta: true 
+      },
     });
   }
 

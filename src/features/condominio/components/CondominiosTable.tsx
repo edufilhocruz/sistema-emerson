@@ -12,10 +12,19 @@ interface Props {
 
 export const CondominiosTable = ({ condominios, onEdit, onDelete }: Props) => (
   <Table>
-    <TableHeader><TableRow><TableHead>Nome</TableHead><TableHead>CNPJ</TableHead><TableHead>Cidade/UF</TableHead><TableHead className="w-[50px]">Ações</TableHead></TableRow></TableHeader>
+    <TableHeader>
+      <TableRow>
+        <TableHead>ID</TableHead>
+        <TableHead>Nome</TableHead>
+        <TableHead>CNPJ</TableHead>
+        <TableHead>Cidade/UF</TableHead>
+        <TableHead className="w-[50px]">Ações</TableHead>
+      </TableRow>
+    </TableHeader>
     <TableBody>
       {condominios.map((condo) => (
         <TableRow key={condo.id}>
+          <TableCell className="font-mono text-sm text-muted-foreground">{condo.id}</TableCell>
           <TableCell className="font-medium">{condo.nome}</TableCell>
           <TableCell>{condo.cnpj}</TableCell>
           <TableCell>{`${condo.cidade} / ${condo.estado}`}</TableCell>

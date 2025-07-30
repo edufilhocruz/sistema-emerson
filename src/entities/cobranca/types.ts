@@ -15,19 +15,13 @@ export type CobrancaStatus = 'Pago' | 'Atrasado' | 'Em Aberto';
 export interface HistoricoCobranca {
   id: string;
   morador: string;
-  condominio: string;
+  condominio: string | { id: string; nome: string };
+  condominioId?: string; // ID do condomínio para exibição
   valor: string;
   dataEnvio: string;
   status: CobrancaStatus;
 }
 
-export interface HistoricoCobranca {
-  id: string;
-  morador: string;
-  condominio: string;
-  valor: string;
-  dataEnvio: string;
-}
 export interface CobrancaImportData {
   id: number;
   morador: string;

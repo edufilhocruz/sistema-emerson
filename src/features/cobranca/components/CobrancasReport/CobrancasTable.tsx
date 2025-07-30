@@ -61,7 +61,12 @@ export const CobrancasTable = ({ data }: Props) => {
                 <input type="checkbox" checked={selecionados.includes(cobranca.id)} onChange={() => toggleSelect(cobranca.id)} />
               </TableCell>
               <TableCell className="font-medium">{cobranca.morador}</TableCell>
-              <TableCell>{cobranca.condominio}</TableCell>
+              <TableCell>
+                {typeof cobranca.condominio === 'string' 
+                  ? cobranca.condominio 
+                  : `${cobranca.condominio.nome} (ID: ${cobranca.condominio.id})`
+                }
+              </TableCell>
               <TableCell>{cobranca.valor.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })}</TableCell>
               <TableCell>{new Date(cobranca.dataEnvio).toLocaleString('pt-BR')}</TableCell>
               <TableCell>

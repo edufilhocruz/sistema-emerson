@@ -22,6 +22,7 @@ export interface Morador {
   ultimaCobrancaTipo?: string | null;
   ultimaCobrancaStatusEnvio?: string | null;
   condominio: {
+    id: string;
     nome: string;
   };
 }

@@ -131,7 +131,12 @@ export const CobrancasTable = () => {
               {mockCobrancas.map((cobranca) => (
                 <TableRow key={cobranca.id}>
                   <TableCell className="font-medium">{cobranca.morador}</TableCell>
-                  <TableCell>{cobranca.condominio}</TableCell>
+                  <TableCell>
+                    {typeof cobranca.condominio === 'string' 
+                      ? cobranca.condominio 
+                      : `${cobranca.condominio.nome} (ID: ${cobranca.condominio.id})`
+                    }
+                  </TableCell>
                   <TableCell>{cobranca.valor}</TableCell>
                   <TableCell>{cobranca.dataEnvio}</TableCell>
                   <TableCell>

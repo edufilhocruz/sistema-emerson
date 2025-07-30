@@ -26,7 +26,7 @@ export const DashboardFilters = ({ condominios, onCondominioChange, onDateRangeC
         <SelectContent>
           <SelectItem value="todos">Todos os Condomínios</SelectItem>
           {condominios.map(condo => (
-            <SelectItem key={condo.id} value={condo.id}>{condo.name}</SelectItem>
+            <SelectItem key={condo.id} value={condo.id}>{condo.name} (ID: {condo.id})</SelectItem>
           ))}
         </SelectContent>
       </Select>

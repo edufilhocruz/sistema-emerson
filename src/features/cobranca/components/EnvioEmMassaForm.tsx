@@ -100,7 +100,7 @@ export const EnvioEmMassaForm = () => {
                       </FormControl>
                       <SelectContent>
                         {condominioOptions.map(condo => (
-                          <SelectItem key={condo.value} value={condo.value}>{condo.label}</SelectItem>
+                          <SelectItem key={condo.value} value={condo.value}>{condo.label} (ID: {condo.value})</SelectItem>
                         ))}
                       </SelectContent>
                     </Select>

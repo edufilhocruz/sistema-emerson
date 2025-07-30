@@ -96,7 +96,7 @@ export const MoradoresTable = React.memo(({ moradores, onEdit, onDelete, onVerHi
                   <input type="checkbox" checked={selecionados.includes(morador.id)} onChange={() => toggleSelect(morador.id)} />
                 </TableCell>
                 <TableCell className="font-medium">{morador.nome}</TableCell>
-                <TableCell>{morador.condominio?.nome}</TableCell>
+                <TableCell>{morador.condominio?.nome}{morador.condominio?.id ? ` (ID: ${morador.condominio.id})` : ''}</TableCell>
                 <TableCell>{morador.bloco}</TableCell>
                 <TableCell>{morador.apartamento}</TableCell>
                 <TableCell>
@@ -124,7 +124,7 @@ export const MoradoresTable = React.memo(({ moradores, onEdit, onDelete, onVerHi
                   <div className="text-xs text-muted-foreground mt-1">
                     {morador.ultimaCobrancaStatusEnvio === 'ENVIADO' && morador.ultimaCobrancaStatus !== 'Enviado' && 'Enviado'}
                     {morador.ultimaCobrancaStatusEnvio === 'ERRO' && morador.ultimaCobrancaStatus !== 'Erro' && 'Erro'}
-                    {morador.ultimaCobrancaStatusEnvio === 'NAO_ENVIADO' && morador.ultimaCobrancaStatus !== 'Não Enviado' && 'Não Enviado'}
+                    {morador.ultimaCobrancaStatusEnvio === 'NAO_ENVIADO' && morador.ultimaCobrancaStatus !== 'Pendente' && 'Não Enviado'}
                   </div>
                 </TableCell>
                 <TableCell>{morador.ultimaCobrancaData ? new Date(morador.ultimaCobrancaData).toLocaleDateString('pt-BR') : 'N/A'}</TableCell>
