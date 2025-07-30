@@ -36,6 +36,9 @@ function PrivateRoute({ children }: { children: JSX.Element }) {
 }
 
 const App = () => {
+  // Debug: log da URL atual
+  console.log('App renderizando, URL atual:', window.location.pathname);
+  
   const suspenseFallback = (
     <div className="flex h-screen w-full items-center justify-center">
       <LoadingSpinner size="lg" />
@@ -43,7 +46,7 @@ const App = () => {
   );
 
   return (
-    <BrowserRouter>
+    <BrowserRouter basename="/">
       <AuthProvider>
         <QueryClientProvider client={queryClient}>
           <TooltipProvider>
