@@ -46,7 +46,7 @@ const App = () => {
   );
 
   return (
-    <BrowserRouter basename="/">
+    <BrowserRouter>
       <AuthProvider>
         <QueryClientProvider client={queryClient}>
           <TooltipProvider>
@@ -58,7 +58,6 @@ const App = () => {
                 <Route path="/login" element={<Login />} />
                 <Route path="/register" element={<Register />} />
                 <Route path="/" element={<PrivateRoute><IndexPage /></PrivateRoute>} />
-                <Route path="/index" element={<PrivateRoute><IndexPage /></PrivateRoute>} />
                 <Route path="/dashboard" element={<PrivateRoute><IndexPage /></PrivateRoute>} />
                 <Route path="/condominios" element={<PrivateRoute><CondominiosPage /></PrivateRoute>} />
                 <Route path="/moradores" element={<PrivateRoute><MoradoresPage /></PrivateRoute>} />
