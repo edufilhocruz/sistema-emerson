@@ -63,57 +63,59 @@ jobs:
         ls -la dist/
         cd ..
         
-    - name: 📤 Deploy to server
+    - name: 📤 Deploy to server (Clean Install)
       run: |
         # Criar arquivo de deploy temporário
         cat > deploy-remote.sh << 'EOF'
         #!/bin/bash
         set -e
         
-        echo "🚀 Iniciando deploy remoto..."
+        echo "🚀 Iniciando deploy limpo..."
         
         # Navegar para o diretório do projeto
         cd /var/www/sistema_raunaimer
         
-        # Verificar se há mudanças
-        git fetch origin main
-        LOCAL_COMMIT=$(git rev-parse HEAD)
-        REMOTE_COMMIT=$(git rev-parse origin/main)
+        # Parar e remover todas as aplicações PM2
+        echo "🛑 Parando todas as aplicações..."
+        pm2 stop all 2>/dev/null || true
+        pm2 delete all 2>/dev/null || true
         
-        if [ "$LOCAL_COMMIT" = "$REMOTE_COMMIT" ]; then
-          echo "ℹ️ Nenhuma mudança detectada, mas forçando restart do PM2..."
-        else
-          echo "🔄 Mudanças detectadas, fazendo pull..."
-          git pull origin main
-        fi
+        # Fazer pull das mudanças
+        echo "📥 Fazendo pull das mudanças..."
+        git fetch origin main
+        git reset --hard origin/main
+        
+        # Limpar cache e node_modules
+        echo "🧹 Limpando cache..."
+        rm -rf node_modules package-lock.json
+        rm -rf backend/node_modules backend/package-lock.json
         
         # Configurar permissões
         chown -R deploy:deploy /var/www/sistema_raunaimer
         
         # Instalar dependências
+        echo "📦 Instalando dependências do frontend..."
         npm install
+        
+        echo "📦 Instalando dependências do backend..."
         cd backend && npm install && cd ..
         
         # Build das aplicações
+        echo "🔨 Build do frontend..."
         npm run build
+        
+        echo "🔨 Build do backend..."
         cd backend && npm run build && cd ..
         
-        # Verificar se PM2 está rodando
-        if pm2 list | grep -q "raunaimer"; then
-          echo "🔄 Reiniciando aplicações PM2..."
-          pm2 restart all
-        else
-          echo "🚀 Iniciando aplicações PM2..."
-          pm2 stop all 2>/dev/null || true
-          pm2 delete all 2>/dev/null || true
-          pm2 start ecosystem.config.cjs --env production
-        fi
+        # Iniciar com PM2
+        echo "🚀 Iniciando aplicações com PM2..."
+        pm2 start ecosystem.config.cjs --env production
         
         # Salvar configuração
         pm2 save
         
         # Verificar status
-        echo "✅ Deploy concluído com sucesso!"
+        echo "✅ Deploy limpo concluído com sucesso!"
         pm2 status
         
         # Mostrar logs recentes
@@ -122,6 +124,10 @@ jobs:
         
         echo "📋 Logs recentes do frontend:"
         pm2 logs raunaimer-frontend --lines 5 --nostream || true
+        
+        echo "🌐 URLs das aplicações:"
+        echo "Frontend: http://app.raunaimer.adv.br"
+        echo "Backend: http://app.raunaimer.adv.br/api"
         EOF
         
         # Copiar arquivo para o servidor usando sshpass
@@ -135,4 +141,4 @@ jobs:
         EOF
         
     - name: ✅ Deploy completed
-      run: echo "Deploy concluído com sucesso!" 
+      run: echo "Deploy limpo concluído com sucesso!" 
