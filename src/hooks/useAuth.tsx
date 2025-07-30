@@ -21,10 +21,24 @@ interface AuthContextType {
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 export const AuthProvider = ({ children }: { children: ReactNode }) => {
-  const [user, setUser] = useState<User | null>(null);
+  const [user, setUser] = useState<User | null>(() => {
+    // Tenta recuperar usuário do localStorage ao inicializar
+    const savedUser = localStorage.getItem('user');
+    return savedUser ? JSON.parse(savedUser) : null;
+  });
   const [token] = useState<string | null>(null); // Não usamos mais token
   const [loading, setLoading] = useState(true);
   const navigate = useNavigate();
+
+  // Função para salvar usuário no localStorage
+  const saveUser = (userData: User | null) => {
+    if (userData) {
+      localStorage.setItem('user', JSON.stringify(userData));
+    } else {
+      localStorage.removeItem('user');
+    }
+    setUser(userData);
+  };
 
   useEffect(() => {
     // Ao montar, tenta buscar o usuário autenticado
@@ -33,12 +47,12 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         const response = await fetch('/api/usuarios/me', { credentials: 'include' });
         if (response.ok) {
           const user = await response.json();
-          setUser(user);
+          saveUser(user);
         } else {
-          setUser(null);
+          saveUser(null);
         }
       } catch {
-        setUser(null);
+        saveUser(null);
         // Silencia erro no console para 401 ou falha de rede
       } finally {
         setLoading(false);
@@ -68,7 +82,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         throw new Error(errorMsg);
       }
       const data = await response.json();
-      setUser(data.user);
+      saveUser(data.user);
       navigate('/dashboard');
     } finally {
       setLoading(false);
@@ -80,12 +94,12 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       method: 'POST',
       credentials: 'include',
     });
-    setUser(null);
+    saveUser(null);
     navigate('/login');
   };
 
   return (
-    <AuthContext.Provider value={{ user, token: null, login, logout, loading, setUser }}>
+    <AuthContext.Provider value={{ user, token: null, login, logout, loading, setUser: saveUser }}>
       {children}
     </AuthContext.Provider>
   );

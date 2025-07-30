@@ -45,10 +45,35 @@ export class CobrancaService {
       const hoje = new Date();
       return `${String(hoje.getMonth() + 1).padStart(2, '0')}/${hoje.getFullYear()}`;
     })();
+    
     let conteudo = modeloCarta.conteudo
+      // Campos do morador
       .replace(/{{nome_morador}}/gi, morador.nome)
-      .replace(/{{valor}}/gi, cobranca.valor.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' }))
-      .replace(/{{mes_referencia}}/gi, mesReferencia);
+      .replace(/{{nome}}/gi, morador.nome)
+      .replace(/{{email}}/gi, morador.email)
+      .replace(/{{telefone}}/gi, morador.telefone)
+      .replace(/{{bloco}}/gi, morador.bloco)
+      .replace(/{{apartamento}}/gi, morador.apartamento)
+      .replace(/{{unidade}}/gi, `${morador.bloco}-${morador.apartamento}`)
+      
+      // Campos do condomínio
+      .replace(/{{nome_condominio}}/gi, condominio.nome)
+      .replace(/{{condominio}}/gi, condominio.nome)
+      .replace(/{{cnpj}}/gi, condominio.cnpj)
+      .replace(/{{cidade}}/gi, condominio.cidade)
+      .replace(/{{estado}}/gi, condominio.estado)
+      .replace(/{{endereco}}/gi, `${condominio.logradouro}, ${condominio.numero} - ${condominio.bairro}`)
+      
+      // Campos da cobrança
+      .replace(/{{valor}}/gi, valor.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' }))
+      .replace(/{{valor_formatado}}/gi, valor.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' }))
+      .replace(/{{mes_referencia}}/gi, mesReferencia)
+      .replace(/{{data_vencimento}}/gi, new Date(cobranca.vencimento).toLocaleDateString('pt-BR'))
+      .replace(/{{vencimento}}/gi, new Date(cobranca.vencimento).toLocaleDateString('pt-BR'))
+      
+      // Data atual
+      .replace(/{{data_atual}}/gi, new Date().toLocaleDateString('pt-BR'))
+      .replace(/{{hoje}}/gi, new Date().toLocaleDateString('pt-BR'));
 
     // Tenta enviar o email
     const emailResult = await this.emailConfigService.sendMail({

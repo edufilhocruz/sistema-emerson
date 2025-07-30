@@ -10,6 +10,8 @@ import {
   UploadedFile,
   BadRequestException,
   Query,
+  HttpException,
+  HttpStatus,
 } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { InjectQueue } from '@nestjs/bull';
@@ -74,9 +76,60 @@ export class CobrancaController {
   @Post()
   async create(@Body() createCobrancaDto: CreateCobrancaDto) {
     console.log('Recebido para criar cobrança:', createCobrancaDto);
-    const result = await this.cobrancaService.create(createCobrancaDto);
-    console.log('Resultado da criação de cobrança:', result);
-    return result;
+    
+    try {
+      const result = await this.cobrancaService.create(createCobrancaDto);
+      console.log('Resultado da criação de cobrança:', result);
+      return result;
+    } catch (error) {
+      console.error('Erro ao criar cobrança:', error);
+      
+      // Verifica se é um erro de NotFoundException
+      if (error instanceof HttpException) {
+        throw error;
+      }
+      
+      // Verifica se é um erro de validação
+      if (error.message) {
+        if (error.message.includes('não encontrado')) {
+          throw new HttpException({
+            statusCode: HttpStatus.BAD_REQUEST,
+            message: error.message,
+            error: 'Dados inválidos',
+            details: {
+              missingData: error.message.includes('Morador') ? 'morador' : 
+                          error.message.includes('Condomínio') ? 'condomínio' : 
+                          error.message.includes('Modelo de Carta') ? 'modelo de carta' : 'dados',
+              suggestion: error.message.includes('valor do aluguel') ? 
+                         'Verifique se o morador possui valor de aluguel cadastrado' : 
+                         'Verifique se todos os IDs fornecidos estão corretos'
+            }
+          }, HttpStatus.BAD_REQUEST);
+        }
+        
+        if (error.message.includes('valor do aluguel')) {
+          throw new HttpException({
+            statusCode: HttpStatus.BAD_REQUEST,
+            message: 'Valor do aluguel não encontrado',
+            error: 'Dados incompletos',
+            details: {
+              missingData: 'valor do aluguel',
+              suggestion: 'Cadastre o valor do aluguel do morador ou forneça um valor na cobrança'
+            }
+          }, HttpStatus.BAD_REQUEST);
+        }
+      }
+      
+      // Erro genérico
+      throw new HttpException({
+        statusCode: HttpStatus.INTERNAL_SERVER_ERROR,
+        message: 'Erro interno ao processar cobrança',
+        error: 'Erro interno',
+        details: {
+          suggestion: 'Verifique se todos os dados estão corretos e tente novamente'
+        }
+      }, HttpStatus.INTERNAL_SERVER_ERROR);
+    }
   }
 
   /**

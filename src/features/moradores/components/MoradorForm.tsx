@@ -38,6 +38,15 @@ export const MoradorForm = ({ onSave, defaultValues }: Props) => {
     }
   });
 
+  // Função para formatar valor para exibição
+  const formatCurrencyForDisplay = (value: number | undefined): string => {
+    if (value === undefined || value === null) return '';
+    return value.toLocaleString('pt-BR', { 
+      minimumFractionDigits: 2, 
+      maximumFractionDigits: 2 
+    });
+  };
+
   // Função para tratar conversão do valor do aluguel
   async function handleSubmit(data: MoradorFormData) {
     console.log('[MoradorForm] handleSubmit chamado:', data);
@@ -117,16 +126,17 @@ export const MoradorForm = ({ onSave, defaultValues }: Props) => {
             <FormItem>
               <FormLabel>Valor do Aluguel</FormLabel>
               <FormControl>
-                <Input
-                  type="number"
-                  step="0.01"
-                  min="0"
+                <IMaskInput
+                  mask={Number}
+                  scale={2}
+                  radix=","
+                  mapToRadix={["."]}
                   placeholder="0,00"
-                  value={field.value ?? ''}
-                  onChange={e => {
-                    const v = e.target.value;
-                    field.onChange(v === '' ? undefined : Number(v));
+                  value={formatCurrencyForDisplay(field.value)}
+                  onAccept={(value) => {
+                    field.onChange(value);
                   }}
+                  className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm"
                 />
               </FormControl>
               <FormMessage />
