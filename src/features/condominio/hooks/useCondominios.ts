@@ -16,12 +16,8 @@ export const useCondominios = () => {
     try {
       setLoading(true);
       const data = await condominioService.getCondominios();
-      console.log('DEBUG - Dados recebidos da API:', data);
-      console.log('DEBUG - Primeiro item:', data[0]);
-      console.log('DEBUG - Tem ID?', data[0]?.id);
       setCondominios(data);
     } catch (err) {
-      console.error('DEBUG - Erro ao buscar condomínios:', err);
       setError('Falha ao carregar a lista de condomínios.');
     } finally {
       setLoading(false);
