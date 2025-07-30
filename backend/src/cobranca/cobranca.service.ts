@@ -55,6 +55,8 @@ export class CobrancaService {
           apartamento: morador.apartamento,
           condominio: morador.condominio
         });
+        console.log('Morador.bloco (tipo):', typeof morador.bloco, 'valor:', morador.bloco);
+        console.log('Morador.apartamento (tipo):', typeof morador.apartamento, 'valor:', morador.apartamento);
       }
 
       const condominio = await this.prisma.condominio.findUnique({ 
@@ -173,11 +175,31 @@ export class CobrancaService {
     console.log('Conteúdo original:', conteudo);
     console.log('Dados para substituição:', JSON.stringify(dadosSubstituicao, null, 2));
     
+    // Verificar se os placeholders estão no conteúdo
+    console.log('=== VERIFICAÇÃO DE PLACEHOLDERS ===');
+    const placeholdersEncontrados = [];
+    Object.keys(dadosSubstituicao).forEach(placeholder => {
+      if (conteudo.includes(placeholder)) {
+        placeholdersEncontrados.push(placeholder);
+        console.log(`✅ Placeholder encontrado no conteúdo: ${placeholder}`);
+      } else {
+        console.log(`❌ Placeholder NÃO encontrado no conteúdo: ${placeholder}`);
+      }
+    });
+    console.log('Placeholders encontrados:', placeholdersEncontrados);
+    
     let substituicoesRealizadas = 0;
     Object.entries(dadosSubstituicao).forEach(([placeholder, valor]) => {
+      console.log(`\n--- Processando: ${placeholder} ---`);
+      console.log(`Valor para substituir: "${valor}"`);
+      
       // Escapar caracteres especiais da expressão regular
       const escapedPlaceholder = placeholder.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
       const regex = new RegExp(escapedPlaceholder, 'gi');
+      
+      console.log(`Regex criado: ${regex}`);
+      console.log(`Placeholder original: "${placeholder}"`);
+      console.log(`Placeholder escapado: "${escapedPlaceholder}"`);
       
       // Substituir no título
       const tituloAntes = titulo;
@@ -187,6 +209,7 @@ export class CobrancaService {
         substituicoesRealizadas++;
       } else {
         console.log(`❌ NÃO encontrado no TÍTULO: ${placeholder} (valor: "${valor}")`);
+        console.log(`Título atual: "${titulo}"`);
       }
       
       // Substituir no conteúdo
@@ -197,6 +220,12 @@ export class CobrancaService {
         substituicoesRealizadas++;
       } else {
         console.log(`❌ NÃO encontrado no CONTEÚDO: ${placeholder} (valor: "${valor}")`);
+        // Verificar se o placeholder existe no conteúdo
+        const index = conteudo.indexOf(placeholder);
+        if (index !== -1) {
+          console.log(`⚠️ Placeholder encontrado no índice ${index}, mas não foi substituído`);
+          console.log(`Contexto: "${conteudo.substring(Math.max(0, index-10), index+placeholder.length+10)}"`);
+        }
       }
     });
     
