@@ -164,9 +164,12 @@ export class CobrancaService {
       '{{hoje}}': new Date().toLocaleDateString('pt-BR')
     };
 
-    // Substituir todos os campos dinâmicos
+    // Substituir todos os campos dinâmicos no conteúdo
     let conteudo = modeloCarta.conteudo;
+    let titulo = modeloCarta.titulo;
+    
     console.log('=== SUBSTITUIÇÃO DE CAMPOS ===');
+    console.log('Título original:', titulo);
     console.log('Conteúdo original:', conteudo);
     console.log('Dados para substituição:', JSON.stringify(dadosSubstituicao, null, 2));
     
@@ -175,17 +178,30 @@ export class CobrancaService {
       // Escapar caracteres especiais da expressão regular
       const escapedPlaceholder = placeholder.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
       const regex = new RegExp(escapedPlaceholder, 'gi');
+      
+      // Substituir no título
+      const tituloAntes = titulo;
+      titulo = titulo.replace(regex, valor);
+      if (tituloAntes !== titulo) {
+        console.log(`✅ Substituído no TÍTULO: ${placeholder} -> "${valor}"`);
+        substituicoesRealizadas++;
+      } else {
+        console.log(`❌ NÃO encontrado no TÍTULO: ${placeholder} (valor: "${valor}")`);
+      }
+      
+      // Substituir no conteúdo
       const conteudoAntes = conteudo;
       conteudo = conteudo.replace(regex, valor);
       if (conteudoAntes !== conteudo) {
-        console.log(`✅ Substituído: ${placeholder} -> "${valor}"`);
+        console.log(`✅ Substituído no CONTEÚDO: ${placeholder} -> "${valor}"`);
         substituicoesRealizadas++;
       } else {
-        console.log(`❌ NÃO encontrado: ${placeholder} (valor: "${valor}")`);
+        console.log(`❌ NÃO encontrado no CONTEÚDO: ${placeholder} (valor: "${valor}")`);
       }
     });
     
     console.log(`Total de substituições realizadas: ${substituicoesRealizadas}`);
+    console.log('Título final:', titulo);
     console.log('Conteúdo final:', conteudo);
 
     // Log para debug
@@ -197,7 +213,7 @@ export class CobrancaService {
     // Tenta enviar o email
     const emailResult = await this.emailConfigService.sendMail({
       to: morador.email,
-      subject: `Cobrança - ${condominio.nome}`,
+      subject: titulo, // Usar o título processado com campos dinâmicos
       text: conteudo,
     });
     
