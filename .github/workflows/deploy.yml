@@ -75,8 +75,17 @@ jobs:
         # Navegar para o diretório do projeto
         cd /var/www/sistema_raunaimer
         
-        # Fazer pull das mudanças
-        git pull origin main
+        # Verificar se há mudanças
+        git fetch origin main
+        LOCAL_COMMIT=$(git rev-parse HEAD)
+        REMOTE_COMMIT=$(git rev-parse origin/main)
+        
+        if [ "$LOCAL_COMMIT" = "$REMOTE_COMMIT" ]; then
+          echo "ℹ️ Nenhuma mudança detectada, mas forçando restart do PM2..."
+        else
+          echo "🔄 Mudanças detectadas, fazendo pull..."
+          git pull origin main
+        fi
         
         # Configurar permissões
         chown -R deploy:deploy /var/www/sistema_raunaimer
@@ -89,18 +98,30 @@ jobs:
         npm run build
         cd backend && npm run build && cd ..
         
-        # Parar aplicações existentes
-        pm2 stop all 2>/dev/null || true
-        pm2 delete all 2>/dev/null || true
-        
-        # Iniciar com PM2
-        pm2 start ecosystem.config.cjs --env production
+        # Verificar se PM2 está rodando
+        if pm2 list | grep -q "raunaimer"; then
+          echo "🔄 Reiniciando aplicações PM2..."
+          pm2 restart all
+        else
+          echo "🚀 Iniciando aplicações PM2..."
+          pm2 stop all 2>/dev/null || true
+          pm2 delete all 2>/dev/null || true
+          pm2 start ecosystem.config.cjs --env production
+        fi
         
         # Salvar configuração
         pm2 save
         
+        # Verificar status
         echo "✅ Deploy concluído com sucesso!"
         pm2 status
+        
+        # Mostrar logs recentes
+        echo "📋 Logs recentes do backend:"
+        pm2 logs raunaimer-backend --lines 10 --nostream || true
+        
+        echo "📋 Logs recentes do frontend:"
+        pm2 logs raunaimer-frontend --lines 5 --nostream || true
         EOF
         
         # Copiar arquivo para o servidor usando sshpass
