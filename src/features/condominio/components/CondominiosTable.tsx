@@ -23,8 +23,8 @@ export const CondominiosTable = ({ condominios, onEdit, onDelete }: Props) => (
     </TableHeader>
     <TableBody>
       {condominios.map((condo, index) => {
-        // Garantir que sempre tenha um ID para exibir
-        const displayId = condo.id || `ID-${index + 1}`;
+        // Usar índice + 1 para ID sequencial
+        const displayId = index + 1;
         return (
           <TableRow key={condo.id || index}>
             <TableCell className="font-mono text-sm text-muted-foreground">{displayId}</TableCell>
