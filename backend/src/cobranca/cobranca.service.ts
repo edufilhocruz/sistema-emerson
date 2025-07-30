@@ -14,23 +14,34 @@ export class CobrancaService {
     private readonly emailConfigService: EmailConfigService,
   ) {}
 
+  /**
+   * Substitui todos os placeholders dinâmicos no texto
+   */
+  private substituirPlaceholders(texto: string, dados: Record<string, any>): string {
+    let resultado = texto;
+    
+    // Substitui cada placeholder pelo seu valor correspondente
+    Object.entries(dados).forEach(([placeholder, valor]) => {
+      // Escapa caracteres especiais para regex
+      const placeholderEscapado = placeholder.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+      const regex = new RegExp(placeholderEscapado, 'g');
+      resultado = resultado.replace(regex, String(valor || ''));
+    });
+    
+    return resultado;
+  }
+
   async create(createCobrancaDto: CreateCobrancaDto) {
     try {
-      // Valida se as entidades relacionadas existem, usando os IDs dinâmicos do DTO
-      const { moradorId, condominioId, modeloCartaId } = createCobrancaDto;
-
       console.log('=== INICIANDO CRIAÇÃO DE COBRANÇA ===');
       console.log('DTO recebido:', JSON.stringify(createCobrancaDto, null, 2));
 
-      // Consulta separada para debug
-      console.log('=== CONSULTAS DO BANCO ===');
-      console.log('MoradorId:', moradorId);
-      console.log('CondominioId:', condominioId);
-      console.log('ModeloCartaId:', modeloCartaId);
+      const { moradorId, condominioId, modeloCartaId } = createCobrancaDto;
 
-      const morador = await this.prisma.morador.findUnique({ 
+      // Busca o morador com dados do condomínio
+      const morador = await this.prisma.morador.findUnique({
         where: { id: moradorId },
-        include: { 
+        include: {
           condominio: {
             select: {
               id: true,
@@ -45,223 +56,130 @@ export class CobrancaService {
           }
         }
       });
-      
-      console.log('Morador encontrado:', morador ? 'SIM' : 'NÃO');
-      if (morador) {
-        console.log('Morador dados:', {
-          id: morador.id,
-          nome: morador.nome,
-          bloco: morador.bloco,
-          apartamento: morador.apartamento,
-          condominio: morador.condominio
-        });
-        console.log('Morador.bloco (tipo):', typeof morador.bloco, 'valor:', morador.bloco);
-        console.log('Morador.apartamento (tipo):', typeof morador.apartamento, 'valor:', morador.apartamento);
+
+      if (!morador) {
+        throw new NotFoundException(`Morador com ID ${moradorId} não encontrado.`);
       }
 
-      const condominio = await this.prisma.condominio.findUnique({ 
-        where: { id: condominioId },
-        select: {
-          id: true,
-          nome: true,
-          cnpj: true,
-          logradouro: true,
-          numero: true,
-          bairro: true,
-          cidade: true,
-          estado: true
+      // Busca o modelo de carta
+      const modeloCarta = await this.prisma.modeloCarta.findUnique({
+        where: { id: modeloCartaId }
+      });
+
+      if (!modeloCarta) {
+        throw new NotFoundException(`Modelo de Carta com ID ${modeloCartaId} não encontrado.`);
+      }
+
+      console.log('=== DADOS CARREGADOS ===');
+      console.log('Morador:', {
+        id: morador.id,
+        nome: morador.nome,
+        bloco: morador.bloco,
+        apartamento: morador.apartamento,
+        email: morador.email
+      });
+      console.log('Condomínio:', {
+        id: morador.condominio.id,
+        nome: morador.condominio.nome,
+        logradouro: morador.condominio.logradouro,
+        numero: morador.condominio.numero,
+        bairro: morador.condominio.bairro
+      });
+
+      // Determina o valor da cobrança
+      let valor = createCobrancaDto.valor;
+      if (valor === undefined || valor === null) {
+        if (morador.valorAluguel === undefined || morador.valorAluguel === null) {
+          throw new NotFoundException('O valor do aluguel do morador não está cadastrado.');
         }
+        valor = morador.valorAluguel;
+      }
+
+      // Cria a cobrança
+      const cobranca = await this.repository.create({
+        ...createCobrancaDto,
+        valor,
+        statusEnvio: StatusEnvio.NAO_ENVIADO
       });
-      
-      console.log('Condomínio encontrado:', condominio ? 'SIM' : 'NÃO');
-      if (condominio) {
-        console.log('Condomínio dados:', {
-          id: condominio.id,
-          nome: condominio.nome,
-          logradouro: condominio.logradouro,
-          numero: condominio.numero,
-          bairro: condominio.bairro
-        });
-      }
 
-      const modeloCarta = await this.prisma.modeloCarta.findUnique({ 
-        where: { id: modeloCartaId } 
-      });
-      
-      console.log('Modelo Carta encontrado:', modeloCarta ? 'SIM' : 'NÃO');
-      if (modeloCarta) {
-        console.log('Modelo Carta dados:', {
-          id: modeloCarta.id,
-          titulo: modeloCarta.titulo,
-          conteudo: modeloCarta.conteudo.substring(0, 100) + '...'
-        });
-      }
-
-    if (!morador) throw new NotFoundException(`Morador com ID ${moradorId} não encontrado.`);
-    if (!condominio) throw new NotFoundException(`Condomínio com ID ${condominioId} não encontrado.`);
-    if (!modeloCarta) throw new NotFoundException(`Modelo de Carta com ID ${modeloCartaId} não encontrado.`);
-
-    // Log detalhado dos dados carregados
-    console.log('=== DADOS CARREGADOS ===');
-    console.log('Morador:', JSON.stringify(morador, null, 2));
-    console.log('Condomínio:', JSON.stringify(condominio, null, 2));
-    console.log('Modelo Carta:', JSON.stringify(modeloCarta, null, 2));
-    
-    // Verificar campos específicos
-    console.log('=== VERIFICAÇÃO DE CAMPOS ===');
-    console.log('Morador.apartamento:', morador?.apartamento);
-    console.log('Morador.bloco:', morador?.bloco);
-    console.log('Condomínio.nome:', condominio?.nome);
-    console.log('Condomínio.logradouro:', condominio?.logradouro);
-    console.log('Condomínio.numero:', condominio?.numero);
-    console.log('Condomínio.bairro:', condominio?.bairro);
-
-    // Se não vier valor, usa o valor do aluguel do morador
-    let valor = createCobrancaDto.valor;
-    if (valor === undefined || valor === null) {
-      if (morador.valorAluguel === undefined || morador.valorAluguel === null) {
-        throw new NotFoundException('O valor do aluguel do morador não está cadastrado.');
-      }
-      valor = morador.valorAluguel;
-    }
-
-    // Cria a cobrança com status inicial de NAO_ENVIADO
-    const cobranca = await this.repository.create({ ...createCobrancaDto, valor, statusEnvio: StatusEnvio.NAO_ENVIADO });
-
-    // Substitui os placeholders do modelo de carta
-    const mesReferencia = (() => {
+      // Calcula mês de referência
       const hoje = new Date();
-      return `${String(hoje.getMonth() + 1).padStart(2, '0')}/${hoje.getFullYear()}`;
-    })();
-    
-    // Preparar dados para substituição
-    const dadosSubstituicao = {
-      // Campos do morador
-      '{{nome_morador}}': morador?.nome || '',
-      '{{nome}}': morador?.nome || '',
-      '{{email}}': morador?.email || '',
-      '{{telefone}}': morador?.telefone || '',
-      '{{bloco}}': morador?.bloco || '',
-      '{{apartamento}}': morador?.apartamento || '',
-      '{{unidade}}': `${morador?.bloco || ''}-${morador?.apartamento || ''}`,
-      
-      // Campos do condomínio
-      '{{nome_condominio}}': condominio?.nome || '',
-      '{{condominio}}': condominio?.nome || '',
-      '{{cnpj}}': condominio?.cnpj || '',
-      '{{cidade}}': condominio?.cidade || '',
-      '{{estado}}': condominio?.estado || '',
-      '{{endereco}}': `${condominio?.logradouro || ''}, ${condominio?.numero || ''} - ${condominio?.bairro || ''}`,
-      '{{endereco_condominio}}': `${condominio?.logradouro || ''}, ${condominio?.numero || ''} - ${condominio?.bairro || ''}`,
-      
-      // Campos da cobrança
-      '{{valor}}': valor.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' }),
-      '{{valor_formatado}}': valor.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' }),
-      '{{mes_referencia}}': mesReferencia,
-      '{{data_vencimento}}': new Date(cobranca.vencimento).toLocaleDateString('pt-BR'),
-      '{{vencimento}}': new Date(cobranca.vencimento).toLocaleDateString('pt-BR'),
-      
-      // Data atual
-      '{{data_atual}}': new Date().toLocaleDateString('pt-BR'),
-      '{{hoje}}': new Date().toLocaleDateString('pt-BR')
-    };
+      const mesReferencia = `${String(hoje.getMonth() + 1).padStart(2, '0')}/${hoje.getFullYear()}`;
 
-    // Substituir todos os campos dinâmicos no conteúdo
-    let conteudo = modeloCarta.conteudo;
-    let titulo = modeloCarta.titulo;
-    
-    console.log('=== SUBSTITUIÇÃO DE CAMPOS ===');
-    console.log('Título original:', titulo);
-    console.log('Conteúdo original:', conteudo);
-    console.log('Dados para substituição:', JSON.stringify(dadosSubstituicao, null, 2));
-    
-    // Verificar se os placeholders estão no conteúdo
-    console.log('=== VERIFICAÇÃO DE PLACEHOLDERS ===');
-    const placeholdersEncontrados: string[] = [];
-    Object.keys(dadosSubstituicao).forEach(placeholder => {
-      if (conteudo.includes(placeholder)) {
-        placeholdersEncontrados.push(placeholder);
-        console.log(`✅ Placeholder encontrado no conteúdo: ${placeholder}`);
+      // Monta o endereço completo do condomínio
+      const enderecoCondominio = [
+        morador.condominio.logradouro,
+        morador.condominio.numero,
+        morador.condominio.bairro,
+        morador.condominio.cidade,
+        morador.condominio.estado
+      ].filter(Boolean).join(', ');
+
+      // Prepara todos os dados para substituição
+      const dadosSubstituicao = {
+        // Campos do morador
+        '{{nome_morador}}': morador.nome,
+        '{{nome}}': morador.nome,
+        '{{email}}': morador.email,
+        '{{telefone}}': morador.telefone,
+        '{{bloco}}': morador.bloco,
+        '{{apartamento}}': morador.apartamento,
+        '{{unidade}}': `${morador.bloco}-${morador.apartamento}`,
+        
+        // Campos do condomínio
+        '{{nome_condominio}}': morador.condominio.nome,
+        '{{condominio}}': morador.condominio.nome,
+        '{{cnpj}}': morador.condominio.cnpj,
+        '{{cidade}}': morador.condominio.cidade,
+        '{{estado}}': morador.condominio.estado,
+        '{{endereco}}': enderecoCondominio,
+        '{{endereco_condominio}}': enderecoCondominio,
+        
+        // Campos da cobrança
+        '{{valor}}': valor.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' }),
+        '{{valor_formatado}}': valor.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' }),
+        '{{mes_referencia}}': mesReferencia,
+        '{{data_vencimento}}': new Date(cobranca.vencimento).toLocaleDateString('pt-BR'),
+        '{{vencimento}}': new Date(cobranca.vencimento).toLocaleDateString('pt-BR'),
+        
+        // Data atual
+        '{{data_atual}}': hoje.toLocaleDateString('pt-BR'),
+        '{{hoje}}': hoje.toLocaleDateString('pt-BR')
+      };
+
+      console.log('=== DADOS PARA SUBSTITUIÇÃO ===');
+      console.log(JSON.stringify(dadosSubstituicao, null, 2));
+
+      // Substitui os placeholders no título e conteúdo
+      const tituloProcessado = this.substituirPlaceholders(modeloCarta.titulo, dadosSubstituicao);
+      const conteudoProcessado = this.substituirPlaceholders(modeloCarta.conteudo, dadosSubstituicao);
+
+      console.log('=== RESULTADO DA SUBSTITUIÇÃO ===');
+      console.log('Título original:', modeloCarta.titulo);
+      console.log('Título processado:', tituloProcessado);
+      console.log('Conteúdo original:', modeloCarta.conteudo);
+      console.log('Conteúdo processado:', conteudoProcessado);
+
+      // Envia o email
+      const emailResult = await this.emailConfigService.sendMail({
+        to: morador.email,
+        subject: tituloProcessado,
+        text: conteudoProcessado,
+      });
+
+      if (emailResult.success) {
+        console.log(`✅ Email enviado com sucesso para: ${morador.email}`);
+        await this.repository.update(cobranca.id, { statusEnvio: StatusEnvio.ENVIADO });
       } else {
-        console.log(`❌ Placeholder NÃO encontrado no conteúdo: ${placeholder}`);
+        console.error(`❌ Erro ao enviar email para ${morador.email}:`, emailResult.error);
+        await this.repository.update(cobranca.id, { statusEnvio: StatusEnvio.ERRO });
       }
-    });
-    console.log('Placeholders encontrados:', placeholdersEncontrados);
-    
-    let substituicoesRealizadas = 0;
-    Object.entries(dadosSubstituicao).forEach(([placeholder, valor]) => {
-      console.log(`\n--- Processando: ${placeholder} ---`);
-      console.log(`Valor para substituir: "${valor}"`);
-      
-      // Escapar caracteres especiais da expressão regular
-      const escapedPlaceholder = placeholder.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-      const regex = new RegExp(escapedPlaceholder, 'gi');
-      
-      console.log(`Regex criado: ${regex}`);
-      console.log(`Placeholder original: "${placeholder}"`);
-      console.log(`Placeholder escapado: "${escapedPlaceholder}"`);
-      
-      // Substituir no título
-      const tituloAntes = titulo;
-      titulo = titulo.replace(regex, valor);
-      if (tituloAntes !== titulo) {
-        console.log(`✅ Substituído no TÍTULO: ${placeholder} -> "${valor}"`);
-        substituicoesRealizadas++;
-      } else {
-        console.log(`❌ NÃO encontrado no TÍTULO: ${placeholder} (valor: "${valor}")`);
-        console.log(`Título atual: "${titulo}"`);
-      }
-      
-      // Substituir no conteúdo
-      const conteudoAntes = conteudo;
-      conteudo = conteudo.replace(regex, valor);
-      if (conteudoAntes !== conteudo) {
-        console.log(`✅ Substituído no CONTEÚDO: ${placeholder} -> "${valor}"`);
-        substituicoesRealizadas++;
-      } else {
-        console.log(`❌ NÃO encontrado no CONTEÚDO: ${placeholder} (valor: "${valor}")`);
-        // Verificar se o placeholder existe no conteúdo
-        const index = conteudo.indexOf(placeholder);
-        if (index !== -1) {
-          console.log(`⚠️ Placeholder encontrado no índice ${index}, mas não foi substituído`);
-          console.log(`Contexto: "${conteudo.substring(Math.max(0, index-10), index+placeholder.length+10)}"`);
-        }
-      }
-    });
-    
-    console.log(`Total de substituições realizadas: ${substituicoesRealizadas}`);
-    console.log('Título final:', titulo);
-    console.log('Conteúdo final:', conteudo);
 
-    // Log para debug
-    console.log('Conteúdo original:', modeloCarta.conteudo);
-    console.log('Conteúdo processado:', conteudo);
-    console.log('Dados do morador:', { nome: morador.nome, bloco: morador.bloco, apartamento: morador.apartamento });
-    console.log('Dados do condomínio:', { nome: condominio.nome, endereco: `${condominio.logradouro}, ${condominio.numero} - ${condominio.bairro}` });
-
-    // Tenta enviar o email
-    const emailResult = await this.emailConfigService.sendMail({
-      to: morador.email,
-      subject: titulo, // Usar o título processado com campos dinâmicos
-      text: conteudo,
-    });
-    
-    if (emailResult.success) {
-      console.log(`Email enviado com sucesso para: ${morador.email}`);
-      // Atualiza o status da cobrança para ENVIADO
-      await this.repository.update(cobranca.id, { statusEnvio: StatusEnvio.ENVIADO });
-    } else {
-      console.error(`Erro ao enviar email para ${morador.email}:`, emailResult.error);
-      // Atualiza o status da cobrança para ERRO
-      await this.repository.update(cobranca.id, { statusEnvio: StatusEnvio.ERRO });
-    }
-
-    return cobranca;
+      return cobranca;
     } catch (error) {
       console.error('=== ERRO NA CRIAÇÃO DE COBRANÇA ===');
       console.error('Erro completo:', error);
-      console.error('Stack trace:', error.stack);
-      throw error; // Re-throw para o controller tratar
+      throw error;
     }
   }
 
