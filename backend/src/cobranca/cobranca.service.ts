@@ -19,7 +19,10 @@ export class CobrancaService {
     const { moradorId, condominioId, modeloCartaId } = createCobrancaDto;
 
     const [morador, condominio, modeloCarta] = await Promise.all([
-      this.prisma.morador.findUnique({ where: { id: moradorId } }),
+      this.prisma.morador.findUnique({ 
+        where: { id: moradorId },
+        include: { condominio: true }
+      }),
       this.prisma.condominio.findUnique({ where: { id: condominioId } }),
       this.prisma.modeloCarta.findUnique({ where: { id: modeloCartaId } }),
     ]);
@@ -27,6 +30,12 @@ export class CobrancaService {
     if (!morador) throw new NotFoundException(`Morador com ID ${moradorId} não encontrado.`);
     if (!condominio) throw new NotFoundException(`Condomínio com ID ${condominioId} não encontrado.`);
     if (!modeloCarta) throw new NotFoundException(`Modelo de Carta com ID ${modeloCartaId} não encontrado.`);
+
+    // Log detalhado dos dados carregados
+    console.log('=== DADOS CARREGADOS ===');
+    console.log('Morador:', JSON.stringify(morador, null, 2));
+    console.log('Condomínio:', JSON.stringify(condominio, null, 2));
+    console.log('Modelo Carta:', JSON.stringify(modeloCarta, null, 2));
 
     // Se não vier valor, usa o valor do aluguel do morador
     let valor = createCobrancaDto.valor;
@@ -46,35 +55,44 @@ export class CobrancaService {
       return `${String(hoje.getMonth() + 1).padStart(2, '0')}/${hoje.getFullYear()}`;
     })();
     
-    let conteudo = modeloCarta.conteudo
+    // Preparar dados para substituição
+    const dadosSubstituicao = {
       // Campos do morador
-      .replace(/{{nome_morador}}/gi, morador.nome)
-      .replace(/{{nome}}/gi, morador.nome)
-      .replace(/{{email}}/gi, morador.email)
-      .replace(/{{telefone}}/gi, morador.telefone)
-      .replace(/{{bloco}}/gi, morador.bloco || '')
-      .replace(/{{apartamento}}/gi, morador.apartamento || '')
-      .replace(/{{unidade}}/gi, `${morador.bloco || ''}-${morador.apartamento || ''}`)
+      '{{nome_morador}}': morador.nome || '',
+      '{{nome}}': morador.nome || '',
+      '{{email}}': morador.email || '',
+      '{{telefone}}': morador.telefone || '',
+      '{{bloco}}': morador.bloco || '',
+      '{{apartamento}}': morador.apartamento || '',
+      '{{unidade}}': `${morador.bloco || ''}-${morador.apartamento || ''}`,
       
       // Campos do condomínio
-      .replace(/{{nome_condominio}}/gi, condominio.nome || '')
-      .replace(/{{condominio}}/gi, condominio.nome || '')
-      .replace(/{{cnpj}}/gi, condominio.cnpj || '')
-      .replace(/{{cidade}}/gi, condominio.cidade || '')
-      .replace(/{{estado}}/gi, condominio.estado || '')
-      .replace(/{{endereco}}/gi, `${condominio.logradouro || ''}, ${condominio.numero || ''} - ${condominio.bairro || ''}`)
-      .replace(/{{endereco_condominio}}/gi, `${condominio.logradouro || ''}, ${condominio.numero || ''} - ${condominio.bairro || ''}`)
+      '{{nome_condominio}}': condominio.nome || '',
+      '{{condominio}}': condominio.nome || '',
+      '{{cnpj}}': condominio.cnpj || '',
+      '{{cidade}}': condominio.cidade || '',
+      '{{estado}}': condominio.estado || '',
+      '{{endereco}}': `${condominio.logradouro || ''}, ${condominio.numero || ''} - ${condominio.bairro || ''}`,
+      '{{endereco_condominio}}': `${condominio.logradouro || ''}, ${condominio.numero || ''} - ${condominio.bairro || ''}`,
       
       // Campos da cobrança
-      .replace(/{{valor}}/gi, valor.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' }))
-      .replace(/{{valor_formatado}}/gi, valor.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' }))
-      .replace(/{{mes_referencia}}/gi, mesReferencia)
-      .replace(/{{data_vencimento}}/gi, new Date(cobranca.vencimento).toLocaleDateString('pt-BR'))
-      .replace(/{{vencimento}}/gi, new Date(cobranca.vencimento).toLocaleDateString('pt-BR'))
+      '{{valor}}': valor.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' }),
+      '{{valor_formatado}}': valor.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' }),
+      '{{mes_referencia}}': mesReferencia,
+      '{{data_vencimento}}': new Date(cobranca.vencimento).toLocaleDateString('pt-BR'),
+      '{{vencimento}}': new Date(cobranca.vencimento).toLocaleDateString('pt-BR'),
       
       // Data atual
-      .replace(/{{data_atual}}/gi, new Date().toLocaleDateString('pt-BR'))
-      .replace(/{{hoje}}/gi, new Date().toLocaleDateString('pt-BR'));
+      '{{data_atual}}': new Date().toLocaleDateString('pt-BR'),
+      '{{hoje}}': new Date().toLocaleDateString('pt-BR')
+    };
+
+    // Substituir todos os campos dinâmicos
+    let conteudo = modeloCarta.conteudo;
+    Object.entries(dadosSubstituicao).forEach(([placeholder, valor]) => {
+      const regex = new RegExp(placeholder.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'), 'gi');
+      conteudo = conteudo.replace(regex, valor);
+    });
 
     // Log para debug
     console.log('Conteúdo original:', modeloCarta.conteudo);
