@@ -140,5 +140,69 @@ jobs:
         rm /tmp/deploy-remote.sh
         EOF
         
+    - name: 🔧 Verificar e corrigir serviços
+      run: |
+        # Script de verificação e correção
+        cat > check-services.sh << 'EOF'
+        #!/bin/bash
+        echo "🔍 Verificando status dos serviços..."
+        
+        # Verificar se PM2 está rodando
+        if ! pm2 list | grep -q "raunaimer"; then
+          echo "❌ PM2 não está rodando, reiniciando..."
+          cd /var/www/sistema_raunaimer
+          pm2 start ecosystem.config.cjs --env production
+          pm2 save
+        fi
+        
+        # Verificar se backend está respondendo
+        echo "🔍 Testando backend na porta 3001..."
+        if curl -f http://localhost:3001/api/condominio > /dev/null 2>&1; then
+          echo "✅ Backend está respondendo"
+        else
+          echo "❌ Backend não está respondendo, reiniciando..."
+          pm2 restart raunaimer-backend
+          sleep 5
+          if curl -f http://localhost:3001/api/condominio > /dev/null 2>&1; then
+            echo "✅ Backend reiniciado com sucesso"
+          else
+            echo "❌ Backend ainda não está respondendo"
+            pm2 logs raunaimer-backend --lines 20
+          fi
+        fi
+        
+        # Verificar se frontend está respondendo
+        echo "🔍 Testando frontend na porta 3000..."
+        if curl -f http://localhost:3000 > /dev/null 2>&1; then
+          echo "✅ Frontend está respondendo"
+        else
+          echo "❌ Frontend não está respondendo, reiniciando..."
+          pm2 restart raunaimer-frontend
+        fi
+        
+        # Verificar Nginx
+        echo "🔍 Verificando Nginx..."
+        if systemctl is-active --quiet nginx; then
+          echo "✅ Nginx está ativo"
+        else
+          echo "❌ Nginx não está ativo, reiniciando..."
+          systemctl restart nginx
+        fi
+        
+        # Status final
+        echo "📊 Status final dos serviços:"
+        pm2 status
+        echo "🌐 Testando aplicação:"
+        curl -I http://app.raunaimer.adv.br || echo "❌ Aplicação não está acessível"
+        EOF
+        
+        # Executar verificação
+        sshpass -p '${{ secrets.SSH_PASSWORD }}' scp -o StrictHostKeyChecking=no check-services.sh root@${{ secrets.SERVER_HOST }}:/tmp/
+        sshpass -p '${{ secrets.SSH_PASSWORD }}' ssh -o StrictHostKeyChecking=no root@${{ secrets.SERVER_HOST }} << 'EOF'
+        chmod +x /tmp/check-services.sh
+        /tmp/check-services.sh
+        rm /tmp/check-services.sh
+        EOF
+        
     - name: ✅ Deploy completed
       run: echo "Deploy limpo concluído com sucesso!" 
