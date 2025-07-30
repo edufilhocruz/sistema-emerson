@@ -177,7 +177,7 @@ export class CobrancaService {
     
     // Verificar se os placeholders estão no conteúdo
     console.log('=== VERIFICAÇÃO DE PLACEHOLDERS ===');
-    const placeholdersEncontrados = [];
+    const placeholdersEncontrados: string[] = [];
     Object.keys(dadosSubstituicao).forEach(placeholder => {
       if (conteudo.includes(placeholder)) {
         placeholdersEncontrados.push(placeholder);
