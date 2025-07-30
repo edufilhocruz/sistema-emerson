@@ -63,3 +63,4 @@ npm run dev
 - Stack moderna: Prisma ORM, NestJS, React, Vite, Radix UI, Lucide Icons e mais.
 
 # Trigger deploy
+# Test deploy
