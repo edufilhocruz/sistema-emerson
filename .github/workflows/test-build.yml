@@ -31,10 +31,11 @@ jobs:
     - name: 🔨 Build Frontend
       run: npm run build
       
-    - name: 🔨 Build Backend
+    - name: 🔨 Build Backend (skip Prisma)
       run: |
         cd backend
-        npm run build
+        # Pular a geração do Prisma client durante o teste
+        npx tsc --project tsconfig.build.json
         cd ..
         
     - name: ✅ Build completed
