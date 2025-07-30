@@ -93,10 +93,23 @@ export class CobrancaService {
 
     // Substituir todos os campos dinâmicos
     let conteudo = modeloCarta.conteudo;
+    console.log('=== SUBSTITUIÇÃO DE CAMPOS ===');
+    console.log('Conteúdo original:', conteudo);
+    
     Object.entries(dadosSubstituicao).forEach(([placeholder, valor]) => {
-      const regex = new RegExp(placeholder.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'), 'gi');
+      // Escapar caracteres especiais da expressão regular
+      const escapedPlaceholder = placeholder.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+      const regex = new RegExp(escapedPlaceholder, 'gi');
+      const conteudoAntes = conteudo;
       conteudo = conteudo.replace(regex, valor);
+      if (conteudoAntes !== conteudo) {
+        console.log(`Substituído: ${placeholder} -> "${valor}"`);
+      } else {
+        console.log(`NÃO encontrado: ${placeholder} (valor: "${valor}")`);
+      }
     });
+    
+    console.log('Conteúdo final:', conteudo);
 
     // Log para debug
     console.log('Conteúdo original:', modeloCarta.conteudo);
