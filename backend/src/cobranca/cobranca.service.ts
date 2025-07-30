@@ -23,33 +23,43 @@ export class CobrancaService {
     console.log('=== INICIANDO SUBSTITUIÇÃO DE PLACEHOLDERS ===');
     console.log('Texto original:', texto);
     
-    // Substitui cada placeholder pelo seu valor correspondente
-    Object.entries(dados).forEach(([placeholder, valor]) => {
-      console.log(`\n--- Processando: ${placeholder} ---`);
-      console.log(`Valor para substituir: "${valor}"`);
-      console.log(`Tipo do valor: ${typeof valor}`);
+    // Lista específica dos placeholders que estão com problema
+    const placeholdersProblematicos = [
+      '{{apartamento}}',
+      '{{bloco}}', 
+      '{{nome_condominio}}',
+      '{{endereco_condominio}}'
+    ];
+    
+    // Testa cada placeholder problemático individualmente
+    placeholdersProblematicos.forEach(placeholder => {
+      console.log(`\n--- TESTANDO: ${placeholder} ---`);
+      console.log(`Valor no dados: "${dados[placeholder]}"`);
+      console.log(`Existe no texto: ${resultado.includes(placeholder)}`);
       
-      // Verifica se o placeholder existe no texto
       if (resultado.includes(placeholder)) {
-        console.log(`✅ Placeholder encontrado no texto`);
-        
-        // Escapa caracteres especiais para regex
-        const placeholderEscapado = placeholder.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-        const regex = new RegExp(placeholderEscapado, 'g');
-        
-        console.log(`Regex criado: ${regex}`);
-        
-        // Substitui todas as ocorrências
         const antes = resultado;
-        resultado = resultado.replace(regex, String(valor || ''));
+        resultado = resultado.replace(new RegExp(placeholder.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'), 'g'), String(dados[placeholder] || ''));
         
         if (antes !== resultado) {
-          console.log(`✅ Substituição realizada: "${placeholder}" -> "${valor}"`);
+          console.log(`✅ SUBSTITUIÇÃO REALIZADA: "${placeholder}" -> "${dados[placeholder]}"`);
         } else {
-          console.log(`❌ Substituição não foi realizada`);
+          console.log(`❌ SUBSTITUIÇÃO FALHOU para: ${placeholder}`);
         }
-      } else {
-        console.log(`❌ Placeholder NÃO encontrado no texto`);
+      }
+    });
+    
+    // Agora processa todos os outros placeholders
+    Object.entries(dados).forEach(([placeholder, valor]) => {
+      if (!placeholdersProblematicos.includes(placeholder)) {
+        if (resultado.includes(placeholder)) {
+          const antes = resultado;
+          resultado = resultado.replace(new RegExp(placeholder.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'), 'g'), String(valor || ''));
+          
+          if (antes !== resultado) {
+            console.log(`✅ Substituição realizada: "${placeholder}" -> "${valor}"`);
+          }
+        }
       }
     });
     
@@ -136,6 +146,11 @@ export class CobrancaService {
         tipo: typeof morador.condominio.logradouro,
         existe: morador.condominio.logradouro !== null && morador.condominio.logradouro !== undefined
       });
+
+      // TESTE DIRETO - Verificar se os dados estão sendo carregados
+      console.log('=== TESTE DIRETO DOS DADOS ===');
+      console.log('Dados completos do morador:', JSON.stringify(morador, null, 2));
+      console.log('Dados completos do condomínio:', JSON.stringify(morador.condominio, null, 2));
 
       // Determina o valor da cobrança
       let valor = createCobrancaDto.valor;

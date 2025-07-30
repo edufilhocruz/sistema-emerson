@@ -19,8 +19,34 @@ interface Props {
 }
 
 const variaveisDisponiveis = [
-  '{{nome_morador}}', '{{nome_condominio}}', '{{endereco_condominio}}',
-  '{{bloco}}', '{{apartamento}}', '{{valor}}', '{{mes_referencia}}',
+  // Campos do Morador
+  '{{nome_morador}}',
+  '{{nome}}',
+  '{{email}}',
+  '{{telefone}}',
+  '{{bloco}}',
+  '{{apartamento}}',
+  '{{unidade}}',
+  
+  // Campos do Condomínio
+  '{{nome_condominio}}',
+  '{{condominio}}',
+  '{{cnpj}}',
+  '{{cidade}}',
+  '{{estado}}',
+  '{{endereco}}',
+  '{{endereco_condominio}}',
+  
+  // Campos da Cobrança
+  '{{valor}}',
+  '{{valor_formatado}}',
+  '{{mes_referencia}}',
+  '{{data_vencimento}}',
+  '{{vencimento}}',
+  
+  // Campos de Data
+  '{{data_atual}}',
+  '{{hoje}}'
 ];
 
 export const ModeloEditor = ({ modelo, onSave, onDelete, isSaving }: Props) => {
@@ -57,13 +83,34 @@ export const ModeloEditor = ({ modelo, onSave, onDelete, isSaving }: Props) => {
    */
   const gerarPreviewDinamico = (texto: string) => {
     return texto
+      // Campos do Morador
       .replace(/{{nome_morador}}/gi, 'João da Silva')
-      .replace(/{{nome_condominio}}/gi, 'Residencial Jardim das Acácias')
-      .replace(/{{endereco_condominio}}/gi, 'Rua das Flores, 123, Centro, Cidade - UF')
+      .replace(/{{nome}}/gi, 'João da Silva')
+      .replace(/{{email}}/gi, 'joao.silva@email.com')
+      .replace(/{{telefone}}/gi, '(11) 99999-9999')
       .replace(/{{bloco}}/gi, 'A')
       .replace(/{{apartamento}}/gi, '101')
+      .replace(/{{unidade}}/gi, 'A-101')
+      
+      // Campos do Condomínio
+      .replace(/{{nome_condominio}}/gi, 'Residencial Jardim das Acácias')
+      .replace(/{{condominio}}/gi, 'Residencial Jardim das Acácias')
+      .replace(/{{cnpj}}/gi, '12.345.678/0001-90')
+      .replace(/{{cidade}}/gi, 'São Paulo')
+      .replace(/{{estado}}/gi, 'SP')
+      .replace(/{{endereco}}/gi, 'Rua das Flores, 123, Centro, São Paulo - SP')
+      .replace(/{{endereco_condominio}}/gi, 'Rua das Flores, 123, Centro, São Paulo - SP')
+      
+      // Campos da Cobrança
       .replace(/{{valor}}/gi, 'R$ 1.234,56')
-      .replace(/{{mes_referencia}}/gi, '07/2025');
+      .replace(/{{valor_formatado}}/gi, 'R$ 1.234,56')
+      .replace(/{{mes_referencia}}/gi, '07/2025')
+      .replace(/{{data_vencimento}}/gi, '15/07/2025')
+      .replace(/{{vencimento}}/gi, '15/07/2025')
+      
+      // Campos de Data
+      .replace(/{{data_atual}}/gi, '30/07/2025')
+      .replace(/{{hoje}}/gi, '30/07/2025');
   };
 
   return (
@@ -81,12 +128,54 @@ export const ModeloEditor = ({ modelo, onSave, onDelete, isSaving }: Props) => {
             <FormField control={form.control} name="conteudo" render={({ field }) => ( <FormItem className="flex flex-col"><FormLabel>Conteúdo da Mensagem</FormLabel><FormControl><Textarea placeholder="Digite sua mensagem aqui..." {...field} className="h-48 resize-none" /></FormControl><FormMessage /></FormItem> )} />
             <div>
               <FormLabel>Variáveis Disponíveis</FormLabel>
-              <div className="flex flex-wrap gap-2 mt-2">
-                {variaveisDisponiveis.map(v => (
-                  <Button key={v} type="button" variant="outline" size="sm" className="h-auto py-1 px-2" onClick={() => handleVariableClick(v)}>
-                    {v}
-                  </Button>
-                ))}
+              <div className="space-y-4 mt-2">
+                {/* Campos do Morador */}
+                <div>
+                  <h4 className="text-sm font-medium text-muted-foreground mb-2">👤 Dados do Morador</h4>
+                  <div className="flex flex-wrap gap-2">
+                    {variaveisDisponiveis.slice(0, 7).map(v => (
+                      <Button key={v} type="button" variant="outline" size="sm" className="h-auto py-1 px-2 text-xs" onClick={() => handleVariableClick(v)}>
+                        {v}
+                      </Button>
+                    ))}
+                  </div>
+                </div>
+                
+                {/* Campos do Condomínio */}
+                <div>
+                  <h4 className="text-sm font-medium text-muted-foreground mb-2">🏢 Dados do Condomínio</h4>
+                  <div className="flex flex-wrap gap-2">
+                    {variaveisDisponiveis.slice(7, 14).map(v => (
+                      <Button key={v} type="button" variant="outline" size="sm" className="h-auto py-1 px-2 text-xs" onClick={() => handleVariableClick(v)}>
+                        {v}
+                      </Button>
+                    ))}
+                  </div>
+                </div>
+                
+                {/* Campos da Cobrança */}
+                <div>
+                  <h4 className="text-sm font-medium text-muted-foreground mb-2">💰 Dados da Cobrança</h4>
+                  <div className="flex flex-wrap gap-2">
+                    {variaveisDisponiveis.slice(14, 19).map(v => (
+                      <Button key={v} type="button" variant="outline" size="sm" className="h-auto py-1 px-2 text-xs" onClick={() => handleVariableClick(v)}>
+                        {v}
+                      </Button>
+                    ))}
+                  </div>
+                </div>
+                
+                {/* Campos de Data */}
+                <div>
+                  <h4 className="text-sm font-medium text-muted-foreground mb-2">📅 Datas</h4>
+                  <div className="flex flex-wrap gap-2">
+                    {variaveisDisponiveis.slice(19).map(v => (
+                      <Button key={v} type="button" variant="outline" size="sm" className="h-auto py-1 px-2 text-xs" onClick={() => handleVariableClick(v)}>
+                        {v}
+                      </Button>
+                    ))}
+                  </div>
+                </div>
               </div>
             </div>
           </div>

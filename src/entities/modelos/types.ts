@@ -3,20 +3,31 @@ import { z } from "zod";
 /**
  * Documentação: Modelo de Carta
  * - Adicionado o campo `conteudo` para o corpo da mensagem.
+ * - Suporte a campos dinâmicos como {{nome_morador}}, {{valor}}, etc.
  */
 export interface ModeloCarta {
   id: string;
   titulo: string;
-  conteudo?: string; // Conteúdo da mensagem
+  conteudo?: string; // Conteúdo da mensagem com suporte a campos dinâmicos
 }
 
 /**
  * Documentação: Esquema de Validação para o Editor de Modelos
  * Define as regras para os campos do formulário de edição/criação.
+ * Permite campos dinâmicos no conteúdo.
  */
 export const modeloSchema = z.object({
-  titulo: z.string().min(5, { message: "O nome do modelo é obrigatório." }),
-  conteudo: z.string().min(10, { message: "O conteúdo da mensagem é obrigatório." }),
+  titulo: z.string()
+    .min(5, { message: "O nome do modelo deve ter pelo menos 5 caracteres." })
+    .max(100, { message: "O nome do modelo deve ter no máximo 100 caracteres." }),
+  conteudo: z.string()
+    .min(10, { message: "O conteúdo da mensagem deve ter pelo menos 10 caracteres." })
+    .max(5000, { message: "O conteúdo da mensagem deve ter no máximo 5000 caracteres." })
+    .refine((content) => {
+      // Verifica se há pelo menos um campo dinâmico básico
+      const hasBasicFields = /{{(nome_morador|valor|mes_referencia)}}/i.test(content);
+      return hasBasicFields || content.length >= 20;
+    }, { message: "O conteúdo deve incluir pelo menos um campo dinâmico básico ou ter pelo menos 20 caracteres." }),
 });
 
 export type ModeloFormData = z.infer<typeof modeloSchema>;
