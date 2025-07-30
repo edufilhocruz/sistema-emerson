@@ -2,8 +2,8 @@ name: Deploy to Production
 
 on:
   push:
-    branches: [ main, master ]
-  workflow_dispatch: # Permite execução manual
+    branches: [ main ]
+  workflow_dispatch:
 
 jobs:
   deploy:
@@ -19,190 +19,72 @@ jobs:
         node-version: '18'
         cache: 'npm'
         
-    - name: 🔐 Add server to known hosts
-      run: |
-        mkdir -p ~/.ssh
-        ssh-keyscan -H ${{ secrets.SERVER_HOST }} >> ~/.ssh/known_hosts
-        
-    - name: 🔧 Setup SSH with password
-      run: |
-        # Instalar sshpass para autenticação por senha
-        sudo apt-get update
-        sudo apt-get install -y sshpass
-        
-    - name: 🧹 Clean cache
-      run: |
-        npm cache clean --force
-        rm -rf node_modules package-lock.json
-        
     - name: 📦 Install dependencies (Frontend)
       run: |
-        npm install --verbose
-        npm list --depth=0
+        npm install
         
     - name: 📦 Install dependencies (Backend)
       run: |
         cd backend
-        npm install --verbose
-        npm list --depth=0
+        npm install
         cd ..
         
     - name: 🔨 Build Frontend
       run: |
-        echo "🔨 Iniciando build do frontend..."
         npm run build
-        echo "✅ Build do frontend concluído!"
-        ls -la dist/
         
     - name: 🔨 Build Backend
       run: |
-        echo "🔨 Iniciando build do backend..."
         cd backend
         npm run build
-        echo "✅ Build do backend concluído!"
-        ls -la dist/
         cd ..
         
-    - name: 📤 Deploy to server (Clean Install)
+    - name: 📤 Deploy to server
       run: |
-        # Criar arquivo de deploy temporário
-        cat > deploy-remote.sh << 'EOF'
-        #!/bin/bash
-        set -e
+        # Instalar sshpass
+        sudo apt-get update
+        sudo apt-get install -y sshpass
         
-        echo "🚀 Iniciando deploy limpo..."
+        # Configurar SSH
+        mkdir -p ~/.ssh
+        ssh-keyscan -H ${{ secrets.SERVER_HOST }} >> ~/.ssh/known_hosts
         
-        # Navegar para o diretório do projeto
+        # Executar deploy no servidor
+        sshpass -p '${{ secrets.SERVER_PASSWORD }}' ssh -o StrictHostKeyChecking=no ${{ secrets.SERVER_USER }}@${{ secrets.SERVER_HOST }} << 'EOF'
         cd /var/www/sistema_raunaimer
         
-        # Parar e remover todas as aplicações PM2
-        echo "🛑 Parando todas as aplicações..."
+        # Parar aplicações
         pm2 stop all 2>/dev/null || true
         pm2 delete all 2>/dev/null || true
         
         # Fazer pull das mudanças
-        echo "📥 Fazendo pull das mudanças..."
         git fetch origin main
         git reset --hard origin/main
         
-        # Limpar cache e node_modules
-        echo "🧹 Limpando cache..."
+        # Limpar cache
         rm -rf node_modules package-lock.json
         rm -rf backend/node_modules backend/package-lock.json
         
-        # Configurar permissões
-        chown -R deploy:deploy /var/www/sistema_raunaimer
-        
         # Instalar dependências
-        echo "📦 Instalando dependências do frontend..."
         npm install
-        
-        echo "📦 Instalando dependências do backend..."
         cd backend && npm install && cd ..
         
-        # Build das aplicações
-        echo "🔨 Build do frontend..."
+        # Build
         npm run build
-        
-        echo "🔨 Build do backend..."
         cd backend && npm run build && cd ..
         
-        # Iniciar com PM2
-        echo "🚀 Iniciando aplicações com PM2..."
-        pm2 start ecosystem.config.cjs --env production
+        # Criar logs
+        mkdir -p logs
         
-        # Salvar configuração
+        # Iniciar PM2
+        pm2 start ecosystem.config.cjs --env production
         pm2 save
         
         # Verificar status
-        echo "✅ Deploy limpo concluído com sucesso!"
         pm2 status
-        
-        # Mostrar logs recentes
-        echo "📋 Logs recentes do backend:"
-        pm2 logs raunaimer-backend --lines 10 --nostream || true
-        
-        echo "📋 Logs recentes do frontend:"
-        pm2 logs raunaimer-frontend --lines 5 --nostream || true
-        
-        echo "🌐 URLs das aplicações:"
-        echo "Frontend: http://app.raunaimer.adv.br"
-        echo "Backend: http://app.raunaimer.adv.br/api"
-        EOF
-        
-        # Copiar arquivo para o servidor usando sshpass
-        sshpass -p '${{ secrets.SSH_PASSWORD }}' scp -o StrictHostKeyChecking=no deploy-remote.sh root@${{ secrets.SERVER_HOST }}:/tmp/
-        
-        # Executar deploy no servidor usando sshpass
-        sshpass -p '${{ secrets.SSH_PASSWORD }}' ssh -o StrictHostKeyChecking=no root@${{ secrets.SERVER_HOST }} << 'EOF'
-        chmod +x /tmp/deploy-remote.sh
-        /tmp/deploy-remote.sh
-        rm /tmp/deploy-remote.sh
-        EOF
-        
-    - name: 🔧 Verificar e corrigir serviços
-      run: |
-        # Script de verificação e correção
-        cat > check-services.sh << 'EOF'
-        #!/bin/bash
-        echo "🔍 Verificando status dos serviços..."
-        
-        # Verificar se PM2 está rodando
-        if ! pm2 list | grep -q "raunaimer"; then
-          echo "❌ PM2 não está rodando, reiniciando..."
-          cd /var/www/sistema_raunaimer
-          pm2 start ecosystem.config.cjs --env production
-          pm2 save
-        fi
-        
-        # Verificar se backend está respondendo
-        echo "🔍 Testando backend na porta 3001..."
-        if curl -f http://localhost:3001/api/condominio > /dev/null 2>&1; then
-          echo "✅ Backend está respondendo"
-        else
-          echo "❌ Backend não está respondendo, reiniciando..."
-          pm2 restart raunaimer-backend
-          sleep 5
-          if curl -f http://localhost:3001/api/condominio > /dev/null 2>&1; then
-            echo "✅ Backend reiniciado com sucesso"
-          else
-            echo "❌ Backend ainda não está respondendo"
-            pm2 logs raunaimer-backend --lines 20
-          fi
-        fi
-        
-        # Verificar se frontend está respondendo
-        echo "🔍 Testando frontend na porta 3000..."
-        if curl -f http://localhost:3000 > /dev/null 2>&1; then
-          echo "✅ Frontend está respondendo"
-        else
-          echo "❌ Frontend não está respondendo, reiniciando..."
-          pm2 restart raunaimer-frontend
-        fi
-        
-        # Verificar Nginx
-        echo "🔍 Verificando Nginx..."
-        if systemctl is-active --quiet nginx; then
-          echo "✅ Nginx está ativo"
-        else
-          echo "❌ Nginx não está ativo, reiniciando..."
-          systemctl restart nginx
-        fi
-        
-        # Status final
-        echo "📊 Status final dos serviços:"
-        pm2 status
-        echo "🌐 Testando aplicação:"
-        curl -I http://app.raunaimer.adv.br || echo "❌ Aplicação não está acessível"
-        EOF
-        
-        # Executar verificação
-        sshpass -p '${{ secrets.SSH_PASSWORD }}' scp -o StrictHostKeyChecking=no check-services.sh root@${{ secrets.SERVER_HOST }}:/tmp/
-        sshpass -p '${{ secrets.SSH_PASSWORD }}' ssh -o StrictHostKeyChecking=no root@${{ secrets.SERVER_HOST }} << 'EOF'
-        chmod +x /tmp/check-services.sh
-        /tmp/check-services.sh
-        rm /tmp/check-services.sh
         EOF
         
     - name: ✅ Deploy completed
-      run: echo "Deploy limpo concluído com sucesso!" 
+      run: |
+        echo "🚀 Deploy concluído com sucesso!"
+        echo "🌐 Aplicação disponível em: http://app.raunaimer.adv.br" 

@@ -1,7 +1,7 @@
 #!/bin/bash
 set -e
 
-echo "🚀 Iniciando deploy limpo do zero..."
+echo "🚀 Iniciando deploy manual..."
 
 # Navegar para o diretório do projeto
 cd /var/www/sistema_raunaimer
@@ -11,40 +11,35 @@ echo "🛑 Parando todas as aplicações..."
 pm2 stop all 2>/dev/null || true
 pm2 delete all 2>/dev/null || true
 
-# Limpar completamente o diretório
-echo "🧹 Limpando diretório..."
-rm -rf * .*
+# Fazer pull das mudanças
+echo "📥 Fazendo pull das mudanças..."
+git fetch origin main
+git reset --hard origin/main
 
-# Clonar o repositório novamente
-echo "📥 Clonando repositório..."
-git clone https://github.com/edufilhocruz/sistema-raunaimer-v2.git .
-chown -R deploy:deploy /var/www/sistema_raunaimer
+# Limpar cache
+echo "🧹 Limpando cache..."
+rm -rf node_modules package-lock.json
+rm -rf backend/node_modules backend/package-lock.json
 
-# Instalar dependências do frontend
+# Instalar dependências
 echo "📦 Instalando dependências do frontend..."
 npm install
 
-# Instalar dependências do backend
 echo "📦 Instalando dependências do backend..."
-cd backend
-npm install
-cd ..
+cd backend && npm install && cd ..
 
-# Build do frontend
+# Build
 echo "🔨 Build do frontend..."
 npm run build
 
-# Build do backend
 echo "🔨 Build do backend..."
-cd backend
-npm run build
-cd ..
+cd backend && npm run build && cd ..
 
-# Criar diretório de logs
+# Criar logs
 echo "📁 Criando diretório de logs..."
 mkdir -p logs
 
-# Iniciar aplicações com PM2
+# Iniciar PM2
 echo "🚀 Iniciando aplicações com PM2..."
 pm2 start ecosystem.config.cjs --env production
 pm2 save
@@ -53,11 +48,11 @@ pm2 save
 echo "📊 Status das aplicações:"
 pm2 status
 
-# Testar aplicação
-echo "🌐 Testando aplicação..."
+# Testar aplicações
+echo "🌐 Testando aplicações..."
 sleep 5
 curl -I http://localhost:3001 || echo "❌ Backend não está respondendo"
 curl -I http://localhost:3000 || echo "❌ Frontend não está respondendo"
 
-echo "✅ Deploy limpo concluído!"
+echo "✅ Deploy manual concluído!"
 echo "🌐 Aplicação disponível em: http://app.raunaimer.adv.br" 

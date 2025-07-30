@@ -28,9 +28,9 @@ module.exports = {
     },
     {
       name: 'raunaimer-frontend',
-      script: 'serve',
+      script: 'npx',
+      args: 'serve -s -l 3000',
       cwd: './dist',
-      args: '-s -l 3000 --listen 127.0.0.1:3000',
       instances: 1,
       exec_mode: 'fork',
       autorestart: true,
