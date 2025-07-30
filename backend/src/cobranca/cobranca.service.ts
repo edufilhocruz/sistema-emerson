@@ -52,17 +52,18 @@ export class CobrancaService {
       .replace(/{{nome}}/gi, morador.nome)
       .replace(/{{email}}/gi, morador.email)
       .replace(/{{telefone}}/gi, morador.telefone)
-      .replace(/{{bloco}}/gi, morador.bloco)
-      .replace(/{{apartamento}}/gi, morador.apartamento)
-      .replace(/{{unidade}}/gi, `${morador.bloco}-${morador.apartamento}`)
+      .replace(/{{bloco}}/gi, morador.bloco || '')
+      .replace(/{{apartamento}}/gi, morador.apartamento || '')
+      .replace(/{{unidade}}/gi, `${morador.bloco || ''}-${morador.apartamento || ''}`)
       
       // Campos do condomínio
-      .replace(/{{nome_condominio}}/gi, condominio.nome)
-      .replace(/{{condominio}}/gi, condominio.nome)
-      .replace(/{{cnpj}}/gi, condominio.cnpj)
-      .replace(/{{cidade}}/gi, condominio.cidade)
-      .replace(/{{estado}}/gi, condominio.estado)
-      .replace(/{{endereco}}/gi, `${condominio.logradouro}, ${condominio.numero} - ${condominio.bairro}`)
+      .replace(/{{nome_condominio}}/gi, condominio.nome || '')
+      .replace(/{{condominio}}/gi, condominio.nome || '')
+      .replace(/{{cnpj}}/gi, condominio.cnpj || '')
+      .replace(/{{cidade}}/gi, condominio.cidade || '')
+      .replace(/{{estado}}/gi, condominio.estado || '')
+      .replace(/{{endereco}}/gi, `${condominio.logradouro || ''}, ${condominio.numero || ''} - ${condominio.bairro || ''}`)
+      .replace(/{{endereco_condominio}}/gi, `${condominio.logradouro || ''}, ${condominio.numero || ''} - ${condominio.bairro || ''}`)
       
       // Campos da cobrança
       .replace(/{{valor}}/gi, valor.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' }))
@@ -74,6 +75,12 @@ export class CobrancaService {
       // Data atual
       .replace(/{{data_atual}}/gi, new Date().toLocaleDateString('pt-BR'))
       .replace(/{{hoje}}/gi, new Date().toLocaleDateString('pt-BR'));
+
+    // Log para debug
+    console.log('Conteúdo original:', modeloCarta.conteudo);
+    console.log('Conteúdo processado:', conteudo);
+    console.log('Dados do morador:', { nome: morador.nome, bloco: morador.bloco, apartamento: morador.apartamento });
+    console.log('Dados do condomínio:', { nome: condominio.nome, endereco: `${condominio.logradouro}, ${condominio.numero} - ${condominio.bairro}` });
 
     // Tenta enviar o email
     const emailResult = await this.emailConfigService.sendMail({
