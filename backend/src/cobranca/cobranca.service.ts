@@ -25,9 +25,34 @@ export class CobrancaService {
       const [morador, condominio, modeloCarta] = await Promise.all([
         this.prisma.morador.findUnique({ 
           where: { id: moradorId },
-          include: { condominio: true }
+          include: { 
+            condominio: {
+              select: {
+                id: true,
+                nome: true,
+                cnpj: true,
+                logradouro: true,
+                numero: true,
+                bairro: true,
+                cidade: true,
+                estado: true
+              }
+            }
+          }
         }),
-        this.prisma.condominio.findUnique({ where: { id: condominioId } }),
+        this.prisma.condominio.findUnique({ 
+          where: { id: condominioId },
+          select: {
+            id: true,
+            nome: true,
+            cnpj: true,
+            logradouro: true,
+            numero: true,
+            bairro: true,
+            cidade: true,
+            estado: true
+          }
+        }),
         this.prisma.modeloCarta.findUnique({ where: { id: modeloCartaId } }),
       ]);
 
@@ -40,6 +65,15 @@ export class CobrancaService {
     console.log('Morador:', JSON.stringify(morador, null, 2));
     console.log('Condomínio:', JSON.stringify(condominio, null, 2));
     console.log('Modelo Carta:', JSON.stringify(modeloCarta, null, 2));
+    
+    // Verificar campos específicos
+    console.log('=== VERIFICAÇÃO DE CAMPOS ===');
+    console.log('Morador.apartamento:', morador?.apartamento);
+    console.log('Morador.bloco:', morador?.bloco);
+    console.log('Condomínio.nome:', condominio?.nome);
+    console.log('Condomínio.logradouro:', condominio?.logradouro);
+    console.log('Condomínio.numero:', condominio?.numero);
+    console.log('Condomínio.bairro:', condominio?.bairro);
 
     // Se não vier valor, usa o valor do aluguel do morador
     let valor = createCobrancaDto.valor;
@@ -62,22 +96,22 @@ export class CobrancaService {
     // Preparar dados para substituição
     const dadosSubstituicao = {
       // Campos do morador
-      '{{nome_morador}}': morador.nome || '',
-      '{{nome}}': morador.nome || '',
-      '{{email}}': morador.email || '',
-      '{{telefone}}': morador.telefone || '',
-      '{{bloco}}': morador.bloco || '',
-      '{{apartamento}}': morador.apartamento || '',
-      '{{unidade}}': `${morador.bloco || ''}-${morador.apartamento || ''}`,
+      '{{nome_morador}}': morador?.nome || '',
+      '{{nome}}': morador?.nome || '',
+      '{{email}}': morador?.email || '',
+      '{{telefone}}': morador?.telefone || '',
+      '{{bloco}}': morador?.bloco || '',
+      '{{apartamento}}': morador?.apartamento || '',
+      '{{unidade}}': `${morador?.bloco || ''}-${morador?.apartamento || ''}`,
       
       // Campos do condomínio
-      '{{nome_condominio}}': condominio.nome || '',
-      '{{condominio}}': condominio.nome || '',
-      '{{cnpj}}': condominio.cnpj || '',
-      '{{cidade}}': condominio.cidade || '',
-      '{{estado}}': condominio.estado || '',
-      '{{endereco}}': `${condominio.logradouro || ''}, ${condominio.numero || ''} - ${condominio.bairro || ''}`,
-      '{{endereco_condominio}}': `${condominio.logradouro || ''}, ${condominio.numero || ''} - ${condominio.bairro || ''}`,
+      '{{nome_condominio}}': condominio?.nome || '',
+      '{{condominio}}': condominio?.nome || '',
+      '{{cnpj}}': condominio?.cnpj || '',
+      '{{cidade}}': condominio?.cidade || '',
+      '{{estado}}': condominio?.estado || '',
+      '{{endereco}}': `${condominio?.logradouro || ''}, ${condominio?.numero || ''} - ${condominio?.bairro || ''}`,
+      '{{endereco_condominio}}': `${condominio?.logradouro || ''}, ${condominio?.numero || ''} - ${condominio?.bairro || ''}`,
       
       // Campos da cobrança
       '{{valor}}': valor.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' }),
