@@ -41,7 +41,10 @@ export const MoradorForm = ({ onSave, defaultValues }: Props) => {
   // Função para formatar valor para exibição
   const formatCurrencyForDisplay = (value: number | undefined): string => {
     if (value === undefined || value === null) return '';
-    return value.toLocaleString('pt-BR', { 
+    // Garantir que o valor seja um número
+    const numValue = typeof value === 'string' ? parseFloat(value.replace(/\./g, '').replace(',', '.')) : value;
+    if (isNaN(numValue)) return '';
+    return numValue.toLocaleString('pt-BR', { 
       minimumFractionDigits: 2, 
       maximumFractionDigits: 2 
     });
@@ -134,7 +137,9 @@ export const MoradorForm = ({ onSave, defaultValues }: Props) => {
                   placeholder="0,00"
                   value={formatCurrencyForDisplay(field.value)}
                   onAccept={(value) => {
-                    field.onChange(value);
+                    // Converter para número antes de salvar
+                    const numValue = typeof value === 'string' ? parseFloat(value.replace(/\./g, '').replace(',', '.')) : value;
+                    field.onChange(isNaN(numValue) ? undefined : numValue);
                   }}
                   className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm"
                 />
