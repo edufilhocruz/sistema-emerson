@@ -128,13 +128,16 @@ export const CobrancasTable = () => {
               </TableRow>
             </TableHeader>
             <TableBody>
-              {mockCobrancas.map((cobranca) => (
+              {mockCobrancas.map((cobranca, index) => {
+                // ID sequencial do condomínio (baseado na posição)
+                const condominioId = index + 1;
+                return (
                 <TableRow key={cobranca.id}>
                   <TableCell className="font-medium">{cobranca.morador}</TableCell>
                   <TableCell>
                     {typeof cobranca.condominio === 'string' 
                       ? cobranca.condominio 
-                      : `${cobranca.condominio.nome} (ID: ${cobranca.condominio.id})`
+                      : `${cobranca.condominio.nome} (ID: ${condominioId})`
                     }
                   </TableCell>
                   <TableCell>{cobranca.valor}</TableCell>
@@ -145,7 +148,8 @@ export const CobrancasTable = () => {
                     </Badge>
                   </TableCell>
                 </TableRow>
-              ))}
+              );
+              })}
             </TableBody>
           </Table>
         </div>

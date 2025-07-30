@@ -55,7 +55,10 @@ export const CobrancasTable = ({ data }: Props) => {
           </TableRow>
         </TableHeader>
         <TableBody>
-          {data.map((cobranca) => (
+          {data.map((cobranca, index) => {
+            // ID sequencial do condomínio (baseado na posição)
+            const condominioId = index + 1;
+            return (
             <TableRow key={cobranca.id}>
               <TableCell>
                 <input type="checkbox" checked={selecionados.includes(cobranca.id)} onChange={() => toggleSelect(cobranca.id)} />
@@ -64,7 +67,7 @@ export const CobrancasTable = ({ data }: Props) => {
               <TableCell>
                 {typeof cobranca.condominio === 'string' 
                   ? cobranca.condominio 
-                  : `${cobranca.condominio.nome} (ID: ${cobranca.condominio.id})`
+                  : `${cobranca.condominio.nome} (ID: ${condominioId})`
                 }
               </TableCell>
               <TableCell>{cobranca.valor.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })}</TableCell>
@@ -75,7 +78,8 @@ export const CobrancasTable = ({ data }: Props) => {
                 </Badge>
               </TableCell>
             </TableRow>
-          ))}
+          );
+          })}
         </TableBody>
       </Table>
     </div>

@@ -29,7 +29,7 @@ module.exports = {
     {
       name: 'raunaimer-frontend',
       script: 'npx',
-      args: 'serve -s -l 3000',
+      args: 'serve -s -l 3000 -n',
       cwd: './dist',
       instances: 1,
       exec_mode: 'fork',
@@ -38,11 +38,13 @@ module.exports = {
       max_memory_restart: '512M',
       env: {
         NODE_ENV: 'production',
-        PORT: 3000
+        PORT: 3000,
+        HOST: '127.0.0.1'
       },
       env_production: {
         NODE_ENV: 'production',
-        PORT: 3000
+        PORT: 3000,
+        HOST: '127.0.0.1'
       },
       error_file: './logs/frontend-error.log',
       out_file: './logs/frontend-out.log',

@@ -41,6 +41,10 @@ mkdir -p logs
 
 # Iniciar PM2
 echo "🚀 Iniciando aplicações com PM2..."
+# Garantir que o arquivo está com extensão correta
+if [ -f "ecosystem.config.js" ]; then
+  mv ecosystem.config.js ecosystem.config.cjs
+fi
 pm2 start ecosystem.config.cjs --env production
 pm2 save
 
