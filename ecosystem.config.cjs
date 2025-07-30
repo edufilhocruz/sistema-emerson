@@ -28,10 +28,11 @@ module.exports = {
     },
     {
       name: 'raunaimer-frontend',
-      script: 'node_modules/.bin/serve',
+      script: 'serve',
       cwd: './dist',
-      args: '-s -l 3000',
+      args: '-s -l 3000 --listen 127.0.0.1:3000',
       instances: 1,
+      exec_mode: 'fork',
       autorestart: true,
       watch: false,
       max_memory_restart: '512M',
