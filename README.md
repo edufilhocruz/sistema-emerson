@@ -62,3 +62,4 @@ npm run dev
 - Requer **PostgreSQL** e **Redis** instalados localmente.
 - Stack moderna: Prisma ORM, NestJS, React, Vite, Radix UI, Lucide Icons e mais.
 
+# Trigger deploy
