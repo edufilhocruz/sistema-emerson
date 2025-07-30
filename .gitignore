@@ -29,7 +29,6 @@ push-to-github.sh
 /backend/.env*
 
 # Testes e workflows
-/.github/
 
 # node_modules e builds
 node_modules/
