@@ -11,8 +11,10 @@ export class CondominioRepository {
     return this.prisma.condominio.create({ data: createCondominioDto });
   }
 
-  findAll() {
-    return this.prisma.condominio.findMany();
+  async findAll() {
+    const condominios = await this.prisma.condominio.findMany();
+    console.log('Repository - Condomínios encontrados:', condominios); // Debug
+    return condominios;
   }
 
   findOne(id: string) {
