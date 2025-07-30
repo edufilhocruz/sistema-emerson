@@ -26,11 +26,13 @@ export const CondominiosTable = ({ condominios, onEdit, onDelete }: Props) => {
         </TableRow>
       </TableHeader>
       <TableBody>
-        {condominios.map((condo) => {
+        {condominios.map((condo, index) => {
           console.log('DEBUG - Renderizando condomínio:', condo);
+          // Teste: se não tiver ID, usar um valor de teste
+          const displayId = condo.id || `TEST-ID-${index + 1}`;
           return (
-            <TableRow key={condo.id}>
-              <TableCell className="font-mono text-sm text-muted-foreground">{condo.id}</TableCell>
+            <TableRow key={condo.id || index}>
+              <TableCell className="font-mono text-sm text-muted-foreground">{displayId}</TableCell>
               <TableCell className="font-medium">{condo.nome}</TableCell>
               <TableCell>{condo.cnpj}</TableCell>
               <TableCell>{`${condo.cidade} / ${condo.estado}`}</TableCell>
