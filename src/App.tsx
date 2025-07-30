@@ -31,7 +31,15 @@ const queryClient = new QueryClient();
 
 function PrivateRoute({ children }: { children: JSX.Element }) {
   const { user, loading } = useAuth();
-  if (loading) return null; // ou um spinner
+  
+  if (loading) {
+    return (
+      <div className="flex h-screen w-full items-center justify-center">
+        <LoadingSpinner size="lg" />
+      </div>
+    );
+  }
+  
   return user ? children : <Navigate to="/login" replace />;
 }
 

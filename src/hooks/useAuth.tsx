@@ -51,14 +51,44 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
           if (user && user.id && user.nome) {
             saveUser(user);
           } else {
-            // Se não tem dados válidos, limpar o localStorage também
-            localStorage.removeItem('user');
-            setUser(null);
+            // Se não tem dados válidos da API, manter dados do localStorage se existirem
+            const savedUser = localStorage.getItem('user');
+            if (savedUser) {
+              try {
+                const parsedUser = JSON.parse(savedUser);
+                if (parsedUser && parsedUser.id && parsedUser.nome) {
+                  setUser(parsedUser);
+                } else {
+                  localStorage.removeItem('user');
+                  setUser(null);
+                }
+              } catch {
+                localStorage.removeItem('user');
+                setUser(null);
+              }
+            } else {
+              setUser(null);
+            }
           }
         } else {
-          // Se a resposta não foi ok, limpar dados
-          localStorage.removeItem('user');
-          setUser(null);
+          // Se a resposta não foi ok, manter dados do localStorage se existirem
+          const savedUser = localStorage.getItem('user');
+          if (savedUser) {
+            try {
+              const parsedUser = JSON.parse(savedUser);
+              if (parsedUser && parsedUser.id && parsedUser.nome) {
+                setUser(parsedUser);
+              } else {
+                localStorage.removeItem('user');
+                setUser(null);
+              }
+            } catch {
+              localStorage.removeItem('user');
+              setUser(null);
+            }
+          } else {
+            setUser(null);
+          }
         }
       } catch (error) {
         console.error('Erro ao buscar usuário:', error);
