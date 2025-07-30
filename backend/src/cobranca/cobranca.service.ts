@@ -15,17 +15,21 @@ export class CobrancaService {
   ) {}
 
   async create(createCobrancaDto: CreateCobrancaDto) {
-    // Valida se as entidades relacionadas existem, usando os IDs dinâmicos do DTO
-    const { moradorId, condominioId, modeloCartaId } = createCobrancaDto;
+    try {
+      // Valida se as entidades relacionadas existem, usando os IDs dinâmicos do DTO
+      const { moradorId, condominioId, modeloCartaId } = createCobrancaDto;
 
-    const [morador, condominio, modeloCarta] = await Promise.all([
-      this.prisma.morador.findUnique({ 
-        where: { id: moradorId },
-        include: { condominio: true }
-      }),
-      this.prisma.condominio.findUnique({ where: { id: condominioId } }),
-      this.prisma.modeloCarta.findUnique({ where: { id: modeloCartaId } }),
-    ]);
+      console.log('=== INICIANDO CRIAÇÃO DE COBRANÇA ===');
+      console.log('DTO recebido:', JSON.stringify(createCobrancaDto, null, 2));
+
+      const [morador, condominio, modeloCarta] = await Promise.all([
+        this.prisma.morador.findUnique({ 
+          where: { id: moradorId },
+          include: { condominio: true }
+        }),
+        this.prisma.condominio.findUnique({ where: { id: condominioId } }),
+        this.prisma.modeloCarta.findUnique({ where: { id: modeloCartaId } }),
+      ]);
 
     if (!morador) throw new NotFoundException(`Morador com ID ${moradorId} não encontrado.`);
     if (!condominio) throw new NotFoundException(`Condomínio com ID ${condominioId} não encontrado.`);
@@ -118,6 +122,12 @@ export class CobrancaService {
     }
 
     return cobranca;
+    } catch (error) {
+      console.error('=== ERRO NA CRIAÇÃO DE COBRANÇA ===');
+      console.error('Erro completo:', error);
+      console.error('Stack trace:', error.stack);
+      throw error; // Re-throw para o controller tratar
+    }
   }
 
   findAll() {
