@@ -22,39 +22,78 @@ export class CobrancaService {
       console.log('=== INICIANDO CRIAÇÃO DE COBRANÇA ===');
       console.log('DTO recebido:', JSON.stringify(createCobrancaDto, null, 2));
 
-      const [morador, condominio, modeloCarta] = await Promise.all([
-        this.prisma.morador.findUnique({ 
-          where: { id: moradorId },
-          include: { 
-            condominio: {
-              select: {
-                id: true,
-                nome: true,
-                cnpj: true,
-                logradouro: true,
-                numero: true,
-                bairro: true,
-                cidade: true,
-                estado: true
-              }
+      // Consulta separada para debug
+      console.log('=== CONSULTAS DO BANCO ===');
+      console.log('MoradorId:', moradorId);
+      console.log('CondominioId:', condominioId);
+      console.log('ModeloCartaId:', modeloCartaId);
+
+      const morador = await this.prisma.morador.findUnique({ 
+        where: { id: moradorId },
+        include: { 
+          condominio: {
+            select: {
+              id: true,
+              nome: true,
+              cnpj: true,
+              logradouro: true,
+              numero: true,
+              bairro: true,
+              cidade: true,
+              estado: true
             }
           }
-        }),
-        this.prisma.condominio.findUnique({ 
-          where: { id: condominioId },
-          select: {
-            id: true,
-            nome: true,
-            cnpj: true,
-            logradouro: true,
-            numero: true,
-            bairro: true,
-            cidade: true,
-            estado: true
-          }
-        }),
-        this.prisma.modeloCarta.findUnique({ where: { id: modeloCartaId } }),
-      ]);
+        }
+      });
+      
+      console.log('Morador encontrado:', morador ? 'SIM' : 'NÃO');
+      if (morador) {
+        console.log('Morador dados:', {
+          id: morador.id,
+          nome: morador.nome,
+          bloco: morador.bloco,
+          apartamento: morador.apartamento,
+          condominio: morador.condominio
+        });
+      }
+
+      const condominio = await this.prisma.condominio.findUnique({ 
+        where: { id: condominioId },
+        select: {
+          id: true,
+          nome: true,
+          cnpj: true,
+          logradouro: true,
+          numero: true,
+          bairro: true,
+          cidade: true,
+          estado: true
+        }
+      });
+      
+      console.log('Condomínio encontrado:', condominio ? 'SIM' : 'NÃO');
+      if (condominio) {
+        console.log('Condomínio dados:', {
+          id: condominio.id,
+          nome: condominio.nome,
+          logradouro: condominio.logradouro,
+          numero: condominio.numero,
+          bairro: condominio.bairro
+        });
+      }
+
+      const modeloCarta = await this.prisma.modeloCarta.findUnique({ 
+        where: { id: modeloCartaId } 
+      });
+      
+      console.log('Modelo Carta encontrado:', modeloCarta ? 'SIM' : 'NÃO');
+      if (modeloCarta) {
+        console.log('Modelo Carta dados:', {
+          id: modeloCarta.id,
+          titulo: modeloCarta.titulo,
+          conteudo: modeloCarta.conteudo.substring(0, 100) + '...'
+        });
+      }
 
     if (!morador) throw new NotFoundException(`Morador com ID ${moradorId} não encontrado.`);
     if (!condominio) throw new NotFoundException(`Condomínio com ID ${condominioId} não encontrado.`);
@@ -129,7 +168,9 @@ export class CobrancaService {
     let conteudo = modeloCarta.conteudo;
     console.log('=== SUBSTITUIÇÃO DE CAMPOS ===');
     console.log('Conteúdo original:', conteudo);
+    console.log('Dados para substituição:', JSON.stringify(dadosSubstituicao, null, 2));
     
+    let substituicoesRealizadas = 0;
     Object.entries(dadosSubstituicao).forEach(([placeholder, valor]) => {
       // Escapar caracteres especiais da expressão regular
       const escapedPlaceholder = placeholder.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
@@ -137,12 +178,14 @@ export class CobrancaService {
       const conteudoAntes = conteudo;
       conteudo = conteudo.replace(regex, valor);
       if (conteudoAntes !== conteudo) {
-        console.log(`Substituído: ${placeholder} -> "${valor}"`);
+        console.log(`✅ Substituído: ${placeholder} -> "${valor}"`);
+        substituicoesRealizadas++;
       } else {
-        console.log(`NÃO encontrado: ${placeholder} (valor: "${valor}")`);
+        console.log(`❌ NÃO encontrado: ${placeholder} (valor: "${valor}")`);
       }
     });
     
+    console.log(`Total de substituições realizadas: ${substituicoesRealizadas}`);
     console.log('Conteúdo final:', conteudo);
 
     // Log para debug
