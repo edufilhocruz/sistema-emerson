@@ -47,13 +47,39 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         const response = await fetch('/api/usuarios/me', { credentials: 'include' });
         if (response.ok) {
           const user = await response.json();
-          saveUser(user);
+          // Garantir que o usuário tenha dados válidos antes de salvar
+          if (user && user.id && user.nome) {
+            saveUser(user);
+          } else {
+            // Se não tem dados válidos, limpar o localStorage também
+            localStorage.removeItem('user');
+            setUser(null);
+          }
         } else {
-          saveUser(null);
+          // Se a resposta não foi ok, limpar dados
+          localStorage.removeItem('user');
+          setUser(null);
         }
-      } catch {
-        saveUser(null);
-        // Silencia erro no console para 401 ou falha de rede
+      } catch (error) {
+        console.error('Erro ao buscar usuário:', error);
+        // Em caso de erro, manter dados do localStorage se existirem
+        const savedUser = localStorage.getItem('user');
+        if (savedUser) {
+          try {
+            const parsedUser = JSON.parse(savedUser);
+            if (parsedUser && parsedUser.id && parsedUser.nome) {
+              setUser(parsedUser);
+            } else {
+              localStorage.removeItem('user');
+              setUser(null);
+            }
+          } catch {
+            localStorage.removeItem('user');
+            setUser(null);
+          }
+        } else {
+          setUser(null);
+        }
       } finally {
         setLoading(false);
       }
