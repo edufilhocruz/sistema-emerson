@@ -75,6 +75,7 @@ export const MoradoresTable = React.memo(({ moradores, onEdit, onDelete, onVerHi
               <input type="checkbox" checked={allSelected} onChange={toggleSelectAll} />
             </TableHead>
             <TableHead>Nome</TableHead>
+            <TableHead>ID Condomínio</TableHead>
             <TableHead>Condomínio</TableHead>
             <TableHead>Bloco</TableHead>
             <TableHead>Apartamento</TableHead>
@@ -86,9 +87,11 @@ export const MoradoresTable = React.memo(({ moradores, onEdit, onDelete, onVerHi
           </TableRow>
         </TableHeader>
         <TableBody>
-          {moradores.map((morador) => {
+          {moradores.map((morador, index) => {
             // CORREÇÃO: Verificação de segurança para o status de pagamento.
             const pagamentoConfig = morador.statusPagamento ? statusPagamentoConfig[morador.statusPagamento] : null;
+            // ID sequencial do condomínio (baseado na posição)
+            const condominioId = index + 1;
 
             return (
               <TableRow key={morador.id}>
@@ -96,6 +99,7 @@ export const MoradoresTable = React.memo(({ moradores, onEdit, onDelete, onVerHi
                   <input type="checkbox" checked={selecionados.includes(morador.id)} onChange={() => toggleSelect(morador.id)} />
                 </TableCell>
                 <TableCell className="font-medium">{morador.nome}</TableCell>
+                <TableCell className="font-mono text-sm text-muted-foreground">{condominioId}</TableCell>
                 <TableCell>{morador.condominio?.nome || 'N/A'}</TableCell>
                 <TableCell>{morador.bloco}</TableCell>
                 <TableCell>{morador.apartamento}</TableCell>
