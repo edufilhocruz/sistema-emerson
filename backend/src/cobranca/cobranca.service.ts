@@ -20,13 +20,41 @@ export class CobrancaService {
   private substituirPlaceholders(texto: string, dados: Record<string, any>): string {
     let resultado = texto;
     
+    console.log('=== INICIANDO SUBSTITUIÇÃO DE PLACEHOLDERS ===');
+    console.log('Texto original:', texto);
+    
     // Substitui cada placeholder pelo seu valor correspondente
     Object.entries(dados).forEach(([placeholder, valor]) => {
-      // Escapa caracteres especiais para regex
-      const placeholderEscapado = placeholder.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-      const regex = new RegExp(placeholderEscapado, 'g');
-      resultado = resultado.replace(regex, String(valor || ''));
+      console.log(`\n--- Processando: ${placeholder} ---`);
+      console.log(`Valor para substituir: "${valor}"`);
+      console.log(`Tipo do valor: ${typeof valor}`);
+      
+      // Verifica se o placeholder existe no texto
+      if (resultado.includes(placeholder)) {
+        console.log(`✅ Placeholder encontrado no texto`);
+        
+        // Escapa caracteres especiais para regex
+        const placeholderEscapado = placeholder.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+        const regex = new RegExp(placeholderEscapado, 'g');
+        
+        console.log(`Regex criado: ${regex}`);
+        
+        // Substitui todas as ocorrências
+        const antes = resultado;
+        resultado = resultado.replace(regex, String(valor || ''));
+        
+        if (antes !== resultado) {
+          console.log(`✅ Substituição realizada: "${placeholder}" -> "${valor}"`);
+        } else {
+          console.log(`❌ Substituição não foi realizada`);
+        }
+      } else {
+        console.log(`❌ Placeholder NÃO encontrado no texto`);
+      }
     });
+    
+    console.log('\n=== RESULTADO FINAL ===');
+    console.log('Texto processado:', resultado);
     
     return resultado;
   }
@@ -84,6 +112,29 @@ export class CobrancaService {
         logradouro: morador.condominio.logradouro,
         numero: morador.condominio.numero,
         bairro: morador.condominio.bairro
+      });
+
+      // Verificação detalhada dos campos problemáticos
+      console.log('=== VERIFICAÇÃO DETALHADA DOS CAMPOS ===');
+      console.log('morador.bloco:', {
+        valor: morador.bloco,
+        tipo: typeof morador.bloco,
+        existe: morador.bloco !== null && morador.bloco !== undefined
+      });
+      console.log('morador.apartamento:', {
+        valor: morador.apartamento,
+        tipo: typeof morador.apartamento,
+        existe: morador.apartamento !== null && morador.apartamento !== undefined
+      });
+      console.log('morador.condominio.nome:', {
+        valor: morador.condominio.nome,
+        tipo: typeof morador.condominio.nome,
+        existe: morador.condominio.nome !== null && morador.condominio.nome !== undefined
+      });
+      console.log('morador.condominio.logradouro:', {
+        valor: morador.condominio.logradouro,
+        tipo: typeof morador.condominio.logradouro,
+        existe: morador.condominio.logradouro !== null && morador.condominio.logradouro !== undefined
       });
 
       // Determina o valor da cobrança

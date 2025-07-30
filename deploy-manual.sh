@@ -1,62 +1,78 @@
 #!/bin/bash
-set -e
 
-echo "🚀 Iniciando deploy manual..."
+# Script de Deploy Manual - Sistema Raunaimer
+# Conecta no servidor e faz deploy das alterações
 
-# Navegar para o diretório do projeto
-cd /var/www/sistema_raunaimer
+echo "🚀 INICIANDO DEPLOY MANUAL - SISTEMA RAUNAIMER"
+echo "=============================================="
 
-# Parar e remover todas as aplicações PM2
-echo "🛑 Parando todas as aplicações..."
-pm2 stop all 2>/dev/null || true
-pm2 delete all 2>/dev/null || true
+# Configurações do servidor
+SERVER_IP="191.252.111.245"
+SERVER_USER="root"
+PROJECT_DIR="/var/www/sistema_raunaimer"
 
-# Fazer pull das mudanças
-echo "📥 Fazendo pull das mudanças..."
-git fetch origin main
+echo "📡 Conectando no servidor..."
+echo "IP: $SERVER_IP"
+echo "Usuário: $SERVER_USER"
+echo "Diretório: $PROJECT_DIR"
+echo ""
+
+# Comandos para executar no servidor
+SSH_COMMANDS="
+echo '🔧 PARANDO SERVIÇOS...'
+pm2 stop all
+pm2 delete all
+
+echo '📁 NAVEGANDO PARA O DIRETÓRIO...'
+cd $PROJECT_DIR
+
+echo '🔄 PUXANDO ALTERAÇÕES DO GITHUB...'
+git fetch origin
 git reset --hard origin/main
 
-# Limpar cache
-echo "🧹 Limpando cache..."
-rm -rf node_modules package-lock.json
-rm -rf backend/node_modules backend/package-lock.json
+echo '🧹 LIMPANDO CACHE...'
+rm -rf node_modules
+rm -rf backend/node_modules
+rm -rf backend/dist
 
-# Instalar dependências
-echo "📦 Instalando dependências do frontend..."
+echo '📦 INSTALANDO DEPENDÊNCIAS DO FRONTEND...'
 npm install
 
-echo "📦 Instalando dependências do backend..."
-cd backend && npm install && cd ..
-
-# Build
-echo "🔨 Build do frontend..."
+echo '🏗️ BUILDANDO FRONTEND...'
 npm run build
 
-echo "🔨 Build do backend..."
-cd backend && npm run build && cd ..
+echo '📦 INSTALANDO DEPENDÊNCIAS DO BACKEND...'
+cd backend
+npm install
 
-# Criar logs
-echo "📁 Criando diretório de logs..."
-mkdir -p logs
+echo '🔧 GERANDO CLIENTE PRISMA...'
+npx prisma generate
 
-# Iniciar PM2
-echo "🚀 Iniciando aplicações com PM2..."
-# Garantir que o arquivo está com extensão correta
-if [ -f "ecosystem.config.js" ]; then
-  mv ecosystem.config.js ecosystem.config.cjs
-fi
-pm2 start ecosystem.config.cjs --env production
-pm2 save
+echo '🏗️ BUILDANDO BACKEND...'
+npm run build
 
-# Verificar status
-echo "📊 Status das aplicações:"
+echo '📁 VOLTANDO PARA DIRETÓRIO RAIZ...'
+cd ..
+
+echo '🔄 INICIANDO SERVIÇOS...'
+pm2 start ecosystem.config.cjs
+
+echo '⏳ AGUARDANDO SERVIÇOS INICIAREM...'
+sleep 5
+
+echo '📊 STATUS DOS SERVIÇOS...'
 pm2 status
 
-# Testar aplicações
-echo "🌐 Testando aplicações..."
-sleep 5
-curl -I http://localhost:3001 || echo "❌ Backend não está respondendo"
-curl -I http://localhost:3000 || echo "❌ Frontend não está respondendo"
+echo '✅ DEPLOY CONCLUÍDO COM SUCESSO!'
+"
 
-echo "✅ Deploy manual concluído!"
-echo "🌐 Aplicação disponível em: http://app.raunaimer.adv.br" 
+# Executa os comandos via SSH
+echo "Executando comandos no servidor..."
+ssh -o StrictHostKeyChecking=no $SERVER_USER@$SERVER_IP "$SSH_COMMANDS"
+
+echo ""
+echo "🎉 DEPLOY MANUAL CONCLUÍDO!"
+echo "Acesse: http://app.raunaimer.adv.br"
+echo ""
+echo "Para verificar os logs:"
+echo "ssh $SERVER_USER@$SERVER_IP 'pm2 logs raunaimer-backend --lines 50'" 
