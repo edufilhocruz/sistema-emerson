@@ -55,6 +55,7 @@ const App = () => {
                 <Route path="/login" element={<Login />} />
                 <Route path="/register" element={<Register />} />
                 <Route path="/" element={<Navigate to="/dashboard" replace />} />
+                <Route path="/index" element={<Navigate to="/dashboard" replace />} />
                 <Route path="/dashboard" element={<PrivateRoute><IndexPage /></PrivateRoute>} />
                 <Route path="/condominios" element={<PrivateRoute><CondominiosPage /></PrivateRoute>} />
                 <Route path="/moradores" element={<PrivateRoute><MoradoresPage /></PrivateRoute>} />
@@ -69,6 +70,7 @@ const App = () => {
                 <Route path="/inadimplencia/relatorio" element={<PrivateRoute><HistoricoInadimplenciaPage /></PrivateRoute>} />
                 
                 <Route path="/relatorios/sem-cobranca" element={<PrivateRoute><SemCobrancaPage /></PrivateRoute>} />
+                <Route path="/index" element={<Navigate to="/dashboard" replace />} />
                 <Route path="*" element={<NotFoundPage />} />
               </Routes>
             </React.Suspense>
