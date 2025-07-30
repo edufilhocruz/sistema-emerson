@@ -16,10 +16,8 @@ export const useCondominios = () => {
     try {
       setLoading(true);
       const data = await condominioService.getCondominios();
-      console.log('Dados dos condomínios recebidos:', data); // Debug
       setCondominios(data);
     } catch (err) {
-      console.error('Erro ao buscar condomínios:', err); // Debug
       setError('Falha ao carregar a lista de condomínios.');
     } finally {
       setLoading(false);
