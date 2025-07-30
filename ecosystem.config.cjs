@@ -30,18 +30,20 @@ module.exports = {
       name: 'raunaimer-frontend',
       script: 'serve',
       cwd: './dist',
-      args: '-s -l 3000',
+      args: '-s -l 3000 -n',
       instances: 1,
       autorestart: true,
       watch: false,
       max_memory_restart: '512M',
       env: {
         NODE_ENV: 'production',
-        PORT: 3000
+        PORT: 3000,
+        HOST: 'localhost'
       },
       env_production: {
         NODE_ENV: 'production',
-        PORT: 3000
+        PORT: 3000,
+        HOST: 'localhost'
       },
       error_file: './logs/frontend-error.log',
       out_file: './logs/frontend-out.log',
