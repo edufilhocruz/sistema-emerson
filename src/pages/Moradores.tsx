@@ -17,6 +17,7 @@ import cobrancaService from '@/features/cobranca/services/cobrancaService';
 
 const MoradoresPage = () => {
     const { moradores, loading, error, refresh } = useMoradores();
+    const [forceUpdate, setForceUpdate] = useState(0);
     const [isFormOpen, setIsFormOpen] = useState(false);
     const [searchTerm, setSearchTerm] = useState('');
     const [dateRange, setDateRange] = useState<DateRange | undefined>();
@@ -75,25 +76,42 @@ const MoradoresPage = () => {
             setEditId(null);
             setSelectedMorador(null);
             
-            // Forçar atualização imediata e com delay
+            // Forçar atualização imediata
             console.log('🔄 Chamando refresh() imediatamente...');
             try {
-                refresh();
+                await refresh();
                 console.log('✅ Refresh imediato executado com sucesso!');
             } catch (refreshError) {
                 console.error('❌ Erro ao executar refresh imediato:', refreshError);
             }
             
             // Refresh adicional com delay para garantir
-            setTimeout(() => {
+            setTimeout(async () => {
                 console.log('🔄 Executando refresh adicional após delay...');
                 try {
-                    refresh();
+                    await refresh();
                     console.log('✅ Refresh adicional executado com sucesso!');
                 } catch (refreshError) {
                     console.error('❌ Erro ao executar refresh adicional:', refreshError);
                 }
             }, 1000);
+            
+            // Refresh final com delay maior
+            setTimeout(async () => {
+                console.log('🔄 Executando refresh final...');
+                try {
+                    await refresh();
+                    console.log('✅ Refresh final executado com sucesso!');
+                } catch (refreshError) {
+                    console.error('❌ Erro ao executar refresh final:', refreshError);
+                }
+            }, 2000);
+            
+            // Forçar re-render do componente
+            setTimeout(() => {
+                console.log('🔄 Forçando re-render do componente...');
+                setForceUpdate(prev => prev + 1);
+            }, 500);
         } catch (err) {
             console.error('❌ Erro ao salvar morador:', err);
             let description = 'Não foi possível salvar o morador.';
