@@ -33,7 +33,7 @@ const MoradoresPage = () => {
     const [moradorHistorico, setMoradorHistorico] = useState<any | null>(null);
     const [historico, setHistorico] = useState<any[]>([]);
     const [loadingHistorico, setLoadingHistorico] = useState(false);
-    const [salvoOpen, setSalvoOpen] = useState(false);
+
 
     const filteredMoradores = useMemo(() => {
         return moradores.filter(morador => {
@@ -60,58 +60,21 @@ const MoradoresPage = () => {
             if (editId) {
                 const res = await moradorService.updateMorador(editId, data);
                 console.log('Resposta updateMorador:', res);
-                setSalvoOpen(true);
-                setTimeout(() => setSalvoOpen(false), 2000);
                 toast({ title: 'Morador atualizado com sucesso!' });
             } else {
                 const res = await moradorService.createMorador(data);
                 console.log('Resposta createMorador:', res);
-                setSalvoOpen(true);
-                setTimeout(() => setSalvoOpen(false), 2000);
                 toast({ title: 'Morador criado com sucesso!' });
             }
             
-            console.log('🔄 Fechando formulário e limpando estados...');
+            // Fechar formulário e limpar estados
             setIsFormOpen(false);
             setEditId(null);
             setSelectedMorador(null);
             
-            // Forçar atualização imediata
-            console.log('🔄 Chamando refresh() imediatamente...');
-            try {
-                await refresh();
-                console.log('✅ Refresh imediato executado com sucesso!');
-            } catch (refreshError) {
-                console.error('❌ Erro ao executar refresh imediato:', refreshError);
-            }
+            // Atualizar lista
+            await refresh();
             
-            // Refresh adicional com delay para garantir
-            setTimeout(async () => {
-                console.log('🔄 Executando refresh adicional após delay...');
-                try {
-                    await refresh();
-                    console.log('✅ Refresh adicional executado com sucesso!');
-                } catch (refreshError) {
-                    console.error('❌ Erro ao executar refresh adicional:', refreshError);
-                }
-            }, 1000);
-            
-            // Refresh final com delay maior
-            setTimeout(async () => {
-                console.log('🔄 Executando refresh final...');
-                try {
-                    await refresh();
-                    console.log('✅ Refresh final executado com sucesso!');
-                } catch (refreshError) {
-                    console.error('❌ Erro ao executar refresh final:', refreshError);
-                }
-            }, 2000);
-            
-            // Forçar re-render do componente
-            setTimeout(() => {
-                console.log('🔄 Forçando re-render do componente...');
-                setForceUpdate(prev => prev + 1);
-            }, 500);
         } catch (err) {
             console.error('❌ Erro ao salvar morador:', err);
             let description = 'Não foi possível salvar o morador.';
@@ -119,6 +82,7 @@ const MoradoresPage = () => {
                 description = err.response.data.message;
             }
             toast({ variant: 'destructive', title: 'Erro', description });
+            throw err; // Re-throw para o hook tratar
         }
     };
 
@@ -191,11 +155,17 @@ const MoradoresPage = () => {
                     </div>
                 </main>
             </div>
-            <Dialog open={isFormOpen} onOpenChange={(open) => { setIsFormOpen(open); if (!open) { setEditId(null); setSelectedMorador(null); } }}>
-                <DialogContent>
-                    <MoradorForm onSave={handleSaveMorador} defaultValues={selectedMorador || undefined} />
-                </DialogContent>
-            </Dialog>
+            <MoradorForm
+                mode={editId ? 'edit' : 'create'}
+                initialData={selectedMorador || undefined}
+                onSubmit={handleSaveMorador}
+                onCancel={() => {
+                    setIsFormOpen(false);
+                    setEditId(null);
+                    setSelectedMorador(null);
+                }}
+                open={isFormOpen}
+            />
             <Dialog open={historicoOpen} onOpenChange={(open) => { setHistoricoOpen(open); if (!open) { setMoradorHistorico(null); setHistorico([]); } }}>
                 <DialogContent className="max-w-2xl">
                     <Card className="rounded-2xl shadow-sm border">
@@ -276,15 +246,7 @@ const MoradoresPage = () => {
                     </Card>
                 </DialogContent>
             </Dialog>
-            <Dialog open={salvoOpen} onOpenChange={setSalvoOpen}>
-              <DialogContent className="max-w-xs">
-                <DialogTitle className="sr-only">Confirmação</DialogTitle>
-                <div className="flex flex-col items-center gap-4 p-8">
-                  <svg width="48" height="48" fill="none" viewBox="0 0 24 24"><circle cx="12" cy="12" r="12" fill="#22c55e" fillOpacity="0.15"/><path d="M7 13l3 3 7-7" stroke="#22c55e" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/></svg>
-                  <div className="text-green-700 text-lg font-bold">Informações salvas!</div>
-                </div>
-              </DialogContent>
-            </Dialog>
+
         </>
     );
 };

@@ -1,192 +1,190 @@
-import { useForm } from 'react-hook-form';
-import { zodResolver } from '@hookform/resolvers/zod';
-import { moradorFormSchema, MoradorFormData, moradorEditSchema, Morador } from '../types';
-import { Button } from "@/components/ui/button";
-import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
-import { Input } from "@/components/ui/input";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { DialogHeader, DialogTitle, DialogDescription, DialogFooter, DialogClose } from '@/components/ui/dialog';
-import { IMaskInput } from 'react-imask';
+import React, { useMemo, useCallback } from 'react';
+import { Form } from '@/components/ui/form';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Separator } from '@/components/ui/separator';
+import { Loader2, Save, X, UserPlus, UserEdit } from 'lucide-react';
 import { useCondominios } from '@/features/condominio/hooks/useCondominios';
-import { toast } from '@/components/ui/use-toast';
-import { Send } from 'lucide-react';
+import { useMoradorForm } from '../hooks/useMoradorForm';
+import { MoradorFormFields } from './form-fields/MoradorFormFields';
+import { MoradorFormContext, Morador } from '../types';
 
-interface Props { 
-  onSave: (data: MoradorFormData) => void; 
-  defaultValues?: Partial<Morador>;
+// ============================================================================
+// INTERFACES
+// ============================================================================
+
+interface MoradorFormProps {
+  mode: 'create' | 'edit';
+  initialData?: Partial<Morador>;
+  onSubmit: (data: any) => Promise<void>;
+  onCancel: () => void;
+  open: boolean;
 }
 
-/**
- * MoradorForm: Componente de formulário para criar ou editar um morador.
- * Busca dinamicamente a lista de condomínios da API para popular o seletor.
- */
-export const MoradorForm = ({ onSave, defaultValues }: Props) => {
-  const { condominioOptions, loading: loadingCondominios } = useCondominios();
-  
-  const isEditMode = !!defaultValues?.id;
-  const form = useForm<MoradorFormData>({ 
-    resolver: zodResolver(isEditMode ? moradorEditSchema : moradorFormSchema),
-    defaultValues: {
-      nome: '',
-      email: '',
-      telefone: '',
-      condominioId: undefined,
-      bloco: '',
-      apartamento: '',
-      valorAluguel: undefined,
-      ...defaultValues,
-    }
-  });
+// ============================================================================
+// COMPONENTE PRINCIPAL
+// ============================================================================
 
-  // Função para formatar valor para exibição
-  const formatCurrencyForDisplay = (value: number | undefined): string => {
-    if (value === undefined || value === null) return '';
-    // Garantir que o valor seja um número
-    const numValue = typeof value === 'string' ? parseFloat(value.replace(/\./g, '').replace(',', '.')) : value;
-    if (isNaN(numValue)) return '';
-    return numValue.toLocaleString('pt-BR', { 
-      minimumFractionDigits: 2, 
-      maximumFractionDigits: 2 
-    });
-  };
+export const MoradorForm: React.FC<MoradorFormProps> = ({
+  mode,
+  initialData,
+  onSubmit,
+  onCancel,
+  open
+}) => {
+  // ============================================================================
+  // HOOKS
+  // ============================================================================
 
-  // Função para tratar conversão do valor do aluguel
-  async function handleSubmit(data: MoradorFormData) {
-    console.log('[MoradorForm] handleSubmit chamado:', data);
-    
-    // Tratar valor do aluguel
-    let valorAluguel = data.valorAluguel;
-    if (typeof valorAluguel === 'string') {
-      // Se for string vazia ou "0", definir como undefined
-      if (!valorAluguel || valorAluguel === '' || valorAluguel === '0') {
-        valorAluguel = undefined;
-      } else {
-        valorAluguel = Number(valorAluguel.replace(/\./g, '').replace(',', '.'));
-      }
-    }
-    
-    // Converter campos string vazia em undefined e tratar valores especiais
-    const dataLimpo = Object.fromEntries(
-      Object.entries({ ...data, valorAluguel }).map(([k, v]) => {
-        if (v === '' || v === null || v === undefined || v === '0' || v === '0,00') {
-          return [k, undefined];
-        }
-        // Se for string, remover espaços em branco
-        if (typeof v === 'string') {
-          const trimmed = v.trim();
-          return [k, trimmed === '' ? undefined : trimmed];
-        }
-        return [k, v];
-      })
-    );
-    
-    console.log('[MoradorForm] Dados limpos:', dataLimpo);
-    onSave(dataLimpo as MoradorFormData);
+  const { condominios, loading: loadingCondominios } = useCondominios();
+
+  // ============================================================================
+  // CONTEXTO DO FORMULÁRIO
+  // ============================================================================
+
+  const formContext: MoradorFormContext = useMemo(() => ({
+    mode,
+    initialData,
+    onSubmit,
+    onCancel
+  }), [mode, initialData, onSubmit, onCancel]);
+
+  // ============================================================================
+  // HOOK CUSTOMIZADO DO FORMULÁRIO
+  // ============================================================================
+
+  const {
+    form,
+    formState,
+    handleSubmit,
+    handleCancel,
+    handleTelefoneChange,
+    handleValorAluguelChange,
+    handleValorAluguelBlur,
+    formatCurrencyForDisplay,
+    isEditMode,
+    isCreateMode
+  } = useMoradorForm(formContext);
+
+  // ============================================================================
+  // OPÇÕES DE CONDOMÍNIO
+  // ============================================================================
+
+  const condominioOptions = useMemo(() => {
+    return condominios.map(condo => ({
+      value: condo.id,
+      label: condo.nome
+    }));
+  }, [condominios]);
+
+  // ============================================================================
+  // HANDLERS
+  // ============================================================================
+
+  const handleFormCancel = useCallback(() => {
+    handleCancel();
+  }, [handleCancel]);
+
+  // ============================================================================
+  // RENDERIZAÇÃO CONDICIONAL
+  // ============================================================================
+
+  if (!open) {
+    return null;
   }
 
+  // ============================================================================
+  // RENDERIZAÇÃO PRINCIPAL
+  // ============================================================================
+
   return (
-    <>
-      <DialogHeader>
-        <DialogTitle>{isEditMode ? 'Editar Morador' : 'Adicionar Novo Morador'}</DialogTitle>
-        <DialogDescription>{isEditMode ? 'Altere os dados desejados e salve para atualizar o morador.' : 'Preencha os dados para cadastrar um novo morador no sistema.'}</DialogDescription>
-      </DialogHeader>
-      <Form {...form}>
-        <DialogTitle className="sr-only">Formulário de Morador</DialogTitle>
-        <form onSubmit={form.handleSubmit(handleSubmit, (errors) => {
-          console.error('[MoradorForm] Erros de validação Zod:', errors);
-          const camposInvalidos = Object.values(errors)
-            .map((err: any) => err?.message)
-            .filter(Boolean)
-            .join(', ');
-          toast({
-            variant: 'destructive',
-            title: 'Erro',
-            description: camposInvalidos ? `Corrija: ${camposInvalidos}` : 'Preencha os campos corretamente.'
-          });
-        })} className="space-y-4 py-4 max-h-[70vh] overflow-y-auto pr-6">
-          <FormField
-            control={form.control}
-            name="nome"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Nome</FormLabel>
-                <FormControl>
-                  <Input placeholder="Nome completo" {...field} />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
+    <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
+      <Card className="w-full max-w-2xl max-h-[90vh] overflow-y-auto">
+        <CardHeader className="space-y-1">
+          <div className="flex items-center gap-2">
+            {isCreateMode ? (
+              <UserPlus className="h-5 w-5 text-blue-600" />
+            ) : (
+              <UserEdit className="h-5 w-5 text-orange-600" />
             )}
-          />
-          <FormField
-            control={form.control}
-            name="condominioId"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Condomínio</FormLabel>
-                <Select onValueChange={field.onChange} defaultValue={field.value} disabled={loadingCondominios}>
-                  <FormControl>
-                    <SelectTrigger>
-                      <SelectValue placeholder={loadingCondominios ? "Carregando condomínios..." : "Selecione o condomínio"} />
-                    </SelectTrigger>
-                  </FormControl>
-                  <SelectContent>
-                    {condominioOptions.map((condo) => (
-                      <SelectItem key={condo.value} value={condo.value}>
-                        {condo.label}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <FormField control={form.control} name="bloco" render={({ field }) => ( <FormItem><FormLabel>Bloco</FormLabel><FormControl><Input placeholder="Ex: A" {...field} /></FormControl><FormMessage /></FormItem> )} />
-            <FormField control={form.control} name="apartamento" render={({ field }) => ( <FormItem><FormLabel>Apartamento</FormLabel><FormControl><Input placeholder="Ex: 101" {...field} /></FormControl><FormMessage /></FormItem> )} />
+            <CardTitle className="text-xl">
+              {isCreateMode ? 'Novo Morador' : 'Editar Morador'}
+            </CardTitle>
           </div>
-          <FormField control={form.control} name="valorAluguel" render={({ field }) => (
-            <FormItem>
-              <FormLabel>Valor do Aluguel</FormLabel>
-              <FormControl>
-                <IMaskInput
-                  mask={Number}
-                  scale={2}
-                  radix=","
-                  mapToRadix={["."]}
-                  placeholder="0,00"
-                  value={formatCurrencyForDisplay(field.value)}
-                  onAccept={(value) => {
-                    // Se o valor estiver vazio, definir como undefined
-                    if (!value || value === '' || value === '0' || value === '0,00') {
-                      field.onChange(undefined);
-                      return;
-                    }
-                    // Converter para número antes de salvar
-                    const numValue = typeof value === 'string' ? parseFloat(value.replace(/\./g, '').replace(',', '.')) : value;
-                    field.onChange(isNaN(numValue) ? undefined : numValue);
-                  }}
-                  onBlur={(e) => {
-                    // Se o campo ficar vazio no blur, definir como undefined
-                    if (!e.target.value || e.target.value === '' || e.target.value === '0,00') {
-                      field.onChange(undefined);
-                    }
-                  }}
-                  className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm"
-                />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )} />
-          <FormField control={form.control} name="email" render={({ field }) => ( <FormItem><FormLabel>Email</FormLabel><FormControl><Input type="email" placeholder="email@example.com" {...field} /></FormControl><FormMessage /></FormItem> )} />
-          <FormField control={form.control} name="telefone" render={({ field }) => ( <FormItem><FormLabel>Telefone</FormLabel><FormControl><IMaskInput mask="(00) 00000-0000" placeholder="(11) 98765-4321" {...field} onAccept={field.onChange} className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm" /></FormControl><FormMessage /></FormItem> )} />
-          
-          <DialogFooter className="pt-4 sticky bottom-0 bg-background">
-            <DialogClose asChild><Button type="button" variant="outline">Cancelar</Button></DialogClose>
-            <Button type="submit" className="bg-gold hover:bg-gold-hover">Salvar</Button>
-          </DialogFooter>
-        </form>
-      </Form>
-    </>
+          <CardDescription>
+            {isCreateMode 
+              ? 'Preencha os dados para cadastrar um novo morador no sistema.'
+              : 'Atualize as informações do morador conforme necessário.'
+            }
+          </CardDescription>
+        </CardHeader>
+
+        <Separator />
+
+        <CardContent className="pt-6">
+          <Form {...form}>
+            <form onSubmit={handleSubmit} className="space-y-6">
+              {/* Campos do Formulário */}
+              <MoradorFormFields
+                control={form.control}
+                condominioOptions={condominioOptions}
+                loadingCondominios={loadingCondominios}
+                onTelefoneChange={handleTelefoneChange}
+                onValorAluguelChange={handleValorAluguelChange}
+                onValorAluguelBlur={handleValorAluguelBlur}
+                formatCurrencyForDisplay={formatCurrencyForDisplay}
+              />
+
+              <Separator />
+
+              {/* Botões de Ação */}
+              <div className="flex justify-end gap-3">
+                <Button
+                  type="button"
+                  variant="outline"
+                  onClick={handleFormCancel}
+                  disabled={formState.isSubmitting}
+                  className="min-w-[100px]"
+                >
+                  <X className="h-4 w-4 mr-2" />
+                  Cancelar
+                </Button>
+
+                <Button
+                  type="submit"
+                  disabled={formState.isSubmitting || !formState.isValid}
+                  className="min-w-[100px]"
+                >
+                  {formState.isSubmitting ? (
+                    <>
+                      <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                      Salvando...
+                    </>
+                  ) : (
+                    <>
+                      <Save className="h-4 w-4 mr-2" />
+                      {isCreateMode ? 'Criar' : 'Salvar'}
+                    </>
+                  )}
+                </Button>
+              </div>
+
+              {/* Indicadores de Estado */}
+              {formState.isDirty && (
+                <div className="text-sm text-muted-foreground text-center">
+                  ⚠️ Você tem alterações não salvas
+                </div>
+              )}
+
+              {Object.keys(formState.errors).length > 0 && (
+                <div className="text-sm text-destructive text-center">
+                  ⚠️ Existem erros no formulário. Verifique os campos destacados.
+                </div>
+              )}
+            </form>
+          </Form>
+        </CardContent>
+      </Card>
+    </div>
   );
 };
