@@ -29,7 +29,22 @@ export class CondominioService {
   }
 
   async remove(id: string) {
-    await this.findOne(id); // Garante que o condomínio existe antes de tentar remover
-    return this.repository.remove(id);
+    console.log('=== REMOVENDO CONDOMÍNIO ===');
+    console.log('ID:', id);
+    
+    try {
+      // Garante que o condomínio existe antes de tentar remover
+      const condominio = await this.findOne(id);
+      console.log('Condomínio encontrado:', condominio.nome);
+      
+      // Remove o condomínio e todos os registros relacionados
+      const result = await this.repository.remove(id);
+      console.log('✅ Condomínio removido com sucesso:', result.nome);
+      
+      return result;
+    } catch (error) {
+      console.error('❌ Erro ao remover condomínio:', error);
+      throw error;
+    }
   }
 }

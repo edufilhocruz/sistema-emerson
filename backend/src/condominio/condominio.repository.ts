@@ -30,7 +30,23 @@ export class CondominioRepository {
     });
   }
 
-  remove(id: string) {
-    return this.prisma.condominio.delete({ where: { id } });
+  async remove(id: string) {
+    // Usa uma transação para deletar todos os registros relacionados
+    return await this.prisma.$transaction(async (prisma) => {
+      // Primeiro deleta todas as cobranças relacionadas ao condomínio
+      await prisma.cobranca.deleteMany({
+        where: { condominioId: id }
+      });
+
+      // Depois deleta todos os moradores do condomínio
+      await prisma.morador.deleteMany({
+        where: { condominioId: id }
+      });
+
+      // Finalmente deleta o condomínio
+      return await prisma.condominio.delete({
+        where: { id }
+      });
+    });
   }
 }
