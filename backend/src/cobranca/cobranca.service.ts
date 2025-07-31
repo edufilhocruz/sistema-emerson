@@ -22,44 +22,30 @@ export class CobrancaService {
     
     console.log('=== INICIANDO SUBSTITUIÇÃO DE PLACEHOLDERS ===');
     console.log('Texto original:', texto);
+    console.log('Dados disponíveis:', JSON.stringify(dados, null, 2));
     
-    // Lista específica dos placeholders que estão com problema
-    const placeholdersProblematicos = [
-      '{{apartamento}}',
-      '{{bloco}}', 
-      '{{nome_condominio}}',
-      '{{endereco_condominio}}'
-    ];
-    
-    // Testa cada placeholder problemático individualmente
-    placeholdersProblematicos.forEach(placeholder => {
-      console.log(`\n--- TESTANDO: ${placeholder} ---`);
-      console.log(`Valor no dados: "${dados[placeholder]}"`);
+    // Substitui cada placeholder pelo seu valor correspondente
+    Object.entries(dados).forEach(([placeholder, valor]) => {
+      console.log(`\n--- Processando: ${placeholder} ---`);
+      console.log(`Valor para substituir: "${valor}"`);
+      console.log(`Tipo do valor: ${typeof valor}`);
       console.log(`Existe no texto: ${resultado.includes(placeholder)}`);
       
       if (resultado.includes(placeholder)) {
+        // Escapa caracteres especiais para regex
+        const placeholderEscapado = placeholder.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+        const regex = new RegExp(placeholderEscapado, 'g');
+        
         const antes = resultado;
-        resultado = resultado.replace(new RegExp(placeholder.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'), 'g'), String(dados[placeholder] || ''));
+        resultado = resultado.replace(regex, String(valor || ''));
         
         if (antes !== resultado) {
-          console.log(`✅ SUBSTITUIÇÃO REALIZADA: "${placeholder}" -> "${dados[placeholder]}"`);
+          console.log(`✅ Substituição realizada: "${placeholder}" -> "${valor}"`);
         } else {
-          console.log(`❌ SUBSTITUIÇÃO FALHOU para: ${placeholder}`);
+          console.log(`❌ Substituição falhou para: ${placeholder}`);
         }
-      }
-    });
-    
-    // Agora processa todos os outros placeholders
-    Object.entries(dados).forEach(([placeholder, valor]) => {
-      if (!placeholdersProblematicos.includes(placeholder)) {
-        if (resultado.includes(placeholder)) {
-          const antes = resultado;
-          resultado = resultado.replace(new RegExp(placeholder.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'), 'g'), String(valor || ''));
-          
-          if (antes !== resultado) {
-            console.log(`✅ Substituição realizada: "${placeholder}" -> "${valor}"`);
-          }
-        }
+      } else {
+        console.log(`⚠️ Placeholder não encontrado no texto: ${placeholder}`);
       }
     });
     
