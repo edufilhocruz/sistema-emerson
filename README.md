@@ -1,4 +1,4 @@
-# 🚀 Sistema Raunaimer – Gestão Inteligente de Condomínios
+# 🚀 Sistema Raunaimer - Gestão Inteligente de Condomínios
 
 Bem-vindo ao **Sistema Raunaimer**, a solução definitiva para transformar a gestão do seu condomínio! 
 
@@ -61,6 +61,16 @@ npm run dev
 ## 💡 Observações
 - Requer **PostgreSQL** e **Redis** instalados localmente.
 - Stack moderna: Prisma ORM, NestJS, React, Vite, Radix UI, Lucide Icons e mais.
+
+## 🎨 Landing Page Separada
+
+A **Landing Page de Vendas** agora é um projeto separado:
+- **Repositório**: https://github.com/edufilhocruz/raunaimer-landingpage.git
+- **URL**: https://lp.raunaimer.adv.br
+- **Tecnologias**: React, TypeScript, Vite, Tailwind CSS, Nodemailer
+- **Funcionalidades**: Formulário de contato, envio de emails, design responsivo
+
+---
 
 # Trigger deploy
 # Test deploy

@@ -216,4 +216,51 @@
   .stagger-animation > *:nth-child(3) { animation-delay: 0.3s; }
   .stagger-animation > *:nth-child(4) { animation-delay: 0.4s; }
   .stagger-animation > *:nth-child(5) { animation-delay: 0.5s; }
+  
+  /* Animações para elementos de fundo */
+  .animate-blob {
+    animation: blob 7s infinite;
+  }
+
+  .animation-delay-2000 {
+    animation-delay: 2s;
+  }
+
+  .animation-delay-4000 {
+    animation-delay: 4s;
+  }
+
+  @keyframes blob {
+    0% {
+      transform: translate(0px, 0px) scale(1);
+    }
+    33% {
+      transform: translate(30px, -50px) scale(1.1);
+    }
+    66% {
+      transform: translate(-20px, 20px) scale(0.9);
+    }
+    100% {
+      transform: translate(0px, 0px) scale(1);
+    }
+  }
+
+  /* Responsividade mobile */
+  @media (max-width: 768px) {
+    .container {
+      @apply px-4;
+    }
+    
+    .text-4xl {
+      font-size: 2rem;
+    }
+    
+    .text-5xl {
+      font-size: 2.5rem;
+    }
+    
+    .text-6xl {
+      font-size: 3rem;
+    }
+  }
 }
