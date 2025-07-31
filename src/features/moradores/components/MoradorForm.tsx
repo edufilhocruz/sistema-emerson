@@ -57,13 +57,18 @@ export const MoradorForm = ({ onSave, defaultValues }: Props) => {
     // Tratar valor do aluguel
     let valorAluguel = data.valorAluguel;
     if (typeof valorAluguel === 'string') {
-      valorAluguel = Number(valorAluguel.replace(/\./g, '').replace(',', '.'));
+      // Se for string vazia ou "0", definir como undefined
+      if (!valorAluguel || valorAluguel === '' || valorAluguel === '0') {
+        valorAluguel = undefined;
+      } else {
+        valorAluguel = Number(valorAluguel.replace(/\./g, '').replace(',', '.'));
+      }
     }
     
     // Converter campos string vazia em undefined e tratar valores especiais
     const dataLimpo = Object.fromEntries(
       Object.entries({ ...data, valorAluguel }).map(([k, v]) => {
-        if (v === '' || v === null || v === undefined) {
+        if (v === '' || v === null || v === undefined || v === '0' || v === '0,00') {
           return [k, undefined];
         }
         // Se for string, remover espaços em branco
@@ -152,9 +157,20 @@ export const MoradorForm = ({ onSave, defaultValues }: Props) => {
                   placeholder="0,00"
                   value={formatCurrencyForDisplay(field.value)}
                   onAccept={(value) => {
+                    // Se o valor estiver vazio, definir como undefined
+                    if (!value || value === '' || value === '0' || value === '0,00') {
+                      field.onChange(undefined);
+                      return;
+                    }
                     // Converter para número antes de salvar
                     const numValue = typeof value === 'string' ? parseFloat(value.replace(/\./g, '').replace(',', '.')) : value;
                     field.onChange(isNaN(numValue) ? undefined : numValue);
+                  }}
+                  onBlur={(e) => {
+                    // Se o campo ficar vazio no blur, definir como undefined
+                    if (!e.target.value || e.target.value === '' || e.target.value === '0,00') {
+                      field.onChange(undefined);
+                    }
                   }}
                   className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm"
                 />
