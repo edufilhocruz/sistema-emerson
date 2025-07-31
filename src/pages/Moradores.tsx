@@ -174,22 +174,60 @@ const MoradoresPage = () => {
                             ) : (
                                 <table className="w-full text-sm">
                                     <thead>
-                                        <tr>
-                                            <th className="text-left">Data de Envio</th>
-                                            <th className="text-left">Vencimento</th>
-                                            <th className="text-left">Valor</th>
-                                            <th className="text-left">Status</th>
-                                            <th className="text-left">Status Envio</th>
+                                        <tr className="border-b">
+                                            <th className="text-left font-semibold p-2">Data e Horário de Envio</th>
+                                            <th className="text-left font-semibold p-2">Vencimento</th>
+                                            <th className="text-left font-semibold p-2">Valor</th>
+                                            <th className="text-left font-semibold p-2">Status</th>
+                                            <th className="text-left font-semibold p-2">Status Envio</th>
                                         </tr>
                                     </thead>
                                     <tbody>
                                         {historico.map((c) => (
-                                            <tr key={c.id} className="border-b last:border-0">
-                                                <td>{c.dataEnvio ? new Date(c.dataEnvio).toLocaleDateString('pt-BR') : '-'}</td>
-                                                <td>{c.vencimento ? new Date(c.vencimento).toLocaleDateString('pt-BR') : '-'}</td>
-                                                <td>R$ {Number(c.valor).toLocaleString('pt-BR', { minimumFractionDigits: 2 })}</td>
-                                                <td>{c.status}</td>
-                                                <td>{c.statusEnvio}</td>
+                                            <tr key={c.id} className="border-b last:border-0 hover:bg-muted/50">
+                                                <td className="p-2">
+                                                    {c.dataEnvio ? 
+                                                        new Date(c.dataEnvio).toLocaleString('pt-BR', {
+                                                            day: '2-digit',
+                                                            month: '2-digit',
+                                                            year: 'numeric',
+                                                            hour: '2-digit',
+                                                            minute: '2-digit'
+                                                        }) 
+                                                        : '-'
+                                                    }
+                                                </td>
+                                                <td className="p-2">
+                                                    {c.vencimento ? 
+                                                        new Date(c.vencimento).toLocaleDateString('pt-BR', {
+                                                            day: '2-digit',
+                                                            month: '2-digit',
+                                                            year: 'numeric'
+                                                        }) 
+                                                        : '-'
+                                                    }
+                                                </td>
+                                                <td className="p-2 font-medium">
+                                                    R$ {Number(c.valor).toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
+                                                </td>
+                                                <td className="p-2">
+                                                    <span className={`px-2 py-1 rounded-full text-xs font-medium ${
+                                                        c.status === 'PAGO' ? 'bg-green-100 text-green-800' :
+                                                        c.status === 'ATRASADO' ? 'bg-red-100 text-red-800' :
+                                                        'bg-yellow-100 text-yellow-800'
+                                                    }`}>
+                                                        {c.status}
+                                                    </span>
+                                                </td>
+                                                <td className="p-2">
+                                                    <span className={`px-2 py-1 rounded-full text-xs font-medium ${
+                                                        c.statusEnvio === 'ENVIADO' ? 'bg-green-100 text-green-800' :
+                                                        c.statusEnvio === 'ERRO' ? 'bg-red-100 text-red-800' :
+                                                        'bg-gray-100 text-gray-800'
+                                                    }`}>
+                                                        {c.statusEnvio}
+                                                    </span>
+                                                </td>
                                             </tr>
                                         ))}
                                     </tbody>
