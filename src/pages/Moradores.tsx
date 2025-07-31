@@ -72,7 +72,13 @@ const MoradoresPage = () => {
             setIsFormOpen(false);
             setEditId(null);
             setSelectedMorador(null);
-            refresh();
+            
+            // Forçar atualização com delay para garantir que o backend processou
+            console.log('Chamando refresh()...');
+            setTimeout(() => {
+                console.log('Executando refresh após delay...');
+                refresh();
+            }, 500);
         } catch (err) {
             console.error('Erro ao salvar morador:', err);
             let description = 'Não foi possível salvar o morador.';

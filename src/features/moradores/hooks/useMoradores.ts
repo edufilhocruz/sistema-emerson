@@ -9,10 +9,13 @@ export const useMoradores = () => {
 
   const fetchMoradores = useCallback(async () => {
     try {
+      console.log('🔄 fetchMoradores: Iniciando busca de moradores...');
       setLoading(true);
       const data = await moradorService.getMoradores();
+      console.log('✅ fetchMoradores: Dados recebidos:', data.length, 'moradores');
       setMoradores(data);
     } catch (err) {
+      console.error('❌ fetchMoradores: Erro ao buscar moradores:', err);
       setError('Falha ao carregar a lista de moradores.');
     } finally {
       setLoading(false);
