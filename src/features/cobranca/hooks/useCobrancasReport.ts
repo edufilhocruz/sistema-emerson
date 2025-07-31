@@ -17,10 +17,13 @@ export const useCobrancasReport = (condominioId?: string) => {
   useEffect(() => {
     const fetchData = async () => {
       try {
+        console.log('🔄 [useCobrancasReport] Iniciando busca de dados...');
         setLoading(true);
         const reportData = await cobrancaService.getHistoricoCobrancas(condominioId);
+        console.log('✅ [useCobrancasReport] Dados recebidos:', reportData);
         setAllData(reportData);
       } catch (err) {
+        console.error('❌ [useCobrancasReport] Erro:', err);
         setError('Falha ao carregar o histórico de cobranças.');
       } finally {
         setLoading(false);
