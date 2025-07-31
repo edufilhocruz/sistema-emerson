@@ -53,14 +53,29 @@ export const MoradorForm = ({ onSave, defaultValues }: Props) => {
   // Função para tratar conversão do valor do aluguel
   async function handleSubmit(data: MoradorFormData) {
     console.log('[MoradorForm] handleSubmit chamado:', data);
+    
+    // Tratar valor do aluguel
     let valorAluguel = data.valorAluguel;
     if (typeof valorAluguel === 'string') {
       valorAluguel = Number(valorAluguel.replace(/\./g, '').replace(',', '.'));
     }
-    // Converter campos string vazia em undefined
+    
+    // Converter campos string vazia em undefined e tratar valores especiais
     const dataLimpo = Object.fromEntries(
-      Object.entries({ ...data, valorAluguel }).map(([k, v]) => [k, v === '' ? undefined : v])
+      Object.entries({ ...data, valorAluguel }).map(([k, v]) => {
+        if (v === '' || v === null || v === undefined) {
+          return [k, undefined];
+        }
+        // Se for string, remover espaços em branco
+        if (typeof v === 'string') {
+          const trimmed = v.trim();
+          return [k, trimmed === '' ? undefined : trimmed];
+        }
+        return [k, v];
+      })
     );
+    
+    console.log('[MoradorForm] Dados limpos:', dataLimpo);
     onSave(dataLimpo as MoradorFormData);
   }
 

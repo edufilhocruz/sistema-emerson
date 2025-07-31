@@ -75,17 +75,25 @@ const MoradoresPage = () => {
             setEditId(null);
             setSelectedMorador(null);
             
-            // Forçar atualização com delay para garantir que o backend processou
-            console.log('🔄 Chamando refresh()...');
+            // Forçar atualização imediata e com delay
+            console.log('🔄 Chamando refresh() imediatamente...');
+            try {
+                refresh();
+                console.log('✅ Refresh imediato executado com sucesso!');
+            } catch (refreshError) {
+                console.error('❌ Erro ao executar refresh imediato:', refreshError);
+            }
+            
+            // Refresh adicional com delay para garantir
             setTimeout(() => {
-                console.log('🔄 Executando refresh após delay...');
+                console.log('🔄 Executando refresh adicional após delay...');
                 try {
                     refresh();
-                    console.log('✅ Refresh executado com sucesso!');
+                    console.log('✅ Refresh adicional executado com sucesso!');
                 } catch (refreshError) {
-                    console.error('❌ Erro ao executar refresh:', refreshError);
+                    console.error('❌ Erro ao executar refresh adicional:', refreshError);
                 }
-            }, 500);
+            }, 1000);
         } catch (err) {
             console.error('❌ Erro ao salvar morador:', err);
             let description = 'Não foi possível salvar o morador.';
