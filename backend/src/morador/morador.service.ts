@@ -60,7 +60,19 @@ export class MoradorService {
   }
 
   async update(id: string, updateMoradorDto: UpdateMoradorDto) {
-    await this.findOne(id); // Garante que o morador existe
+    // Busca o morador atual para verificar se o email está sendo alterado
+    const moradorAtual = await this.findOne(id);
+    
+    // Se o email está sendo alterado, verifica se o novo email já existe
+    if (updateMoradorDto.email && updateMoradorDto.email !== moradorAtual.email) {
+      const emailExists = await this.prisma.morador.findUnique({
+        where: { email: updateMoradorDto.email },
+      });
+      if (emailExists) {
+        throw new ConflictException(`O e-mail ${updateMoradorDto.email} já está em uso.`);
+      }
+    }
+    
     return this.repository.update(id, updateMoradorDto);
   }
 
