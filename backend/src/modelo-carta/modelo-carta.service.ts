@@ -108,12 +108,12 @@ export class ModeloCartaService {
     console.log('=== VALIDANDO CAMPOS DINÂMICOS ===');
     
     const camposDinamicosValidos = [
-      '{{nome_morador}}', '{{nome}}', '{{email}}', '{{telefone}}',
+      '{{nome_morador}}', '{{email}}', '{{telefone}}',
       '{{bloco}}', '{{apartamento}}', '{{unidade}}',
-      '{{nome_condominio}}', '{{condominio}}', '{{cnpj}}',
-      '{{cidade}}', '{{estado}}', '{{endereco}}', '{{endereco_condominio}}',
+      '{{nome_condominio}}', '{{cnpj}}',
+      '{{cidade}}', '{{estado}}', '{{endereco}}',
       '{{valor}}', '{{valor_formatado}}', '{{mes_referencia}}',
-      '{{data_vencimento}}', '{{vencimento}}', '{{data_atual}}', '{{hoje}}'
+      '{{data_vencimento}}', '{{data_atual}}', '{{hoje}}'
     ];
     
     // Encontra todos os placeholders no conteúdo
@@ -142,7 +142,6 @@ export class ModeloCartaService {
     return {
       morador: [
         { placeholder: '{{nome_morador}}', descricao: 'Nome completo do morador' },
-        { placeholder: '{{nome}}', descricao: 'Nome do morador (alternativo)' },
         { placeholder: '{{email}}', descricao: 'Email do morador' },
         { placeholder: '{{telefone}}', descricao: 'Telefone do morador' },
         { placeholder: '{{bloco}}', descricao: 'Bloco do apartamento' },
@@ -151,19 +150,16 @@ export class ModeloCartaService {
       ],
       condominio: [
         { placeholder: '{{nome_condominio}}', descricao: 'Nome do condomínio' },
-        { placeholder: '{{condominio}}', descricao: 'Nome do condomínio (alternativo)' },
         { placeholder: '{{cnpj}}', descricao: 'CNPJ do condomínio' },
         { placeholder: '{{cidade}}', descricao: 'Cidade do condomínio' },
         { placeholder: '{{estado}}', descricao: 'Estado do condomínio' },
-        { placeholder: '{{endereco}}', descricao: 'Endereço completo do condomínio' },
-        { placeholder: '{{endereco_condominio}}', descricao: 'Endereço do condomínio (alternativo)' }
+        { placeholder: '{{endereco}}', descricao: 'Endereço completo do condomínio' }
       ],
       cobranca: [
         { placeholder: '{{valor}}', descricao: 'Valor da cobrança formatado' },
         { placeholder: '{{valor_formatado}}', descricao: 'Valor formatado (alternativo)' },
         { placeholder: '{{mes_referencia}}', descricao: 'Mês/ano de referência' },
-        { placeholder: '{{data_vencimento}}', descricao: 'Data de vencimento' },
-        { placeholder: '{{vencimento}}', descricao: 'Data de vencimento (alternativo)' }
+        { placeholder: '{{data_vencimento}}', descricao: 'Data de vencimento' }
       ],
       datas: [
         { placeholder: '{{data_atual}}', descricao: 'Data atual' },

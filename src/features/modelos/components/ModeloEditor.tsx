@@ -77,7 +77,6 @@ export const ModeloEditor = ({ modelo, onSave, onDelete, isSaving }: Props) => {
     return texto
       // Campos do Morador
       .replace(/{{nome_morador}}/gi, 'João da Silva')
-      .replace(/{{nome}}/gi, 'João da Silva')
       .replace(/{{email}}/gi, 'joao.silva@email.com')
       .replace(/{{telefone}}/gi, '(11) 99999-9999')
       .replace(/{{bloco}}/gi, 'A')
@@ -86,19 +85,16 @@ export const ModeloEditor = ({ modelo, onSave, onDelete, isSaving }: Props) => {
       
       // Campos do Condomínio
       .replace(/{{nome_condominio}}/gi, 'Residencial Jardim das Acácias')
-      .replace(/{{condominio}}/gi, 'Residencial Jardim das Acácias')
       .replace(/{{cnpj}}/gi, '12.345.678/0001-90')
       .replace(/{{cidade}}/gi, 'São Paulo')
       .replace(/{{estado}}/gi, 'SP')
       .replace(/{{endereco}}/gi, 'Rua das Flores, 123, Centro, São Paulo - SP')
-      .replace(/{{endereco_condominio}}/gi, 'Rua das Flores, 123, Centro, São Paulo - SP')
       
       // Campos da Cobrança
       .replace(/{{valor}}/gi, 'R$ 1.234,56')
       .replace(/{{valor_formatado}}/gi, 'R$ 1.234,56')
       .replace(/{{mes_referencia}}/gi, '07/2025')
       .replace(/{{data_vencimento}}/gi, '15/07/2025')
-      .replace(/{{vencimento}}/gi, '15/07/2025')
       
       // Campos de Data
       .replace(/{{data_atual}}/gi, '30/07/2025')
@@ -341,27 +337,6 @@ export const ModeloEditor = ({ modelo, onSave, onDelete, isSaving }: Props) => {
                         : <span dangerouslySetInnerHTML={renderPreviewEstatico()} />
                       }
                     </div>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-
-            {/* Estatísticas */}
-            <Card>
-              <CardHeader>
-                <CardTitle className="text-lg">Estatísticas</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="grid grid-cols-2 gap-4 text-sm">
-                  <div>
-                    <p className="text-muted-foreground">Caracteres:</p>
-                    <p className="font-semibold">{conteudoValue?.length || 0}</p>
-                  </div>
-                  <div>
-                    <p className="text-muted-foreground">Campos Dinâmicos:</p>
-                    <p className="font-semibold">
-                      {(conteudoValue?.match(/\{\{[^}]+\}\}/g) || []).length}
-                    </p>
                   </div>
                 </div>
               </CardContent>
