@@ -25,7 +25,9 @@ export class MoradorController {
 
   @Patch(':id')
   update(@Param('id') id: string, @Body() updateMoradorDto: UpdateMoradorDto) {
-    // CORREÇÃO AQUI: Removido o '+'
+    console.log('=== ATUALIZANDO MORADOR ===');
+    console.log('ID:', id);
+    console.log('Dados recebidos:', JSON.stringify(updateMoradorDto, null, 2));
     return this.moradorService.update(id, updateMoradorDto);
   }
 
