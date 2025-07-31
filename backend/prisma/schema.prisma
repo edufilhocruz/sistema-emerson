@@ -57,7 +57,7 @@ model ModeloCarta {
 
 model Cobranca {
   id              String      @id @default(uuid())
-  valor           Float
+  valor           Float?
   vencimento      DateTime
   status          StatusCobranca @default(PENDENTE)
   statusEnvio     StatusEnvio @default(NAO_ENVIADO)

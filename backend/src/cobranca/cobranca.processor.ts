@@ -59,9 +59,9 @@ export class CobrancaProcessor {
         const linha = index + 2; // +2 porque o índice é base 0 e pulamos a linha de cabeçalho
         
         try {
-          // Validação robusta da linha
-          if (!row.nome || !row.email || !row.bloco || !row.apto || row.valor == null) {
-            throw new Error('Todos os campos (Nome, Email, Bloco, Apto, Valor) são obrigatórios.');
+          // Validação robusta da linha (valor agora é opcional)
+          if (!row.nome || !row.email || !row.bloco || !row.apto) {
+            throw new Error('Os campos Nome, Email, Bloco e Apto são obrigatórios. O valor é opcional.');
           }
 
           // Busca por um morador existente ou cria um novo (upsert)
@@ -81,7 +81,7 @@ export class CobrancaProcessor {
           // Cria a cobrança associada ao morador
           const cobranca = await this.prisma.cobranca.create({
             data: {
-              valor: Number(row.valor),
+              valor: row.valor !== null && row.valor !== undefined ? Number(row.valor) : null,
               vencimento: new Date(), // Vencimento placeholder, pode ser adicionado à planilha
               status: 'PENDENTE',
               statusEnvio: 'ENVIADO', // Status inicial
@@ -105,7 +105,7 @@ export class CobrancaProcessor {
             .replace(/{{endereco_condominio}}/gi, enderecoCondominio)
             .replace(/{{bloco}}/gi, morador.bloco)
             .replace(/{{apartamento}}/gi, morador.apartamento)
-            .replace(/{{valor}}/gi, cobranca.valor.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' }))
+            .replace(/{{valor}}/gi, cobranca.valor ? cobranca.valor.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' }) : 'Valor não informado')
             .replace(/{{mes_referencia}}/gi, mesReferencia);
 
           // Tenta enviar o e-mail de cobrança, mas não falha se der erro

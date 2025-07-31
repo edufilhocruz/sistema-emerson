@@ -141,10 +141,11 @@ export class CobrancaService {
       // Determina o valor da cobrança
       let valor = createCobrancaDto.valor;
       if (valor === undefined || valor === null) {
-        if (morador.valorAluguel === undefined || morador.valorAluguel === null) {
-          throw new NotFoundException('O valor do aluguel do morador não está cadastrado.');
+        // Se não foi fornecido valor e o morador não tem valor de aluguel, permite null
+        if (morador.valorAluguel !== undefined && morador.valorAluguel !== null) {
+          valor = morador.valorAluguel;
         }
-        valor = morador.valorAluguel;
+        // Se ambos são null/undefined, mantém como null
       }
 
       // Cria a cobrança
@@ -188,8 +189,8 @@ export class CobrancaService {
         '{{endereco_condominio}}': enderecoCondominio,
         
         // Campos da cobrança
-        '{{valor}}': valor.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' }),
-        '{{valor_formatado}}': valor.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' }),
+        '{{valor}}': valor ? valor.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' }) : 'Valor não informado',
+        '{{valor_formatado}}': valor ? valor.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' }) : 'Valor não informado',
         '{{mes_referencia}}': mesReferencia,
         '{{data_vencimento}}': new Date(cobranca.vencimento).toLocaleDateString('pt-BR'),
         '{{vencimento}}': new Date(cobranca.vencimento).toLocaleDateString('pt-BR'),
