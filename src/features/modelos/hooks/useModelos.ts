@@ -1,60 +1,103 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect } from 'react';
 import { ModeloCarta, ModeloFormData } from '@/entities/modelos/types';
-import modeloCartaService from '../services/modeloCartaService';
-import { toast } from '@/components/ui/use-toast';
+import { modeloCartaService } from '../services/modeloCartaService';
 
 export const useModelos = () => {
-  // CORREÇÃO: Garantimos que o estado inicial é sempre um array vazio.
   const [modelos, setModelos] = useState<ModeloCarta[]>([]);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  const [saving, setSaving] = useState(false);
 
-  const fetchModelos = useCallback(async () => {
+  // Carrega todos os modelos
+  const loadModelos = async () => {
     try {
       setLoading(true);
-      const data = await modeloCartaService.getModelos();
-      // Verificamos se a API retornou um array antes de atualizar o estado.
-      setModelos(Array.isArray(data) ? data : []);
-    } catch (error) {
-      console.error("Falha ao carregar modelos:", error);
-      toast({ variant: 'destructive', title: 'Erro', description: 'Não foi possível carregar os modelos de carta.' });
-      setModelos([]); // Em caso de erro, garantimos que 'modelos' continue a ser um array.
+      setError(null);
+      const data = await modeloCartaService.getAll();
+      setModelos(data);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Erro ao carregar modelos');
+      console.error('Erro ao carregar modelos:', err);
     } finally {
       setLoading(false);
     }
+  };
+
+  // Carrega um modelo específico
+  const loadModelo = async (id: string): Promise<ModeloCarta | null> => {
+    try {
+      setError(null);
+      const data = await modeloCartaService.getById(id);
+      return data;
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Erro ao carregar modelo');
+      console.error('Erro ao carregar modelo:', err);
+      return null;
+    }
+  };
+
+  // Cria um novo modelo
+  const createModelo = async (data: ModeloFormData): Promise<ModeloCarta | null> => {
+    try {
+      setSaving(true);
+      setError(null);
+      const novoModelo = await modeloCartaService.create(data);
+      setModelos(prev => [novoModelo, ...prev]);
+      return novoModelo;
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Erro ao criar modelo');
+      console.error('Erro ao criar modelo:', err);
+      return null;
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  // Atualiza um modelo existente
+  const updateModelo = async (id: string, data: ModeloFormData): Promise<ModeloCarta | null> => {
+    try {
+      setSaving(true);
+      setError(null);
+      const modeloAtualizado = await modeloCartaService.update(id, data);
+      setModelos(prev => prev.map(m => m.id === id ? modeloAtualizado : m));
+      return modeloAtualizado;
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Erro ao atualizar modelo');
+      console.error('Erro ao atualizar modelo:', err);
+      return null;
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  // Remove um modelo
+  const deleteModelo = async (id: string): Promise<boolean> => {
+    try {
+      setError(null);
+      await modeloCartaService.delete(id);
+      setModelos(prev => prev.filter(m => m.id !== id));
+      return true;
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Erro ao excluir modelo');
+      console.error('Erro ao excluir modelo:', err);
+      return false;
+    }
+  };
+
+  // Carrega os modelos na inicialização
+  useEffect(() => {
+    loadModelos();
   }, []);
 
-  useEffect(() => {
-    fetchModelos();
-  }, [fetchModelos]);
-
-  const saveModelo = async (modelo: Partial<ModeloCarta>, data: ModeloFormData) => {
-    try {
-      let saved: ModeloCarta;
-      if (modelo.id) {
-        saved = await modeloCartaService.updateModelo(modelo.id, data);
-        toast({ title: 'Modelo atualizado com sucesso!' });
-      } else {
-        saved = await modeloCartaService.createModelo(data);
-        toast({ title: 'Modelo criado com sucesso!' });
-      }
-      await fetchModelos();
-      return saved;
-    } catch (error) {
-      toast({ variant: 'destructive', title: 'Erro', description: 'Não foi possível salvar o modelo de carta.' });
-      throw error;
-    }
+  return {
+    modelos,
+    loading,
+    error,
+    saving,
+    loadModelos,
+    loadModelo,
+    createModelo,
+    updateModelo,
+    deleteModelo,
   };
-
-  const deleteModelo = async (id: string) => {
-    try {
-      await modeloCartaService.deleteModelo(id);
-      toast({ title: 'Modelo excluído com sucesso!' });
-      await fetchModelos();
-    } catch (error) {
-      toast({ variant: 'destructive', title: 'Erro', description: 'Não foi possível excluir o modelo de carta.' });
-      throw error;
-    }
-  };
-
-  return { modelos, loading, saveModelo, deleteModelo };
 };

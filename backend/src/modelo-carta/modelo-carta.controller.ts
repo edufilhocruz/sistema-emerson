@@ -25,6 +25,11 @@ export class ModeloCartaController {
     return this.modeloCartaService.findAll();
   }
 
+  @Get('campos-dinamicos')
+  getCamposDinamicos() {
+    return this.modeloCartaService.getCamposDinamicos();
+  }
+
   @Get(':id')
   findOne(@Param('id') id: string) {
     return this.modeloCartaService.findOne(id);
