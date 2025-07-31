@@ -70,7 +70,12 @@ export const CobrancasTable = ({ data }: Props) => {
                   : `${cobranca.condominio.nome} (ID: ${condominioId})`
                 }
               </TableCell>
-              <TableCell>{cobranca.valor.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })}</TableCell>
+              <TableCell>
+                {cobranca.valor 
+                  ? cobranca.valor.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })
+                  : 'Valor não informado'
+                }
+              </TableCell>
               <TableCell>{new Date(cobranca.dataEnvio).toLocaleString('pt-BR')}</TableCell>
               <TableCell>
                 <Badge variant={getStatusVariant(cobranca.status)}>
