@@ -17,10 +17,10 @@ export class CreateMoradorDto {
   @IsNotEmpty({ message: 'O apartamento é obrigatório.' })
   apartamento: string;
   
+  @IsOptional()
   @IsString()
-  @IsNotEmpty({ message: 'O telefone é obrigatório.' })
   @Length(14, 15, { message: 'O telefone deve estar no formato (XX) XXXXX-XXXX.' })
-  telefone: string;
+  telefone?: string;
   
   @IsUUID('4', { message: 'O ID do condomínio deve ser um UUID válido.' })
   @IsNotEmpty({ message: 'O condomínio é obrigatório.' })

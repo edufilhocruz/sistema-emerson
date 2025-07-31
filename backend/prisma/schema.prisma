@@ -35,7 +35,7 @@ model Morador {
   email           String      @unique
   bloco           String
   apartamento     String
-  telefone        String
+  telefone        String?
   condominio      Condominio  @relation(fields: [condominioId], references: [id])
   condominioId    String
   cobrancas       Cobranca[]

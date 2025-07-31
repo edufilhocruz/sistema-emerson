@@ -73,7 +73,7 @@ export class CobrancaProcessor {
               email: row.email,
               bloco: String(row.bloco),
               apartamento: String(row.apto),
-              telefone: '(00) 00000-0000', // Telefone placeholder
+              telefone: null, // Telefone opcional
               condominioId: condominioId, // ID Dinâmico
             },
           });

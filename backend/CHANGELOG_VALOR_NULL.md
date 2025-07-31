@@ -1,30 +1,37 @@
-# Changelog - Suporte a Valores Nulos nas Cobranças
+# Changelog - Suporte a Valores Nulos nas Cobranças e Telefones
 
 ## 📋 Resumo das Mudanças
 
-O cliente solicitou que o sistema aceite valores nulos nos envios de cobrança. As seguintes alterações foram implementadas:
+O cliente solicitou que o sistema aceite valores nulos nos envios de cobrança e no campo telefone dos moradores. As seguintes alterações foram implementadas:
 
 ## 🔧 Mudanças Técnicas
 
 ### 1. Schema do Prisma
 - **Arquivo**: `prisma/schema.prisma`
-- **Mudança**: Campo `valor` na tabela `Cobranca` agora aceita valores nulos (`Float?`)
+- **Mudanças**: 
+  - Campo `valor` na tabela `Cobranca` agora aceita valores nulos (`Float?`)
+  - Campo `telefone` na tabela `Morador` agora aceita valores nulos (`String?`)
 
-### 2. DTO de Criação
+### 2. DTOs de Criação
 - **Arquivo**: `src/cobranca/dto/create-cobranca.dto.ts`
 - **Mudança**: Removida validação `@IsPositive()` do campo `valor`
 - **Resultado**: Agora aceita valores negativos, zero e nulos
+
+- **Arquivo**: `src/morador/dto/create-morador.dto.ts`
+- **Mudança**: Campo `telefone` agora é opcional (`telefone?: string`)
+- **Resultado**: Agora aceita valores nulos e vazios
 
 ### 3. Repositório
 - **Arquivo**: `src/cobranca/cobranca.repository.ts`
 - **Mudança**: Removido `!` (non-null assertion) do campo `valor`
 - **Resultado**: Permite valores nulos na criação
 
-### 4. Serviço de Cobrança
+### 4. Serviços
 - **Arquivo**: `src/cobranca/cobranca.service.ts`
 - **Mudanças**:
   - Lógica atualizada para permitir valores nulos
   - Placeholders `{{valor}}` e `{{valor_formatado}}` agora exibem "Valor não informado" quando nulo
+  - Placeholder `{{telefone}}` agora exibe "Telefone não informado" quando nulo
   - Não lança mais erro quando morador não tem valor de aluguel
 
 ### 5. Processador de Importação
@@ -32,13 +39,17 @@ O cliente solicitou que o sistema aceite valores nulos nos envios de cobrança. 
 - **Mudanças**:
   - Validação atualizada: valor não é mais obrigatório
   - Tratamento adequado de valores nulos na importação
+  - Telefone agora é definido como `null` por padrão na importação
   - Placeholders atualizados para valores nulos
 
 ## 🗄️ Migração do Banco
 
-### Arquivo de Migração
+### Arquivos de Migração
 - **Caminho**: `prisma/migrations/20250731101800_allow_null_values_in_cobranca/migration.sql`
 - **Comando**: `ALTER TABLE "Cobranca" ALTER COLUMN "valor" DROP NOT NULL;`
+
+- **Caminho**: `prisma/migrations/20250731102500_allow_null_telefone/migration.sql`
+- **Comando**: `ALTER TABLE "Morador" ALTER COLUMN "telefone" DROP NOT NULL;`
 
 ### Como Aplicar
 ```bash
@@ -61,6 +72,7 @@ npx prisma migrate deploy
 ### Templates de Email
 - `{{valor}}` → exibe valor formatado ou "Valor não informado"
 - `{{valor_formatado}}` → exibe valor formatado ou "Valor não informado"
+- `{{telefone}}` → exibe telefone ou "Telefone não informado"
 
 ## ✅ Benefícios
 
@@ -72,9 +84,11 @@ npx prisma migrate deploy
 ## 🔍 Testes Recomendados
 
 1. Criar cobrança individual sem valor
-2. Importar planilha com valores nulos
-3. Verificar templates de email com valores nulos
-4. Testar relatórios com valores nulos
+2. Criar morador sem telefone
+3. Importar planilha com valores nulos
+4. Verificar templates de email com valores nulos
+5. Testar relatórios com valores nulos
+6. Verificar se telefones nulos são tratados corretamente
 
 ## 📝 Notas Importantes
 

@@ -174,7 +174,7 @@ export class CobrancaService {
         '{{nome_morador}}': morador.nome,
         '{{nome}}': morador.nome,
         '{{email}}': morador.email,
-        '{{telefone}}': morador.telefone,
+        '{{telefone}}': morador.telefone || 'Telefone não informado',
         '{{bloco}}': morador.bloco,
         '{{apartamento}}': morador.apartamento,
         '{{unidade}}': `${morador.bloco}-${morador.apartamento}`,
