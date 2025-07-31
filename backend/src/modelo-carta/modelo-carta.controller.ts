@@ -13,7 +13,9 @@ import { UpdateModeloCartaDto } from './dto/update-modelo-carta.dto';
 
 @Controller('modelo-carta')
 export class ModeloCartaController {
-  constructor(private readonly modeloCartaService: ModeloCartaService) {}
+  constructor(private readonly modeloCartaService: ModeloCartaService) {
+    console.log('=== MODELO CARTA CONTROLLER INSTANCIADO ===');
+  }
 
   @Post()
   create(@Body() createModeloCartaDto: CreateModeloCartaDto) {
