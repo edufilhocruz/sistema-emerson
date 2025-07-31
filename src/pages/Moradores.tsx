@@ -69,18 +69,25 @@ const MoradoresPage = () => {
                 setTimeout(() => setSalvoOpen(false), 2000);
                 toast({ title: 'Morador criado com sucesso!' });
             }
+            
+            console.log('🔄 Fechando formulário e limpando estados...');
             setIsFormOpen(false);
             setEditId(null);
             setSelectedMorador(null);
             
             // Forçar atualização com delay para garantir que o backend processou
-            console.log('Chamando refresh()...');
+            console.log('🔄 Chamando refresh()...');
             setTimeout(() => {
-                console.log('Executando refresh após delay...');
-                refresh();
+                console.log('🔄 Executando refresh após delay...');
+                try {
+                    refresh();
+                    console.log('✅ Refresh executado com sucesso!');
+                } catch (refreshError) {
+                    console.error('❌ Erro ao executar refresh:', refreshError);
+                }
             }, 500);
         } catch (err) {
-            console.error('Erro ao salvar morador:', err);
+            console.error('❌ Erro ao salvar morador:', err);
             let description = 'Não foi possível salvar o morador.';
             if (err?.response?.data?.message) {
                 description = err.response.data.message;

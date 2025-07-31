@@ -11,8 +11,12 @@ export const useMoradores = () => {
     try {
       console.log('🔄 fetchMoradores: Iniciando busca de moradores...');
       setLoading(true);
+      setError(null); // Limpar erros anteriores
+      
       const data = await moradorService.getMoradores();
       console.log('✅ fetchMoradores: Dados recebidos:', data.length, 'moradores');
+      console.log('📊 fetchMoradores: Primeiros 2 moradores:', data.slice(0, 2));
+      
       setMoradores(data);
     } catch (err) {
       console.error('❌ fetchMoradores: Erro ao buscar moradores:', err);
