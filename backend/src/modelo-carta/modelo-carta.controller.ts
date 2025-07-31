@@ -30,24 +30,9 @@ export class ModeloCartaController {
   @Get('campos-dinamicos')
   getCamposDinamicos() {
     console.log('=== ENDPOINT CAMPOS DINÂMICOS CHAMADO ===');
-    return {
-      morador: [
-        { placeholder: '{{nome_morador}}', descricao: 'Nome completo do morador' },
-        { placeholder: '{{nome}}', descricao: 'Nome do morador (alternativo)' },
-      ],
-      condominio: [
-        { placeholder: '{{nome_condominio}}', descricao: 'Nome do condomínio' },
-        { placeholder: '{{condominio}}', descricao: 'Nome do condomínio (alternativo)' },
-      ],
-      cobranca: [
-        { placeholder: '{{valor}}', descricao: 'Valor da cobrança formatado' },
-        { placeholder: '{{valor_formatado}}', descricao: 'Valor formatado (alternativo)' },
-      ],
-      datas: [
-        { placeholder: '{{data_atual}}', descricao: 'Data atual' },
-        { placeholder: '{{hoje}}', descricao: 'Data atual (alternativo)' }
-      ]
-    };
+    const result = this.modeloCartaService.getCamposDinamicos();
+    console.log('Resultado:', JSON.stringify(result, null, 2));
+    return result;
   }
 
   @Get('teste')
