@@ -148,6 +148,13 @@ export class CobrancaService {
         // Se ambos são null/undefined, mantém como null
       }
 
+      // Validação explícita - permite valores null
+      console.log('=== VALIDAÇÃO DO VALOR ===');
+      console.log('Valor final:', valor);
+      console.log('Tipo do valor:', typeof valor);
+      console.log('Valor é null?', valor === null);
+      console.log('Valor é undefined?', valor === undefined);
+
       // Cria a cobrança
       const cobranca = await this.repository.create({
         ...createCobrancaDto,
