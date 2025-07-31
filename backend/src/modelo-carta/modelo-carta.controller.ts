@@ -27,7 +27,10 @@ export class ModeloCartaController {
 
   @Get('campos-dinamicos')
   getCamposDinamicos() {
-    return this.modeloCartaService.getCamposDinamicos();
+    console.log('=== ENDPOINT CAMPOS DINÂMICOS CHAMADO ===');
+    const result = this.modeloCartaService.getCamposDinamicos();
+    console.log('Resultado:', JSON.stringify(result, null, 2));
+    return result;
   }
 
   @Get(':id')
