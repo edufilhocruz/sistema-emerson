@@ -48,6 +48,9 @@ npm install
 echo '🔧 GERANDO CLIENTE PRISMA...'
 npx prisma generate
 
+echo '🗄️ APLICANDO MIGRAÇÕES DO BANCO...'
+npx prisma migrate deploy
+
 echo '🏗️ BUILDANDO BACKEND...'
 npm run build
 
