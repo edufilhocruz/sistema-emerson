@@ -27,18 +27,18 @@ export class ModeloCartaController {
     return this.modeloCartaService.findAll();
   }
 
-  @Get('teste')
-  teste() {
-    console.log('=== ENDPOINT TESTE CHAMADO ===');
-    return { message: 'Teste funcionando!' };
-  }
-
   @Get('campos-dinamicos')
   getCamposDinamicos() {
     console.log('=== ENDPOINT CAMPOS DINÂMICOS CHAMADO ===');
     const result = this.modeloCartaService.getCamposDinamicos();
     console.log('Resultado:', JSON.stringify(result, null, 2));
     return result;
+  }
+
+  @Get('teste')
+  teste() {
+    console.log('=== ENDPOINT TESTE CHAMADO ===');
+    return { message: 'Teste funcionando!' };
   }
 
   @Get(':id')
