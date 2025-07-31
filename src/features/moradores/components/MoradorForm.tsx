@@ -3,7 +3,7 @@ import { Form } from '@/components/ui/form';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Separator } from '@/components/ui/separator';
-import { Loader2, Save, X, UserPlus, UserEdit } from 'lucide-react';
+import { Loader2, Save, X, UserPlus, User } from 'lucide-react';
 import { useCondominios } from '@/features/condominio/hooks/useCondominios';
 import { useMoradorForm } from '../hooks/useMoradorForm';
 import { MoradorFormFields } from './form-fields/MoradorFormFields';
@@ -105,7 +105,7 @@ export const MoradorForm: React.FC<MoradorFormProps> = ({
             {isCreateMode ? (
               <UserPlus className="h-5 w-5 text-blue-600" />
             ) : (
-              <UserEdit className="h-5 w-5 text-orange-600" />
+              <User className="h-5 w-5 text-orange-600" />
             )}
             <CardTitle className="text-xl">
               {isCreateMode ? 'Novo Morador' : 'Editar Morador'}
