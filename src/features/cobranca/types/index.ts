@@ -7,7 +7,7 @@ export const cobrancaSchema = z.object({
   morador: z.string().min(3, { message: "O nome do morador é obrigatório." }),
   bloco: z.string().optional(),
   apto: z.string().min(1, { message: "O número do apartamento é obrigatório." }),
-  valor: z.string().min(1, { message: "O valor é obrigatório." }),
+  valor: z.string().optional(),
 });
 export type CobrancaFormData = z.infer<typeof cobrancaSchema>;
 
