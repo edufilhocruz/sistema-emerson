@@ -19,8 +19,7 @@ export class CreateMoradorDto {
   
   @IsOptional()
   @IsString()
-  @Length(14, 15, { message: 'O telefone deve estar no formato (XX) XXXXX-XXXX.' })
-  telefone?: string;
+  telefone?: string | null;
   
   @IsUUID('4', { message: 'O ID do condomínio deve ser um UUID válido.' })
   @IsNotEmpty({ message: 'O condomínio é obrigatório.' })
@@ -28,5 +27,5 @@ export class CreateMoradorDto {
 
   @IsOptional()
   @IsNumber()
-  valorAluguel?: number;
+  valorAluguel?: number | null;
 }
