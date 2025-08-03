@@ -154,12 +154,23 @@ export class CobrancaService {
       console.log('Valor é null?', valor === null);
       console.log('Valor é undefined?', valor === undefined);
 
-      // Cria a cobrança
-      const cobranca = await this.repository.create({
+      // Cria a cobrança com tratamento robusto do valor
+      const dadosCobranca: any = {
         ...createCobrancaDto,
-        valor,
         statusEnvio: StatusEnvio.NAO_ENVIADO
-      });
+      };
+      
+      // Tratamento robusto do campo valor
+      if (valor !== null && valor !== undefined && valor > 0) {
+        dadosCobranca.valor = Number(valor);
+      } else {
+        dadosCobranca.valor = null;
+      }
+      
+      console.log('=== DADOS FINAIS PARA CRIAÇÃO ===');
+      console.log('Dados da cobrança:', JSON.stringify(dadosCobranca, null, 2));
+      
+      const cobranca = await this.repository.create(dadosCobranca);
 
       // Calcula mês de referência
       const hoje = new Date();

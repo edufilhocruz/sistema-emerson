@@ -1,10 +1,18 @@
 import { IsDateString, IsNotEmpty, IsNumber, IsPositive, IsUUID, IsOptional } from 'class-validator';
 import { StatusEnvio } from '@prisma/client';
+import { Transform, Type } from 'class-transformer';
 
 export class CreateCobrancaDto {
   @IsOptional()
-  @IsNumber()
-  valor?: number;
+  @Transform(({ value }) => {
+    if (value === '' || value === null || value === undefined) {
+      return null;
+    }
+    const numValue = Number(value);
+    return isNaN(numValue) ? null : numValue;
+  })
+  @IsNumber({}, { message: 'O valor deve ser um número válido.' })
+  valor?: number | null;
 
   @IsDateString({}, { message: 'A data de vencimento deve estar no formato ISO 8601 (YYYY-MM-DD).' })
   @IsNotEmpty({ message: 'A data de vencimento é obrigatória.' })

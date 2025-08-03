@@ -23,8 +23,8 @@ export class MoradorRepository {
     return this.prisma.morador.create({
       data: {
         ...rest,
-        telefone: telefone || undefined,
-        valorAluguel: valorAluguel || undefined,
+        telefone: telefone === null || telefone === undefined ? null : telefone,
+        valorAluguel: valorAluguel === null || valorAluguel === undefined ? null : Number(valorAluguel),
         condominio: { connect: { id: condominioId } },
       },
     });

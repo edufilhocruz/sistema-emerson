@@ -75,14 +75,18 @@ export class CobrancaController {
    */
   @Post()
   async create(@Body() createCobrancaDto: CreateCobrancaDto) {
-    console.log('Recebido para criar cobrança:', createCobrancaDto);
+    console.log('=== INICIANDO CRIAÇÃO DE COBRANÇA ===');
+    console.log('DTO recebido:', JSON.stringify(createCobrancaDto, null, 2));
     
     try {
       const result = await this.cobrancaService.create(createCobrancaDto);
-      console.log('Resultado da criação de cobrança:', result);
+      console.log('=== COBRANÇA CRIADA COM SUCESSO ===');
+      console.log('Resultado:', JSON.stringify(result, null, 2));
       return result;
     } catch (error) {
-      console.error('Erro ao criar cobrança:', error);
+      console.error('=== ERRO NA CRIAÇÃO DE COBRANÇA ===');
+      console.error('Erro completo:', error);
+      console.error('Stack trace:', error.stack);
       
       // Verifica se é um erro de NotFoundException
       if (error instanceof HttpException) {
@@ -104,7 +108,18 @@ export class CobrancaController {
             }
           }, HttpStatus.BAD_REQUEST);
         }
-        // Removido tratamento para valor do aluguel
+        
+        // Tratamento específico para erro do Prisma
+        if (error.message.includes('Argument') && error.message.includes('missing')) {
+          throw new HttpException({
+            statusCode: HttpStatus.BAD_REQUEST,
+            message: 'Campo obrigatório não fornecido',
+            error: 'Dados inválidos',
+            details: {
+              suggestion: 'Verifique se todos os campos obrigatórios foram preenchidos'
+            }
+          }, HttpStatus.BAD_REQUEST);
+        }
       }
       
       // Erro genérico
@@ -113,7 +128,8 @@ export class CobrancaController {
         message: 'Erro interno ao processar cobrança',
         error: 'Erro interno',
         details: {
-          suggestion: 'Verifique se todos os dados estão corretos e tente novamente'
+          suggestion: 'Verifique se todos os dados estão corretos e tente novamente',
+          errorDetails: error.message
         }
       }, HttpStatus.INTERNAL_SERVER_ERROR);
     }
