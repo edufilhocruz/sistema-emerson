@@ -28,6 +28,7 @@ export const emailFormSchema = z.object({
   tipoEnvio: z.enum(['SMTP', 'API']),
   servidorSmtp: z.string().min(1, 'Endereço do servidor é obrigatório.'),
   porta: z.number().min(1, 'Porta é obrigatória.'),
+  tipoSeguranca: z.enum(['TLS', 'SSL', 'Nenhuma']),
   emailRemetente: z.string().email('Email do remetente inválido.'),
   senhaRemetente: z.string().min(1, 'Senha é obrigatória.'),
   nomeRemetente: z.string().min(1, 'Nome do remetente é obrigatório.'),

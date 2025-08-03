@@ -53,10 +53,20 @@ const configuracaoService = {
       const match = data.from.match(/^(.*?)</);
       nomeRemetente = match ? match[1].trim() : data.from;
     }
+    
+    // Determinar tipo de segurança baseado na porta e configuração secure
+    let tipoSeguranca: 'TLS' | 'SSL' | 'Nenhuma' = 'Nenhuma';
+    if (data.port === 587) {
+      tipoSeguranca = 'TLS';
+    } else if (data.port === 465 || data.secure) {
+      tipoSeguranca = 'SSL';
+    }
+    
     return {
       tipoEnvio: 'SMTP',
       servidorSmtp: data.host,
       porta: data.port,
+      tipoSeguranca,
       emailRemetente: data.user,
       senhaRemetente: data.pass,
       nomeRemetente,
@@ -71,7 +81,7 @@ const configuracaoService = {
       user: form.emailRemetente,
       pass: form.senhaRemetente,
       from: `${form.nomeRemetente} <${form.emailRemetente}>`,
-      secure: form.porta === 465,
+      secure: form.tipoSeguranca === 'SSL',
     };
     await apiClient.post('/email-config', payload);
     // Salvar assinatura no localStorage

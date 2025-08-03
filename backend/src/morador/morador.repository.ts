@@ -19,10 +19,12 @@ export class MoradorRepository {
    * @returns O objeto do morador criado.
    */
   create(createMoradorDto: CreateMoradorDto) {
-    const { condominioId, ...rest } = createMoradorDto;
+    const { condominioId, telefone, valorAluguel, ...rest } = createMoradorDto;
     return this.prisma.morador.create({
       data: {
         ...rest,
+        telefone: telefone || undefined,
+        valorAluguel: valorAluguel || undefined,
         condominio: { connect: { id: condominioId } },
       },
     });

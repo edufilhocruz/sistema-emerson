@@ -22,11 +22,28 @@ export const EmailTab = () => {
   
   const form = useForm<EmailFormData>({
     resolver: zodResolver(emailFormSchema),
-    values: { tipoEnvio: 'SMTP', ...config },
+    values: { 
+      tipoEnvio: 'SMTP', 
+      servidorSmtp: 'smtp.zoho.com',
+      porta: 587,
+      tipoSeguranca: 'TLS',
+      ...config 
+    },
   });
 
   useEffect(() => {
-    if (Object.keys(config).length > 0) form.reset(config);
+    if (Object.keys(config).length > 0) {
+      form.reset({
+        tipoEnvio: 'SMTP',
+        servidorSmtp: config.servidorSmtp || 'smtp.zoho.com',
+        porta: config.porta || 587,
+        tipoSeguranca: config.tipoSeguranca || 'TLS',
+        emailRemetente: config.emailRemetente || '',
+        senhaRemetente: config.senhaRemetente || '',
+        nomeRemetente: config.nomeRemetente || '',
+        assinatura: config.assinatura || '',
+      });
+    }
   }, [config, form]);
 
   const onSubmit = async (data: EmailFormData) => {
@@ -61,6 +78,15 @@ export const EmailTab = () => {
         <h3 className="text-xl font-bold">Configurações de E-mail</h3>
         <p className="text-muted-foreground">Defina como o sistema enviará as notificações e cobranças.</p>
       </div>
+      
+      <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
+        <h4 className="text-sm font-semibold text-blue-800 mb-2">Configurações Recomendadas - Zoho Mail</h4>
+        <div className="text-sm text-blue-700 space-y-1">
+          <p><strong>Servidor SMTP:</strong> smtp.zoho.com</p>
+          <p><strong>Porta:</strong> 587</p>
+          <p><strong>Tipo de Segurança:</strong> TLS</p>
+        </div>
+      </div>
       <Form {...form}>
         <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
           <FormField control={form.control} name="tipoEnvio" render={({ field }) => (
@@ -73,9 +99,33 @@ export const EmailTab = () => {
                   </FormControl>
               </FormItem>
           )}/>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
             <FormField control={form.control} name="servidorSmtp" render={({ field }) => ( <FormItem><FormLabel>Servidor SMTP</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem> )} />
             <FormField control={form.control} name="porta" render={({ field }) => ( <FormItem><FormLabel>Porta</FormLabel><FormControl><Input type="number" {...field} onChange={e => field.onChange(Number(e.target.value))} /></FormControl><FormMessage /></FormItem> )} />
+            <FormField control={form.control} name="tipoSeguranca" render={({ field }) => (
+              <FormItem>
+                <FormLabel>Tipo de Segurança</FormLabel>
+                <FormControl>
+                  <RadioGroup onValueChange={field.onChange} defaultValue={field.value} className="flex items-center gap-2">
+                    <FormItem className="flex items-center space-x-2 space-y-0">
+                      <FormControl><RadioGroupItem value="TLS" /></FormControl>
+                      <FormLabel className="font-normal text-sm">TLS</FormLabel>
+                    </FormItem>
+                    <FormItem className="flex items-center space-x-2 space-y-0">
+                      <FormControl><RadioGroupItem value="SSL" /></FormControl>
+                      <FormLabel className="font-normal text-sm">SSL</FormLabel>
+                    </FormItem>
+                    <FormItem className="flex items-center space-x-2 space-y-0">
+                      <FormControl><RadioGroupItem value="Nenhuma" /></FormControl>
+                      <FormLabel className="font-normal text-sm">Nenhuma</FormLabel>
+                    </FormItem>
+                  </RadioGroup>
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )} />
+          </div>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <FormField control={form.control} name="nomeRemetente" render={({ field }) => ( <FormItem><FormLabel>Nome do Remetente</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem> )} />
             <FormField control={form.control} name="emailRemetente" render={({ field }) => ( <FormItem><FormLabel>E-mail do Remetente</FormLabel><FormControl><Input type="email" {...field} /></FormControl><FormMessage /></FormItem> )} />
           </div>

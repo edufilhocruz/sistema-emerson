@@ -9,7 +9,7 @@ export class CobrancaRepository {
 
   create(createCobrancaDto: CreateCobrancaDto) {
     const { valor, ...rest } = createCobrancaDto;
-    return this.prisma.cobranca.create({ data: { ...rest, valor } });
+    return this.prisma.cobranca.create({ data: { ...rest, valor: valor || undefined } });
   }
 
   findAll() {

@@ -36,6 +36,9 @@ export class EmailConfigService {
         port: config.port,
         secure: config.secure,
         auth: { user: config.user, pass: config.pass },
+        tls: {
+          rejectUnauthorized: false
+        }
       });
       
       console.log('Verificando conexão...');
