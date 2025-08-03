@@ -100,24 +100,11 @@ export class CobrancaController {
               missingData: error.message.includes('Morador') ? 'morador' : 
                           error.message.includes('Condomínio') ? 'condomínio' : 
                           error.message.includes('Modelo de Carta') ? 'modelo de carta' : 'dados',
-              suggestion: error.message.includes('valor do aluguel') ? 
-                         'Verifique se o morador possui valor de aluguel cadastrado' : 
-                         'Verifique se todos os IDs fornecidos estão corretos'
+              suggestion: 'Verifique se todos os IDs fornecidos estão corretos'
             }
           }, HttpStatus.BAD_REQUEST);
         }
-        
-        if (error.message.includes('valor do aluguel')) {
-          throw new HttpException({
-            statusCode: HttpStatus.BAD_REQUEST,
-            message: 'Valor do aluguel não encontrado',
-            error: 'Dados incompletos',
-            details: {
-              missingData: 'valor do aluguel',
-              suggestion: 'Cadastre o valor do aluguel do morador ou forneça um valor na cobrança'
-            }
-          }, HttpStatus.BAD_REQUEST);
-        }
+        // Removido tratamento para valor do aluguel
       }
       
       // Erro genérico

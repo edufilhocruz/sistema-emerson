@@ -141,11 +141,10 @@ export class CobrancaService {
       // Determina o valor da cobrança
       let valor = createCobrancaDto.valor;
       if (valor === undefined || valor === null) {
-        // Se não foi fornecido valor e o morador não tem valor de aluguel, permite null
         if (morador.valorAluguel !== undefined && morador.valorAluguel !== null) {
           valor = morador.valorAluguel;
         }
-        // Se ambos são null/undefined, mantém como null
+        // Se ambos são null/undefined, mantém como null (NÃO lançar erro!)
       }
 
       // Validação explícita - permite valores null
