@@ -21,16 +21,27 @@ export class MoradorRepository {
   async create(createMoradorDto: CreateMoradorDto) {
     try {
       const { condominioId, telefone, valorAluguel, ...rest } = createMoradorDto;
+      
+      // Tratamento robusto do valorAluguel
+      let valorAluguelProcessado: number | null = null;
+      if (valorAluguel !== null && valorAluguel !== undefined) {
+        const valor = Number(valorAluguel);
+        if (!isNaN(valor) && valor > 0) {
+          valorAluguelProcessado = valor;
+        }
+      }
+      
       return await this.prisma.morador.create({
         data: {
           ...rest,
-          telefone: telefone === null || telefone === undefined ? null : telefone,
-          valorAluguel: valorAluguel === null || valorAluguel === undefined ? null : Number(valorAluguel),
+          telefone: telefone === null || telefone === undefined || telefone === '' ? null : telefone,
+          valorAluguel: valorAluguelProcessado,
           condominio: { connect: { id: condominioId } },
         },
       });
     } catch (error) {
       console.error('Erro ao criar morador no repositório:', error);
+      console.error('Dados recebidos:', JSON.stringify(createMoradorDto, null, 2));
       throw new Error('Erro interno ao criar morador no banco de dados');
     }
   }
