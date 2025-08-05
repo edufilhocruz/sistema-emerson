@@ -8,28 +8,43 @@ export class EmailConfigService {
   constructor(private readonly prisma: PrismaService) {}
 
   async getConfig() {
-    // Busca a configuração mais recente
-    return this.prisma.emailConfig.findFirst({ orderBy: { updatedAt: 'desc' } });
+    try {
+      // Busca a configuração mais recente
+      return this.prisma.emailConfig.findFirst({ orderBy: { updatedAt: 'desc' } });
+    } catch (error) {
+      console.error('Erro ao buscar configuração de email:', error);
+      return null;
+    }
   }
 
   async saveConfig(data: any) {
-    // Salva nova configuração (pode ser update ou create)
-    const existing = await this.getConfig();
-    if (existing) {
-      return this.prisma.emailConfig.update({ where: { id: existing.id }, data });
+    try {
+      // Salva nova configuração (pode ser update ou create)
+      const existing = await this.getConfig();
+      if (existing) {
+        return this.prisma.emailConfig.update({ where: { id: existing.id }, data });
+      }
+      return this.prisma.emailConfig.create({ data });
+    } catch (error) {
+      console.error('Erro ao salvar configuração de email:', error);
+      throw new Error('Não foi possível salvar a configuração de email');
     }
-    return this.prisma.emailConfig.create({ data });
   }
 
   async sendMail({ to, subject, text, html }: { to: string, subject: string, text?: string, html?: string }) {
-    const config = await this.getConfig();
-    if (!config) {
-      console.error('Configuração de e-mail não encontrada');
-      return { success: false, error: 'Configuração de e-mail não encontrada' };
-    }
-    
     try {
-      console.log('Criando transporter com configuração:', { host: config.host, port: config.port, secure: config.secure, user: config.user });
+      const config = await this.getConfig();
+      if (!config) {
+        console.error('Configuração de e-mail não encontrada');
+        return { success: false, error: 'Configuração de e-mail não encontrada' };
+      }
+      
+      console.log('Criando transporter com configuração:', { 
+        host: config.host, 
+        port: config.port, 
+        secure: config.secure, 
+        user: config.user 
+      });
       
       const transporter = nodemailer.createTransport({
         host: config.host,

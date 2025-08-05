@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { PlusCircle } from 'lucide-react';
 import { Skeleton } from '@/components/ui/skeleton';
-import { Dialog, DialogContent } from '@/components/ui/dialog';
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { useUsuarios } from '../hooks/useUsuarios';
 import { UsuariosTable } from './Usuarios/UsuariosTable';
 import { UsuarioForm } from './Usuarios/UsuarioForm';
@@ -54,6 +54,9 @@ export const UsuariosTab = () => {
       {loading ? <Skeleton className="h-64 w-full" /> : <UsuariosTable users={usuarios} onEdit={handleEdit} onDelete={handleDelete} />}
       <Dialog open={isFormOpen} onOpenChange={(open) => { setIsFormOpen(open); if (!open) setEditUser(null); }}>
         <DialogContent>
+          <DialogHeader>
+            <DialogTitle>{editUser ? 'Editar Usuário' : 'Novo Usuário'}</DialogTitle>
+          </DialogHeader>
           <UsuarioForm onSave={handleSave} defaultValues={editUser || undefined} />
         </DialogContent>
       </Dialog>

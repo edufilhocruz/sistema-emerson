@@ -12,7 +12,7 @@ import configuracaoService from '../services/configuracaoService';
 import { Skeleton } from '@/components/ui/skeleton';
 import { toast } from "@/components/ui/use-toast";
 import { useState } from 'react';
-import { Dialog, DialogContent } from '@/components/ui/dialog';
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 
 export const EmailTab = () => {
   const { config, loading, refresh } = useEmailConfig();
@@ -139,7 +139,9 @@ export const EmailTab = () => {
       </Form>
       <Dialog open={isTestOpen} onOpenChange={setIsTestOpen}>
         <DialogContent className="max-w-md">
-          <h4 className="text-lg font-bold mb-2">Testar Envio de E-mail</h4>
+          <DialogHeader>
+            <DialogTitle>Testar Envio de E-mail</DialogTitle>
+          </DialogHeader>
           <Input type="email" placeholder="Digite o e-mail para teste" value={testEmail} onChange={e => setTestEmail(e.target.value)} />
           <div className="flex justify-end gap-2 mt-4">
             <Button variant="outline" onClick={() => setIsTestOpen(false)}>Cancelar</Button>

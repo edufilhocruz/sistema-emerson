@@ -73,7 +73,7 @@ export class CobrancaProcessor {
               email: row.email,
               bloco: String(row.bloco),
               apartamento: String(row.apto),
-              telefone: undefined, // Telefone opcional
+              telefone: null, // Telefone opcional
               condominioId: condominioId, // ID Dinâmico
             },
           });
@@ -81,7 +81,7 @@ export class CobrancaProcessor {
           // Cria a cobrança associada ao morador
           const cobranca = await this.prisma.cobranca.create({
             data: {
-              valor: row.valor !== null && row.valor !== undefined ? Number(row.valor) : undefined,
+              valor: row.valor !== null && row.valor !== undefined ? Number(row.valor) : null,
               vencimento: new Date(), // Vencimento placeholder, pode ser adicionado à planilha
               status: 'PENDENTE',
               statusEnvio: 'ENVIADO', // Status inicial

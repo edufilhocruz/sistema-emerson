@@ -18,16 +18,21 @@ export class MoradorRepository {
    * @param createMoradorDto Os dados para o novo morador.
    * @returns O objeto do morador criado.
    */
-  create(createMoradorDto: CreateMoradorDto) {
-    const { condominioId, telefone, valorAluguel, ...rest } = createMoradorDto;
-    return this.prisma.morador.create({
-      data: {
-        ...rest,
-        telefone: telefone === null || telefone === undefined ? null : telefone,
-        valorAluguel: valorAluguel === null || valorAluguel === undefined ? null : Number(valorAluguel),
-        condominio: { connect: { id: condominioId } },
-      },
-    });
+  async create(createMoradorDto: CreateMoradorDto) {
+    try {
+      const { condominioId, telefone, valorAluguel, ...rest } = createMoradorDto;
+      return await this.prisma.morador.create({
+        data: {
+          ...rest,
+          telefone: telefone === null || telefone === undefined ? null : telefone,
+          valorAluguel: valorAluguel === null || valorAluguel === undefined ? null : Number(valorAluguel),
+          condominio: { connect: { id: condominioId } },
+        },
+      });
+    } catch (error) {
+      console.error('Erro ao criar morador no repositório:', error);
+      throw new Error('Erro interno ao criar morador no banco de dados');
+    }
   }
 
   /**
@@ -35,24 +40,29 @@ export class MoradorRepository {
    * Inclui o nome do condomínio relacionado para evitar consultas adicionais.
    * @returns Uma promessa que resolve para uma lista de todos os moradores.
    */
-  findAll() {
-    return this.prisma.morador.findMany({
-      include: {
-        condominio: {
-          select: { id: true, nome: true },
-        },
-        cobrancas: {
-          orderBy: { dataEnvio: 'desc' },
-          take: 1,
-          select: {
-            dataEnvio: true,
-            status: true,
-            statusEnvio: true,
-            modeloCarta: { select: { titulo: true } },
+  async findAll() {
+    try {
+      return await this.prisma.morador.findMany({
+        include: {
+          condominio: {
+            select: { id: true, nome: true },
+          },
+          cobrancas: {
+            orderBy: { dataEnvio: 'desc' },
+            take: 1,
+            select: {
+              dataEnvio: true,
+              status: true,
+              statusEnvio: true,
+              modeloCarta: { select: { titulo: true } },
+            },
           },
         },
-      },
-    });
+      });
+    } catch (error) {
+      console.error('Erro ao buscar todos os moradores:', error);
+      throw new Error('Erro interno ao buscar moradores');
+    }
   }
 
   /**
@@ -61,15 +71,20 @@ export class MoradorRepository {
    * @param id O UUID do morador.
    * @returns Uma promessa que resolve para o objeto do morador ou null se não for encontrado.
    */
-  findOne(id: string) {
-    return this.prisma.morador.findUnique({
-      where: { id },
-      include: {
-        condominio: {
-          select: { nome: true },
+  async findOne(id: string) {
+    try {
+      return await this.prisma.morador.findUnique({
+        where: { id },
+        include: {
+          condominio: {
+            select: { nome: true },
+          },
         },
-      },
-    });
+      });
+    } catch (error) {
+      console.error('Erro ao buscar morador:', error);
+      throw new Error('Erro interno ao buscar morador');
+    }
   }
 
   /**
@@ -78,15 +93,20 @@ export class MoradorRepository {
    * @param updateMoradorDto Os dados a serem atualizados.
    * @returns O objeto do morador atualizado.
    */
-  update(id: string, updateMoradorDto: UpdateMoradorDto) {
-    const { condominioId, ...rest } = updateMoradorDto;
-    return this.prisma.morador.update({
-      where: { id },
-      data: {
-        ...rest,
-        ...(condominioId && { condominio: { connect: { id: condominioId } } }),
-      },
-    });
+  async update(id: string, updateMoradorDto: UpdateMoradorDto) {
+    try {
+      const { condominioId, ...rest } = updateMoradorDto;
+      return await this.prisma.morador.update({
+        where: { id },
+        data: {
+          ...rest,
+          ...(condominioId && { condominio: { connect: { id: condominioId } } }),
+        },
+      });
+    } catch (error) {
+      console.error('Erro ao atualizar morador:', error);
+      throw new Error('Erro interno ao atualizar morador');
+    }
   }
 
   /**
@@ -94,7 +114,12 @@ export class MoradorRepository {
    * @param id O UUID do morador a ser removido.
    * @returns O objeto do morador que foi removido.
    */
-  remove(id: string) {
-    return this.prisma.morador.delete({ where: { id } });
+  async remove(id: string) {
+    try {
+      return await this.prisma.morador.delete({ where: { id } });
+    } catch (error) {
+      console.error('Erro ao remover morador:', error);
+      throw new Error('Erro interno ao remover morador');
+    }
   }
 }

@@ -3,7 +3,7 @@ import { Header } from "@/components/layout/Header";
 import { Sidebar } from "@/components/layout/Sidebar";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Skeleton } from '@/components/ui/skeleton';
-import { Dialog, DialogContent } from '@/components/ui/dialog';
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { CheckCircle2 } from 'lucide-react';
 import { toast } from '@/components/ui/use-toast';
 
@@ -99,6 +99,9 @@ const CondominiosPage = () => {
             </div>
             <Dialog open={isFormOpen} onOpenChange={(open) => { setIsFormOpen(open); if (!open) { setEditId(null); setSelectedCondominio(null); } }}>
                 <DialogContent className="max-w-4xl">
+                    <DialogHeader>
+                        <DialogTitle>{editId ? 'Editar Condomínio' : 'Novo Condomínio'}</DialogTitle>
+                    </DialogHeader>
                     <CondominioForm 
                         onSave={handleSave} 
                         isSaving={isSaving} 
@@ -109,6 +112,9 @@ const CondominiosPage = () => {
             </Dialog>
             <Dialog open={salvoOpen} onOpenChange={setSalvoOpen}>
               <DialogContent className="max-w-xs">
+                <DialogHeader>
+                    <DialogTitle>Sucesso</DialogTitle>
+                </DialogHeader>
                 <div className="flex flex-col items-center gap-4 p-6">
                   <CheckCircle2 className="h-14 w-14 text-green-600" />
                   <span className="text-green-700 text-xl font-bold">Condomínio salvo!</span>

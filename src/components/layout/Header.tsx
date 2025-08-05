@@ -4,7 +4,7 @@ import { useAuth } from "@/hooks/useAuth";
 import * as Avatar from "@radix-ui/react-avatar";
 import { useRef, useState } from 'react';
 import { Pencil } from 'lucide-react';
-import { Dialog, DialogContent } from '@/components/ui/dialog';
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 
 interface HeaderProps {
   title: string;
@@ -91,6 +91,9 @@ export function Header({ title }: HeaderProps) {
       </div>
       <Dialog open={open} onOpenChange={setOpen}>
         <DialogContent className="max-w-xs">
+          <DialogHeader>
+            <DialogTitle>Editar Foto de Perfil</DialogTitle>
+          </DialogHeader>
           <div className="flex flex-col items-center gap-4">
             <label className="w-24 h-24 rounded-full border flex items-center justify-center overflow-hidden cursor-pointer bg-muted">
               {preview || user?.foto ? (

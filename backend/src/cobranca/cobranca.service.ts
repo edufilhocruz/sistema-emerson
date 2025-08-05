@@ -110,49 +110,13 @@ export class CobrancaService {
         bairro: morador.condominio.bairro
       });
 
-      // Verificação detalhada dos campos problemáticos
-      console.log('=== VERIFICAÇÃO DETALHADA DOS CAMPOS ===');
-      console.log('morador.bloco:', {
-        valor: morador.bloco,
-        tipo: typeof morador.bloco,
-        existe: morador.bloco !== null && morador.bloco !== undefined
-      });
-      console.log('morador.apartamento:', {
-        valor: morador.apartamento,
-        tipo: typeof morador.apartamento,
-        existe: morador.apartamento !== null && morador.apartamento !== undefined
-      });
-      console.log('morador.condominio.nome:', {
-        valor: morador.condominio.nome,
-        tipo: typeof morador.condominio.nome,
-        existe: morador.condominio.nome !== null && morador.condominio.nome !== undefined
-      });
-      console.log('morador.condominio.logradouro:', {
-        valor: morador.condominio.logradouro,
-        tipo: typeof morador.condominio.logradouro,
-        existe: morador.condominio.logradouro !== null && morador.condominio.logradouro !== undefined
-      });
-
-      // TESTE DIRETO - Verificar se os dados estão sendo carregados
-      console.log('=== TESTE DIRETO DOS DADOS ===');
-      console.log('Dados completos do morador:', JSON.stringify(morador, null, 2));
-      console.log('Dados completos do condomínio:', JSON.stringify(morador.condominio, null, 2));
-
       // Determina o valor da cobrança
       let valor = createCobrancaDto.valor;
       if (valor === undefined || valor === null) {
         if (morador.valorAluguel !== undefined && morador.valorAluguel !== null) {
           valor = morador.valorAluguel;
         }
-        // Se ambos são null/undefined, mantém como null (NÃO lançar erro!)
       }
-
-      // Validação explícita - permite valores null
-      console.log('=== VALIDAÇÃO DO VALOR ===');
-      console.log('Valor final:', valor);
-      console.log('Tipo do valor:', typeof valor);
-      console.log('Valor é null?', valor === null);
-      console.log('Valor é undefined?', valor === undefined);
 
       // Cria a cobrança com tratamento robusto do valor
       const dadosCobranca: any = {
@@ -249,7 +213,14 @@ export class CobrancaService {
     } catch (error) {
       console.error('=== ERRO NA CRIAÇÃO DE COBRANÇA ===');
       console.error('Erro completo:', error);
-      throw error;
+      
+      // Se for um erro conhecido, re-lança
+      if (error instanceof NotFoundException) {
+        throw error;
+      }
+      
+      // Para outros erros, lança um erro genérico
+      throw new Error('Erro interno ao processar cobrança');
     }
   }
 

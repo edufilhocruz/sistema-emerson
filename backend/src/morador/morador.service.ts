@@ -12,23 +12,31 @@ export class MoradorService {
   ) {}
 
   async create(createMoradorDto: CreateMoradorDto) {
-    // Regra de negócio: Verificar se o condomínio existe
-    const condominioExists = await this.prisma.condominio.findUnique({
-      where: { id: createMoradorDto.condominioId },
-    });
-    if (!condominioExists) {
-      throw new NotFoundException(`Condomínio com ID ${createMoradorDto.condominioId} não encontrado.`);
-    }
+    try {
+      // Regra de negócio: Verificar se o condomínio existe
+      const condominioExists = await this.prisma.condominio.findUnique({
+        where: { id: createMoradorDto.condominioId },
+      });
+      if (!condominioExists) {
+        throw new NotFoundException(`Condomínio com ID ${createMoradorDto.condominioId} não encontrado.`);
+      }
 
-    // Regra de negócio: Verificar se o e-mail já está em uso
-    const emailExists = await this.prisma.morador.findUnique({
-        where: { email: createMoradorDto.email },
-    });
-    if (emailExists) {
-        throw new ConflictException(`O e-mail ${createMoradorDto.email} já está em uso.`);
-    }
+      // Regra de negócio: Verificar se o e-mail já está em uso
+      const emailExists = await this.prisma.morador.findUnique({
+          where: { email: createMoradorDto.email },
+      });
+      if (emailExists) {
+          throw new ConflictException(`O e-mail ${createMoradorDto.email} já está em uso.`);
+      }
 
-    return this.repository.create(createMoradorDto);
+      return this.repository.create(createMoradorDto);
+    } catch (error) {
+      console.error('Erro ao criar morador:', error);
+      if (error instanceof NotFoundException || error instanceof ConflictException) {
+        throw error;
+      }
+      throw new Error('Erro interno ao criar morador');
+    }
   }
 
   async findAll() {
