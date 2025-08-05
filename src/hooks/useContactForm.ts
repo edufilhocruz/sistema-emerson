@@ -3,7 +3,6 @@ import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { z } from 'zod'
 import { useToast } from '@/hooks/useToast'
-import { contactService } from '@/services/contactService'
 import { generateWhatsAppLink, generateEmailLink } from '@/lib/utils'
 
 // Schema de validação do formulário
@@ -39,27 +38,32 @@ export const useContactForm = () => {
     setIsSubmitting(true)
 
     try {
-      // Verificar se o servidor está online
-      const isServerOnline = await contactService.checkServerHealth()
-      
-      if (!isServerOnline) {
-        toast({
-          title: 'Servidor offline',
-          description: 'Enviando dados via WhatsApp e Email...',
-          variant: 'warning',
-        })
-        
-        // Fallback: enviar para WhatsApp e Email
-        await sendToWhatsApp(data)
-        await sendToEmail(data)
-        
-        setShowSuccessCard(true)
-        form.reset()
-        return
-      }
+      // Enviar dados diretamente para a API do sistema principal
+      const response = await fetch('https://app.raunaimer.adv.br/api/contact', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          from_name: data.name,
+          from_email: data.email,
+          phone: data.phone,
+          contact_type: 'Cliente',
+          company: data.company || 'Não informado',
+          units: data.units || 'Não informado',
+          message: data.message || 'Não informado',
+          source: 'landing-page',
+          timestamp: new Date().toISOString(),
+          userAgent: navigator.userAgent,
+          referrer: document.referrer,
+        }),
+      })
 
-      // Enviar dados para a API
-      await contactService.submitContact(data)
+      const result = await response.json()
+
+      if (!response.ok) {
+        throw new Error(result.error || 'Erro ao enviar email')
+      }
 
       // Mostrar toast de sucesso
       toast({
@@ -74,13 +78,7 @@ export const useContactForm = () => {
       // Limpar formulário
       form.reset()
 
-      // Tracking do evento
-      contactService.trackEvent('form_submitted', {
-        source: 'landing-page',
-        hasCompany: !!data.company,
-        hasUnits: !!data.units,
-        hasMessage: !!data.message,
-      })
+      console.log('Email enviado via API:', result)
 
     } catch (error: any) {
       console.error('Erro ao enviar formulário:', error)

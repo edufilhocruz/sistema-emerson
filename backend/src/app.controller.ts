@@ -9,4 +9,14 @@ export class AppController {
   getHello(): string {
     return this.appService.getHello();
   }
+
+  @Get('health')
+  getHealth() {
+    return {
+      success: true,
+      message: 'Servidor online',
+      timestamp: new Date().toISOString(),
+      uptime: process.uptime(),
+    };
+  }
 }
