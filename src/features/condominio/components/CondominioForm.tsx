@@ -7,6 +7,7 @@ import { CondominioFormData, condominioFormSchema, condominioEditSchema } from '
 import { Button } from '@/components/ui/button';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { DialogHeader, DialogTitle, DialogDescription, DialogFooter } from '@/components/ui/dialog';
 // eslint-disable-next-line @typescript-eslint/ban-ts-comment
 // @ts-ignore
@@ -26,6 +27,8 @@ export const CondominioForm = ({ onSave, onCancel, isSaving, defaultValues }: Co
     defaultValues: {
       nome: '', cnpj: '', cep: '', logradouro: '', numero: '',
       complemento: '', bairro: '', cidade: '', estado: '', administradora: '',
+      tipoServico: 'ASSESSORIA_MENSAL', sindicoNome: '', sindicoCpf: '', 
+      sindicoEmail: '', sindicoTelefone: '',
       ...defaultValues,
     },
     mode: 'onBlur',
@@ -66,9 +69,9 @@ export const CondominioForm = ({ onSave, onCancel, isSaving, defaultValues }: Co
   return (
     <>
       <DialogHeader>
-        <DialogTitle>Adicionar Novo Condomínio</DialogTitle>
+        <DialogTitle>{isEditMode ? 'Editar Condomínio' : 'Adicionar Novo Condomínio'}</DialogTitle>
         <DialogDescription>
-          Preencha os dados completos para o novo condomínio.
+          {isEditMode ? 'Edite os dados do condomínio.' : 'Preencha os dados completos para o novo condomínio.'}
         </DialogDescription>
       </DialogHeader>
 
@@ -103,11 +106,44 @@ export const CondominioForm = ({ onSave, onCancel, isSaving, defaultValues }: Co
               <FormField control={form.control} name="cidade" render={({ field }) => ( <FormItem><FormLabel>Cidade</FormLabel><FormControl><Input {...field} value={field.value ?? ''} /></FormControl><FormMessage /></FormItem> )} />
               <FormField control={form.control} name="estado" render={({ field }) => ( <FormItem><FormLabel>Estado</FormLabel><FormControl><Input {...field} value={field.value ?? ''} /></FormControl><FormMessage /></FormItem> )} />
            </div>
+
+           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <FormField control={form.control} name="tipoServico" render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Tipo de Serviço</FormLabel>
+                  <Select onValueChange={field.onChange} defaultValue={field.value}>
+                    <FormControl>
+                      <SelectTrigger>
+                        <SelectValue placeholder="Selecione o tipo de serviço" />
+                      </SelectTrigger>
+                    </FormControl>
+                    <SelectContent>
+                      <SelectItem value="ASSESSORIA_MENSAL">Assessoria Mensal</SelectItem>
+                      <SelectItem value="SOMENTE_COBRANCAS">Somente Cobranças</SelectItem>
+                    </SelectContent>
+                  </Select>
+                  <FormMessage />
+                </FormItem>
+              )} />
+              <FormField control={form.control} name="administradora" render={({ field }) => ( <FormItem><FormLabel>Administradora</FormLabel><FormControl><Input {...field} value={field.value ?? ''} placeholder="Nome da administradora (Opcional)" /></FormControl><FormMessage /></FormItem> )} />
+           </div>
+
+           <div className="border-t pt-6">
+             <h3 className="text-lg font-semibold mb-4">Dados do Síndico</h3>
+             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+               <FormField control={form.control} name="sindicoNome" render={({ field }) => ( <FormItem><FormLabel>Nome Completo</FormLabel><FormControl><Input {...field} value={field.value ?? ''} placeholder="Nome completo do síndico" /></FormControl><FormMessage /></FormItem> )} />
+               <FormField control={form.control} name="sindicoCpf" render={({ field }) => ( <FormItem><FormLabel>CPF</FormLabel><FormControl><IMaskInput mask="000.000.000-00" {...field} value={field.value ?? ''} onAccept={field.onChange} placeholder="000.000.000-00" className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm" /></FormControl><FormMessage /></FormItem> )} />
+             </div>
+             <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-6">
+               <FormField control={form.control} name="sindicoEmail" render={({ field }) => ( <FormItem><FormLabel>Email</FormLabel><FormControl><Input {...field} value={field.value ?? ''} type="email" placeholder="email@sindico.com" /></FormControl><FormMessage /></FormItem> )} />
+               <FormField control={form.control} name="sindicoTelefone" render={({ field }) => ( <FormItem><FormLabel>Telefone</FormLabel><FormControl><IMaskInput mask="(00) 00000-0000" {...field} value={field.value ?? ''} onAccept={field.onChange} placeholder="(00) 00000-0000" className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm" /></FormControl><FormMessage /></FormItem> )} />
+             </div>
+           </div>
           
           <DialogFooter className="pt-6 sticky bottom-0 bg-background">
             <Button type="button" variant="outline" onClick={onCancel}>Cancelar</Button>
             <Button type="submit" className="bg-gold hover:bg-gold-hover" disabled={isSaving}>
-              {isSaving ? "Salvando..." : "Salvar Condomínio"}
+              {isSaving ? "Salvando..." : (isEditMode ? "Atualizar Condomínio" : "Salvar Condomínio")}
             </Button>
           </DialogFooter>
         </form>

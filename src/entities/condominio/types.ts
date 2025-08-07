@@ -1,5 +1,7 @@
 import { z } from "zod";
 
+export const TipoServicoEnum = z.enum(['ASSESSORIA_MENSAL', 'SOMENTE_COBRANCAS']);
+
 // Renomeado para 'condominioFormSchema' para consistência
 export const condominioFormSchema = z.object({
   nome: z.string().min(3, { message: "O nome do condomínio é obrigatório." }).nullable().optional(),
@@ -12,6 +14,11 @@ export const condominioFormSchema = z.object({
   cidade: z.string().min(1, { message: "A cidade é obrigatória." }).nullable().optional(),
   estado: z.string().min(2, { message: "O estado é obrigatório." }).nullable().optional(),
   administradora: z.string().nullable().optional(),
+  tipoServico: TipoServicoEnum.default('ASSESSORIA_MENSAL'),
+  sindicoNome: z.string().min(1, { message: "O nome do síndico é obrigatório." }),
+  sindicoCpf: z.string().min(14, { message: "CPF inválido, preencha todos os números." }),
+  sindicoEmail: z.string().email({ message: "Email inválido." }),
+  sindicoTelefone: z.string().min(1, { message: "O telefone do síndico é obrigatório." }),
 });
 
 export const condominioEditSchema = condominioFormSchema.partial();
@@ -24,4 +31,9 @@ export interface Condominio {
   cnpj: string;
   cidade: string;
   estado: string;
+  tipoServico: 'ASSESSORIA_MENSAL' | 'SOMENTE_COBRANCAS';
+  sindicoNome: string;
+  sindicoCpf: string;
+  sindicoEmail: string;
+  sindicoTelefone: string;
 }

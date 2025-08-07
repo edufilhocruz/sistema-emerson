@@ -13,7 +13,7 @@ export const Footer: React.FC = () => {
   }
 
   return (
-    <footer className="bg-gray-900 text-white">
+    <footer className="bg-black text-white">
       <div className="container mx-auto px-4 py-16">
         <div className="grid md:grid-cols-4 gap-8">
           {/* Contato */}

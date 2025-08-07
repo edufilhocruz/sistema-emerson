@@ -18,6 +18,8 @@ export const CondominiosTable = ({ condominios, onEdit, onDelete }: Props) => (
         <TableHead>Nome</TableHead>
         <TableHead>CNPJ</TableHead>
         <TableHead>Cidade/UF</TableHead>
+        <TableHead>Tipo de Serviço</TableHead>
+        <TableHead>Síndico</TableHead>
         <TableHead className="w-[50px]">Ações</TableHead>
       </TableRow>
     </TableHeader>
@@ -31,6 +33,21 @@ export const CondominiosTable = ({ condominios, onEdit, onDelete }: Props) => (
             <TableCell className="font-medium">{condo.nome}</TableCell>
             <TableCell>{condo.cnpj}</TableCell>
             <TableCell>{`${condo.cidade} / ${condo.estado}`}</TableCell>
+            <TableCell>
+              <span className={`px-2 py-1 rounded-full text-xs font-medium ${
+                condo.tipoServico === 'ASSESSORIA_MENSAL' 
+                  ? 'bg-blue-100 text-blue-800' 
+                  : 'bg-green-100 text-green-800'
+              }`}>
+                {condo.tipoServico === 'ASSESSORIA_MENSAL' ? 'Assessoria Mensal' : 'Somente Cobranças'}
+              </span>
+            </TableCell>
+            <TableCell>
+              <div className="text-sm">
+                <div className="font-medium">{condo.sindicoNome}</div>
+                <div className="text-muted-foreground">{condo.sindicoEmail}</div>
+              </div>
+            </TableCell>
             <TableCell>
                <DropdownMenu>
                   <DropdownMenuTrigger asChild><Button variant="ghost" className="h-8 w-8 p-0"><MoreHorizontal className="h-4 w-4" /></Button></DropdownMenuTrigger>

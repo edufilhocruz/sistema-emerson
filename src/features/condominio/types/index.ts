@@ -7,8 +7,21 @@ export interface Condominio {
   id: string;
   nome: string;
   cnpj: string;
+  cep: string;
+  logradouro: string;
+  numero: string;
+  complemento?: string;
+  bairro: string;
   cidade: string;
   estado: string;
+  administradora?: string;
+  tipoServico: 'ASSESSORIA_MENSAL' | 'SOMENTE_COBRANCAS';
+  sindicoNome: string;
+  sindicoCpf: string;
+  sindicoEmail: string;
+  sindicoTelefone: string;
+  createdAt: string;
+  updatedAt: string;
 }
 
 /**
@@ -25,6 +38,11 @@ export const condominioFormSchema = z.object({
   cidade: z.string().min(1, { message: "A cidade é obrigatória." }),
   estado: z.string().min(2, { message: "O estado é obrigatório." }),
   administradora: z.string().optional(),
+  tipoServico: z.enum(['ASSESSORIA_MENSAL', 'SOMENTE_COBRANCAS']).default('ASSESSORIA_MENSAL'),
+  sindicoNome: z.string().min(1, { message: "O nome do síndico é obrigatório." }),
+  sindicoCpf: z.string().min(14, { message: "CPF inválido, preencha todos os números." }),
+  sindicoEmail: z.string().email({ message: "Email inválido." }),
+  sindicoTelefone: z.string().min(1, { message: "O telefone do síndico é obrigatório." }),
 });
 
 export type CondominioFormData = z.infer<typeof condominioFormSchema>;

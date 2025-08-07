@@ -82,12 +82,12 @@ export const Features: React.FC = () => {
               viewport={{ once: true }}
               className="group"
             >
-              <div className="bg-white rounded-2xl p-8 border border-gray-200 hover:border-raunaimer-gold transition-all duration-300 hover:shadow-xl hover:-translate-y-2">
+              <div className="bg-white rounded-2xl p-8 border border-gray-200 hover:border-raunaimer-gold transition-all duration-300 hover:shadow-xl hover:-translate-y-2 h-full flex flex-col">
                 <div className="w-16 h-16 bg-gradient-to-r from-raunaimer-gold to-yellow-400 rounded-2xl flex items-center justify-center mb-6 group-hover:scale-110 transition-transform duration-300">
                   <feature.icon className="w-8 h-8 text-white" />
                 </div>
                 <h3 className="text-xl font-bold text-gray-900 mb-4">{feature.title}</h3>
-                <p className="text-gray-600 leading-relaxed">{feature.description}</p>
+                <p className="text-gray-600 leading-relaxed flex-grow">{feature.description}</p>
               </div>
             </motion.div>
           ))}
