@@ -10,7 +10,7 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { DialogFooter } from '@/components/ui/dialog';
 import { Trash2, Copy, Save, Info, CheckCircle, AlertCircle, Image as ImageIcon, Upload, X } from 'lucide-react';
-import { SimpleEditor } from './SimpleEditor';
+import { QuillEditor } from './QuillEditor';
 import { Badge } from '@/components/ui/badge';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
@@ -308,7 +308,7 @@ export const ModeloEditor = ({ modelo, onSave, onDelete, isSaving }: Props) => {
                 <FormItem>
                   <FormLabel>Conteúdo da Mensagem</FormLabel>
                   <FormControl>
-                    <SimpleEditor
+                    <QuillEditor
                       value={field.value || ''}
                       onChange={field.onChange}
                       placeholder="Digite sua mensagem aqui... Use os campos dinâmicos abaixo para personalizar o conteúdo."
