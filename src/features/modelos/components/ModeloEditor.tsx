@@ -39,10 +39,10 @@ export const ModeloEditor = ({ modelo, onSave, onDelete, isSaving }: Props) => {
   const [camposDinamicos, setCamposDinamicos] = useState<CamposDinamicos | null>(null);
   const [previewAtivo, setPreviewAtivo] = useState<'estatico' | 'dinamico'>('dinamico');
   const [headerImagePreview, setHeaderImagePreview] = useState<string | null>(
-    modelo.headerImage ? `/api${modelo.headerImage}` : null
+    modelo.headerImage ? `${window.location.origin}/api${modelo.headerImage}` : null
   );
   const [footerImagePreview, setFooterImagePreview] = useState<string | null>(
-    modelo.footerImage ? `/api${modelo.footerImage}` : null
+    modelo.footerImage ? `${window.location.origin}/api${modelo.footerImage}` : null
   );
 
   const form = useForm<ModeloFormData>({
@@ -112,10 +112,10 @@ export const ModeloEditor = ({ modelo, onSave, onDelete, isSaving }: Props) => {
         
         // Salvar URL da imagem (não base64)
         if (type === 'header') {
-          setHeaderImagePreview(`/api${result.url}`);
+          setHeaderImagePreview(`${window.location.origin}/api${result.url}`);
           form.setValue('headerImage', result.url);
         } else {
-          setFooterImagePreview(`/api${result.url}`);
+          setFooterImagePreview(`${window.location.origin}/api${result.url}`);
           form.setValue('footerImage', result.url);
         }
       } catch (error) {

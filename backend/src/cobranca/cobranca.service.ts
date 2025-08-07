@@ -243,7 +243,7 @@ export class CobrancaService {
         <body>
           <div class="email-container">
             ${(modeloCarta as any).headerImage ? 
-              `<img src="${process.env.BASE_URL || 'http://localhost:3000'}${(modeloCarta as any).headerImage}" 
+              `<img src="${process.env.BASE_URL || 'https://app.raunaimer.adv.br'}${(modeloCarta as any).headerImage}" 
                     alt="Cabeçalho" class="header-image">` : ''
             }
             
@@ -252,7 +252,7 @@ export class CobrancaService {
             </div>
             
             ${(modeloCarta as any).footerImage ? 
-              `<img src="${process.env.BASE_URL || 'http://localhost:3000'}${(modeloCarta as any).footerImage}" 
+              `<img src="${process.env.BASE_URL || 'https://app.raunaimer.adv.br'}${(modeloCarta as any).footerImage}" 
                     alt="Rodapé/Assinatura" class="footer-image">` : ''
             }
             
