@@ -335,7 +335,7 @@ export const ModeloEditor = ({ modelo, onSave, onDelete, isSaving }: Props) => {
                           <img 
                             src={headerImagePreview} 
                             alt="Preview cabeçalho" 
-                            className="w-full h-32 object-contain border rounded-lg"
+                            className="w-full max-h-32 object-contain border rounded-lg bg-white"
                           />
                           <Button
                             type="button"
@@ -394,7 +394,7 @@ export const ModeloEditor = ({ modelo, onSave, onDelete, isSaving }: Props) => {
                           <img 
                             src={footerImagePreview} 
                             alt="Preview rodapé" 
-                            className="w-full h-32 object-contain border rounded-lg"
+                            className="w-full max-h-32 object-contain border rounded-lg bg-white"
                           />
                           <Button
                             type="button"
@@ -501,7 +501,7 @@ export const ModeloEditor = ({ modelo, onSave, onDelete, isSaving }: Props) => {
                           <img 
                             src={headerImagePreview} 
                             alt="Cabeçalho" 
-                            className="max-w-full h-32 object-contain mx-auto shadow-sm rounded"
+                            className="max-w-full max-h-32 object-contain mx-auto shadow-sm rounded border bg-white"
                           />
                           <p className="text-xs text-gray-500 mt-2">Imagem do Cabeçalho</p>
                         </div>
@@ -515,7 +515,7 @@ export const ModeloEditor = ({ modelo, onSave, onDelete, isSaving }: Props) => {
                           <img 
                             src={footerImagePreview} 
                             alt="Rodapé/Assinatura" 
-                            className="max-w-full h-24 object-contain mx-auto shadow-sm rounded"
+                            className="max-w-full max-h-24 object-contain mx-auto shadow-sm rounded border bg-white"
                           />
                           <p className="text-xs text-gray-500 mt-2">Imagem do Rodapé/Assinatura</p>
                         </div>
