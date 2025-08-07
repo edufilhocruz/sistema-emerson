@@ -348,9 +348,12 @@ export const ModeloEditor = ({ modelo, onSave, onDelete, isSaving }: Props) => {
                           </Button>
                         </div>
                       ) : (
-                        <div className="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center">
+                        <div 
+                          className="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center cursor-pointer hover:border-gray-400 hover:bg-gray-50 transition-colors"
+                          onClick={() => document.getElementById('header-image-upload')?.click()}
+                        >
                           <Upload className="h-8 w-8 mx-auto text-gray-400 mb-2" />
-                          <p className="text-sm text-gray-600 mb-2">Clique para fazer upload</p>
+                          <p className="text-sm text-gray-600 mb-2 font-medium">Clique aqui para fazer upload</p>
                           <p className="text-xs text-gray-500 mb-3">
                             Medidas ideais: 800x200px (JPG, PNG)<br/>
                             Máximo: 2MB
@@ -365,11 +368,9 @@ export const ModeloEditor = ({ modelo, onSave, onDelete, isSaving }: Props) => {
                               if (file) handleImageUpload(file, 'header');
                             }}
                           />
-                          <label htmlFor="header-image-upload">
-                            <Button type="button" variant="outline" size="sm" className="cursor-pointer">
-                              Selecionar Imagem
-                            </Button>
-                          </label>
+                          <Button type="button" variant="outline" size="sm" className="cursor-pointer">
+                            Selecionar Imagem
+                          </Button>
                         </div>
                       )}
                     </div>
@@ -406,9 +407,12 @@ export const ModeloEditor = ({ modelo, onSave, onDelete, isSaving }: Props) => {
                           </Button>
                         </div>
                       ) : (
-                        <div className="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center">
+                        <div 
+                          className="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center cursor-pointer hover:border-gray-400 hover:bg-gray-50 transition-colors"
+                          onClick={() => document.getElementById('footer-image-upload')?.click()}
+                        >
                           <Upload className="h-8 w-8 mx-auto text-gray-400 mb-2" />
-                          <p className="text-sm text-gray-600 mb-2">Clique para fazer upload</p>
+                          <p className="text-sm text-gray-600 mb-2 font-medium">Clique aqui para fazer upload</p>
                           <p className="text-xs text-gray-500 mb-3">
                             Medidas ideais: 400x150px (JPG, PNG)<br/>
                             Máximo: 2MB
@@ -423,11 +427,9 @@ export const ModeloEditor = ({ modelo, onSave, onDelete, isSaving }: Props) => {
                               if (file) handleImageUpload(file, 'footer');
                             }}
                           />
-                          <label htmlFor="footer-image-upload">
-                            <Button type="button" variant="outline" size="sm" className="cursor-pointer">
-                              Selecionar Imagem
-                            </Button>
-                          </label>
+                          <Button type="button" variant="outline" size="sm" className="cursor-pointer">
+                            Selecionar Imagem
+                          </Button>
                         </div>
                       )}
                     </div>
