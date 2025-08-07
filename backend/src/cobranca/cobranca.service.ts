@@ -193,10 +193,8 @@ export class CobrancaService {
       
       // Adiciona imagem do cabeçalho se existir
       if ((modeloCarta as any).headerImage) {
-        // Verifica se é base64 ou URL
-        const headerSrc = (modeloCarta as any).headerImage.startsWith('data:') 
-          ? (modeloCarta as any).headerImage 
-          : `data:image/png;base64,${(modeloCarta as any).headerImage}`;
+        // Processa a imagem (já vem como data:image/... do frontend)
+        const headerSrc = (modeloCarta as any).headerImage;
         
         htmlContent += `<div style="text-align: center; margin-bottom: 20px;">
           <img src="${headerSrc}" alt="Cabeçalho" style="max-width: 100%; max-height: 200px; object-fit: contain; display: block; margin: 0 auto;">
@@ -208,10 +206,8 @@ export class CobrancaService {
       
       // Adiciona imagem do rodapé se existir
       if ((modeloCarta as any).footerImage) {
-        // Verifica se é base64 ou URL
-        const footerSrc = (modeloCarta as any).footerImage.startsWith('data:') 
-          ? (modeloCarta as any).footerImage 
-          : `data:image/png;base64,${(modeloCarta as any).footerImage}`;
+        // Processa a imagem (já vem como data:image/... do frontend)
+        const footerSrc = (modeloCarta as any).footerImage;
         
         htmlContent += `<div style="text-align: center; margin-top: 20px;">
           <img src="${footerSrc}" alt="Rodapé/Assinatura" style="max-width: 100%; max-height: 150px; object-fit: contain; display: block; margin: 0 auto;">
