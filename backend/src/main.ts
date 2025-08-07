@@ -33,7 +33,7 @@ async function bootstrap() {
   app.use(urlencoded({ extended: true, limit: '5mb' }));
 
   // Servir arquivos estáticos (imagens uploadadas)
-  app.use('/uploads', express.static(path.join(process.cwd(), 'uploads')));
+  app.use('/api/uploads', express.static(path.join(process.cwd(), 'uploads')));
 
   const config = new DocumentBuilder()
     .setTitle('Documentação da API')
