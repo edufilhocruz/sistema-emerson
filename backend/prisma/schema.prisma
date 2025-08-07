@@ -1,6 +1,3 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
-
 generator client {
   provider = "prisma-client-js"
 }
@@ -23,10 +20,10 @@ model Condominio {
   estado          String
   administradora  String?
   tipoServico     TipoServico @default(ASSESSORIA_MENSAL)
-  sindicoNome     String
-  sindicoCpf      String
-  sindicoEmail    String
-  sindicoTelefone String
+  sindicoNome     String      @default("Síndico não informado")
+  sindicoCpf      String      @default("000.000.000-00")
+  sindicoEmail    String      @default("sindico@condominio.com")
+  sindicoTelefone String      @default("(00) 00000-0000")
   moradores       Morador[]
   cobrancas       Cobranca[]
 
@@ -35,48 +32,45 @@ model Condominio {
 }
 
 model Morador {
-  id              String      @id @default(uuid())
+  id              String          @id @default(uuid())
   nome            String
-  email           String      @unique
+  email           String          @unique
   bloco           String
   apartamento     String
   telefone        String?
-  condominio      Condominio  @relation(fields: [condominioId], references: [id])
   condominioId    String
-  cobrancas       Cobranca[]
   statusPagamento StatusPagamento @default(PENDENTE)
   valorAluguel    Float?
-  createdAt       DateTime    @default(now())
-  updatedAt       DateTime    @updatedAt
+  createdAt       DateTime        @default(now())
+  updatedAt       DateTime        @updatedAt
+  cobrancas       Cobranca[]
+  condominio      Condominio      @relation(fields: [condominioId], references: [id])
 }
 
 model ModeloCarta {
-  id              String      @id @default(uuid())
-  titulo          String
-  conteudo        String
-  cobrancas       Cobranca[]
-
-  createdAt       DateTime    @default(now())
-  updatedAt       DateTime    @updatedAt
+  id        String     @id @default(uuid())
+  titulo    String
+  conteudo  String
+  createdAt DateTime   @default(now())
+  updatedAt DateTime   @updatedAt
+  cobrancas Cobranca[]
 }
 
 model Cobranca {
-  id              String      @id @default(uuid())
-  valor           Float?      @db.DoublePrecision
-  vencimento      DateTime
-  status          StatusCobranca @default(PENDENTE)
-  statusEnvio     StatusEnvio @default(NAO_ENVIADO)
-  
-  condominio      Condominio  @relation(fields: [condominioId], references: [id])
-  condominioId    String
-  morador         Morador     @relation(fields: [moradorId], references: [id])
-  moradorId       String
-  modeloCarta     ModeloCarta @relation(fields: [modeloCartaId], references: [id])
-  modeloCartaId   String
-
-  dataEnvio       DateTime    @default(now())
-  createdAt       DateTime    @default(now())
-  updatedAt       DateTime    @updatedAt
+  id            String         @id @default(uuid())
+  valor         Float?
+  vencimento    DateTime
+  status        StatusCobranca @default(PENDENTE)
+  statusEnvio   StatusEnvio    @default(NAO_ENVIADO)
+  condominioId  String
+  moradorId     String
+  modeloCartaId String
+  dataEnvio     DateTime       @default(now())
+  createdAt     DateTime       @default(now())
+  updatedAt     DateTime       @updatedAt
+  condominio    Condominio     @relation(fields: [condominioId], references: [id])
+  modeloCarta   ModeloCarta    @relation(fields: [modeloCartaId], references: [id])
+  morador       Morador        @relation(fields: [moradorId], references: [id])
 }
 
 model EmailConfig {
@@ -89,6 +83,40 @@ model EmailConfig {
   secure    Boolean  @default(false)
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+}
+
+model Usuario {
+  id         String             @id @default(uuid())
+  nome       String
+  email      String             @unique
+  senha      String
+  role       String
+  foto       String?
+  createdAt  DateTime           @default(now())
+  updatedAt  DateTime           @updatedAt
+  permissoes PermissaoUsuario[]
+}
+
+model Permissao {
+  id       String             @id @default(uuid())
+  nome     String             @unique
+  usuarios PermissaoUsuario[]
+}
+
+model PermissaoUsuario {
+  id          String    @id @default(uuid())
+  usuarioId   String
+  permissaoId String
+  permissao   Permissao @relation(fields: [permissaoId], references: [id])
+  usuario     Usuario   @relation(fields: [usuarioId], references: [id])
+}
+
+model LogAuditoria {
+  id        String   @id @default(uuid())
+  usuario   String
+  acao      String
+  ip        String
+  createdAt DateTime @default(now())
 }
 
 enum StatusCobranca {
@@ -112,38 +140,4 @@ enum StatusEnvio {
 enum TipoServico {
   ASSESSORIA_MENSAL
   SOMENTE_COBRANCAS
-}
-
-model Usuario {
-  id         String   @id @default(uuid())
-  nome       String
-  email      String   @unique
-  senha      String
-  role       String
-  foto       String?  // Foto do usuário (base64, URL ou caminho do arquivo)
-  permissoes PermissaoUsuario[]
-  createdAt  DateTime @default(now())
-  updatedAt  DateTime @updatedAt
-}
-
-model Permissao {
-  id        String   @id @default(uuid())
-  nome      String   @unique
-  usuarios  PermissaoUsuario[]
-}
-
-model PermissaoUsuario {
-  id           String   @id @default(uuid())
-  usuario      Usuario  @relation(fields: [usuarioId], references: [id])
-  usuarioId    String
-  permissao    Permissao @relation(fields: [permissaoId], references: [id])
-  permissaoId  String
-}
-
-model LogAuditoria {
-  id         String   @id @default(uuid())
-  usuario    String
-  acao       String
-  ip         String
-  createdAt  DateTime @default(now())
 }
