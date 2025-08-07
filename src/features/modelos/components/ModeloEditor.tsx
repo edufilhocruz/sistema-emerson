@@ -92,12 +92,20 @@ export const ModeloEditor = ({ modelo, onSave, onDelete, isSaving }: Props) => {
       const reader = new FileReader();
       reader.onload = (e) => {
         const result = e.target?.result as string;
+        
+        // Converter imagem em HTML
+        const maxHeight = type === 'header' ? '200px' : '150px';
+        const htmlImage = `<div style="text-align: center; margin: 20px 0;">
+          <img src="${result}" alt="${type === 'header' ? 'Cabeçalho' : 'Rodapé/Assinatura'}" 
+               style="max-width: 100%; max-height: ${maxHeight}; object-fit: contain; display: block; margin: 0 auto;">
+        </div>`;
+        
         if (type === 'header') {
           setHeaderImagePreview(result);
-          form.setValue('headerImage', result);
+          form.setValue('headerImage', htmlImage);
         } else {
           setFooterImagePreview(result);
-          form.setValue('footerImage', result);
+          form.setValue('footerImage', htmlImage);
         }
       };
       reader.readAsDataURL(file);

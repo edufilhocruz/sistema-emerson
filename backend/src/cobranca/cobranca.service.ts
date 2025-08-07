@@ -191,27 +191,17 @@ export class CobrancaService {
       // Monta o HTML completo com imagens
       let htmlContent = '';
       
-      // Adiciona imagem do cabeçalho se existir
+      // Adiciona imagem do cabeçalho se existir (já vem como HTML)
       if ((modeloCarta as any).headerImage) {
-        // Processa a imagem (já vem como data:image/... do frontend)
-        const headerSrc = (modeloCarta as any).headerImage;
-        
-        htmlContent += `<div style="text-align: center; margin-bottom: 20px;">
-          <img src="${headerSrc}" alt="Cabeçalho" style="max-width: 100%; max-height: 200px; object-fit: contain; display: block; margin: 0 auto;">
-        </div>`;
+        htmlContent += (modeloCarta as any).headerImage;
       }
       
       // Adiciona o conteúdo processado
       htmlContent += `<div style="margin: 20px 0;">${conteudoProcessado}</div>`;
       
-      // Adiciona imagem do rodapé se existir
+      // Adiciona imagem do rodapé se existir (já vem como HTML)
       if ((modeloCarta as any).footerImage) {
-        // Processa a imagem (já vem como data:image/... do frontend)
-        const footerSrc = (modeloCarta as any).footerImage;
-        
-        htmlContent += `<div style="text-align: center; margin-top: 20px;">
-          <img src="${footerSrc}" alt="Rodapé/Assinatura" style="max-width: 100%; max-height: 150px; object-fit: contain; display: block; margin: 0 auto;">
-        </div>`;
+        htmlContent += (modeloCarta as any).footerImage;
       }
 
       console.log('=== RESULTADO DA SUBSTITUIÇÃO ===');
