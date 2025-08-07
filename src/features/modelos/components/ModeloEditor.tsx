@@ -9,7 +9,7 @@ import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { DialogFooter } from '@/components/ui/dialog';
-import { Trash2, Copy, Save, Info, CheckCircle, AlertCircle, Image as ImageIcon } from 'lucide-react';
+import { Trash2, Copy, Save, Info, CheckCircle, AlertCircle, Image as ImageIcon, Upload, X } from 'lucide-react';
 import { RichTextEditor } from './RichTextEditor';
 import { Badge } from '@/components/ui/badge';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -38,6 +38,8 @@ interface CamposDinamicos {
 export const ModeloEditor = ({ modelo, onSave, onDelete, isSaving }: Props) => {
   const [camposDinamicos, setCamposDinamicos] = useState<CamposDinamicos | null>(null);
   const [previewAtivo, setPreviewAtivo] = useState<'estatico' | 'dinamico'>('dinamico');
+  const [headerImagePreview, setHeaderImagePreview] = useState<string | null>(modelo.headerImage || null);
+  const [footerImagePreview, setFooterImagePreview] = useState<string | null>(modelo.footerImage || null);
 
   const form = useForm<ModeloFormData>({
     resolver: zodResolver(modeloSchema),
@@ -71,6 +73,45 @@ export const ModeloEditor = ({ modelo, onSave, onDelete, isSaving }: Props) => {
     const currentValue = form.getValues('conteudo') || '';
     const newValue = currentValue ? `${currentValue} ${variavel}` : variavel;
     form.setValue('conteudo', newValue, { shouldValidate: true });
+  };
+
+  const handleImageUpload = (file: File, type: 'header' | 'footer') => {
+    if (file) {
+      // Validar tipo de arquivo
+      if (!file.type.startsWith('image/')) {
+        alert('Por favor, selecione apenas arquivos de imagem.');
+        return;
+      }
+
+      // Validar tamanho (máximo 2MB)
+      if (file.size > 2 * 1024 * 1024) {
+        alert('A imagem deve ter no máximo 2MB.');
+        return;
+      }
+
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        const result = e.target?.result as string;
+        if (type === 'header') {
+          setHeaderImagePreview(result);
+          form.setValue('headerImage', result);
+        } else {
+          setFooterImagePreview(result);
+          form.setValue('footerImage', result);
+        }
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+
+  const removeImage = (type: 'header' | 'footer') => {
+    if (type === 'header') {
+      setHeaderImagePreview(null);
+      form.setValue('headerImage', '');
+    } else {
+      setFooterImagePreview(null);
+      form.setValue('footerImage', '');
+    }
   };
 
   /**
@@ -288,12 +329,50 @@ export const ModeloEditor = ({ modelo, onSave, onDelete, isSaving }: Props) => {
                       <ImageIcon className="h-4 w-4" />
                       Imagem do Cabeçalho
                     </FormLabel>
-                    <FormControl>
-                      <Input 
-                        placeholder="URL da imagem do cabeçalho (opcional)" 
-                        {...field} 
-                      />
-                    </FormControl>
+                    <div className="space-y-2">
+                      {headerImagePreview ? (
+                        <div className="relative">
+                          <img 
+                            src={headerImagePreview} 
+                            alt="Preview cabeçalho" 
+                            className="w-full h-32 object-contain border rounded-lg"
+                          />
+                          <Button
+                            type="button"
+                            variant="destructive"
+                            size="sm"
+                            className="absolute top-2 right-2 h-6 w-6 p-0"
+                            onClick={() => removeImage('header')}
+                          >
+                            <X className="h-3 w-3" />
+                          </Button>
+                        </div>
+                      ) : (
+                        <div className="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center">
+                          <Upload className="h-8 w-8 mx-auto text-gray-400 mb-2" />
+                          <p className="text-sm text-gray-600 mb-2">Clique para fazer upload</p>
+                          <p className="text-xs text-gray-500 mb-3">
+                            Medidas ideais: 800x200px (JPG, PNG)<br/>
+                            Máximo: 2MB
+                          </p>
+                          <input
+                            type="file"
+                            accept="image/*"
+                            className="hidden"
+                            id="header-image-upload"
+                            onChange={(e) => {
+                              const file = e.target.files?.[0];
+                              if (file) handleImageUpload(file, 'header');
+                            }}
+                          />
+                          <label htmlFor="header-image-upload">
+                            <Button type="button" variant="outline" size="sm" className="cursor-pointer">
+                              Selecionar Imagem
+                            </Button>
+                          </label>
+                        </div>
+                      )}
+                    </div>
                     <FormMessage />
                   </FormItem>
                 )} 
@@ -308,12 +387,50 @@ export const ModeloEditor = ({ modelo, onSave, onDelete, isSaving }: Props) => {
                       <ImageIcon className="h-4 w-4" />
                       Imagem do Rodapé/Assinatura
                     </FormLabel>
-                    <FormControl>
-                      <Input 
-                        placeholder="URL da imagem do rodapé (opcional)" 
-                        {...field} 
-                      />
-                    </FormControl>
+                    <div className="space-y-2">
+                      {footerImagePreview ? (
+                        <div className="relative">
+                          <img 
+                            src={footerImagePreview} 
+                            alt="Preview rodapé" 
+                            className="w-full h-32 object-contain border rounded-lg"
+                          />
+                          <Button
+                            type="button"
+                            variant="destructive"
+                            size="sm"
+                            className="absolute top-2 right-2 h-6 w-6 p-0"
+                            onClick={() => removeImage('footer')}
+                          >
+                            <X className="h-3 w-3" />
+                          </Button>
+                        </div>
+                      ) : (
+                        <div className="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center">
+                          <Upload className="h-8 w-8 mx-auto text-gray-400 mb-2" />
+                          <p className="text-sm text-gray-600 mb-2">Clique para fazer upload</p>
+                          <p className="text-xs text-gray-500 mb-3">
+                            Medidas ideais: 400x150px (JPG, PNG)<br/>
+                            Máximo: 2MB
+                          </p>
+                          <input
+                            type="file"
+                            accept="image/*"
+                            className="hidden"
+                            id="footer-image-upload"
+                            onChange={(e) => {
+                              const file = e.target.files?.[0];
+                              if (file) handleImageUpload(file, 'footer');
+                            }}
+                          />
+                          <label htmlFor="footer-image-upload">
+                            <Button type="button" variant="outline" size="sm" className="cursor-pointer">
+                              Selecionar Imagem
+                            </Button>
+                          </label>
+                        </div>
+                      )}
+                    </div>
                     <FormMessage />
                   </FormItem>
                 )} 
@@ -377,10 +494,28 @@ export const ModeloEditor = ({ modelo, onSave, onDelete, isSaving }: Props) => {
                   <div>
                     <h4 className="font-semibold mb-2">Conteúdo:</h4>
                     <div className="p-3 bg-muted rounded-lg text-sm">
+                      {headerImagePreview && (
+                        <div className="mb-4 text-center">
+                          <img 
+                            src={headerImagePreview} 
+                            alt="Cabeçalho" 
+                            className="max-w-full h-20 object-contain mx-auto"
+                          />
+                        </div>
+                      )}
                       {previewAtivo === 'dinamico' 
                         ? <div dangerouslySetInnerHTML={{ __html: gerarPreviewDinamico(conteudoValue || '') }} />
                         : <span dangerouslySetInnerHTML={renderPreviewEstatico()} />
                       }
+                      {footerImagePreview && (
+                        <div className="mt-4 text-center">
+                          <img 
+                            src={footerImagePreview} 
+                            alt="Rodapé/Assinatura" 
+                            className="max-w-full h-16 object-contain mx-auto"
+                          />
+                        </div>
+                      )}
                     </div>
                   </div>
                 </div>
