@@ -75,7 +75,7 @@ export const ModeloEditor = ({ modelo, onSave, onDelete, isSaving }: Props) => {
     form.setValue('conteudo', newValue, { shouldValidate: true });
   };
 
-  const handleImageUpload = (file: File, type: 'header' | 'footer') => {
+  const handleImageUpload = async (file: File, type: 'header' | 'footer') => {
     if (file) {
       // Validar tipo de arquivo
       if (!file.type.startsWith('image/')) {
@@ -89,26 +89,35 @@ export const ModeloEditor = ({ modelo, onSave, onDelete, isSaving }: Props) => {
         return;
       }
 
-      const reader = new FileReader();
-      reader.onload = (e) => {
-        const result = e.target?.result as string;
-        
-        // Converter imagem em HTML
-        const maxHeight = type === 'header' ? '200px' : '150px';
-        const htmlImage = `<div style="text-align: center; margin: 20px 0;">
-          <img src="${result}" alt="${type === 'header' ? 'Cabeçalho' : 'Rodapé/Assinatura'}" 
-               style="max-width: 100%; max-height: ${maxHeight}; object-fit: contain; display: block; margin: 0 auto;">
-        </div>`;
-        
-        if (type === 'header') {
-          setHeaderImagePreview(result);
-          form.setValue('headerImage', htmlImage);
-        } else {
-          setFooterImagePreview(result);
-          form.setValue('footerImage', htmlImage);
+      try {
+        // Criar FormData para upload
+        const formData = new FormData();
+        formData.append('image', file);
+
+        // Fazer upload da imagem
+        const response = await fetch('/api/modelo-carta/upload-image', {
+          method: 'POST',
+          body: formData,
+        });
+
+        if (!response.ok) {
+          throw new Error('Erro no upload da imagem');
         }
-      };
-      reader.readAsDataURL(file);
+
+        const result = await response.json();
+        
+        // Salvar URL da imagem (não base64)
+        if (type === 'header') {
+          setHeaderImagePreview(`/api${result.url}`);
+          form.setValue('headerImage', result.url);
+        } else {
+          setFooterImagePreview(`/api${result.url}`);
+          form.setValue('footerImage', result.url);
+        }
+      } catch (error) {
+        console.error('Erro no upload:', error);
+        alert('Erro ao fazer upload da imagem. Tente novamente.');
+      }
     }
   };
 

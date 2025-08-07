@@ -6,10 +6,16 @@ import {
   Patch,
   Param,
   Delete,
+  UseInterceptors,
+  UploadedFile,
+  BadRequestException,
 } from '@nestjs/common';
+import { FileInterceptor } from '@nestjs/platform-express';
 import { ModeloCartaService } from './modelo-carta.service';
 import { CreateModeloCartaDto } from './dto/create-modelo-carta.dto';
 import { UpdateModeloCartaDto } from './dto/update-modelo-carta.dto';
+import * as fs from 'fs';
+import * as path from 'path';
 
 @Controller('modelo-carta')
 export class ModeloCartaController {
@@ -39,6 +45,48 @@ export class ModeloCartaController {
   teste() {
     console.log('=== ENDPOINT TESTE CHAMADO ===');
     return { message: 'Teste funcionando!' };
+  }
+
+  @Post('upload-image')
+  @UseInterceptors(FileInterceptor('image'))
+  async uploadImage(@UploadedFile() file: Express.Multer.File) {
+    if (!file) {
+      throw new BadRequestException('Nenhuma imagem enviada.');
+    }
+
+    // Validar tipo de arquivo
+    if (!file.mimetype.startsWith('image/')) {
+      throw new BadRequestException('Apenas arquivos de imagem são permitidos.');
+    }
+
+    // Validar tamanho (máximo 2MB)
+    if (file.size > 2 * 1024 * 1024) {
+      throw new BadRequestException('A imagem deve ter no máximo 2MB.');
+    }
+
+    // Criar diretório de uploads se não existir
+    const uploadDir = path.join(process.cwd(), 'uploads', 'images');
+    if (!fs.existsSync(uploadDir)) {
+      fs.mkdirSync(uploadDir, { recursive: true });
+    }
+
+    // Gerar nome único para o arquivo
+    const timestamp = Date.now();
+    const extension = path.extname(file.originalname);
+    const filename = `image_${timestamp}${extension}`;
+    const filepath = path.join(uploadDir, filename);
+
+    // Salvar arquivo
+    fs.writeFileSync(filepath, file.buffer);
+
+    // Retornar URL da imagem
+    const imageUrl = `/uploads/images/${filename}`;
+
+    return {
+      success: true,
+      url: imageUrl,
+      filename: filename
+    };
   }
 
   @Get(':id')

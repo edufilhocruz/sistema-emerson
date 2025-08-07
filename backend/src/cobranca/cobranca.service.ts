@@ -188,21 +188,84 @@ export class CobrancaService {
       const tituloProcessado = this.substituirPlaceholders(modeloCarta.titulo, dadosSubstituicao);
       const conteudoProcessado = this.substituirPlaceholders(modeloCarta.conteudo, dadosSubstituicao);
 
-      // Monta o HTML completo com imagens
-      let htmlContent = '';
-      
-      // Adiciona imagem do cabeçalho se existir (já vem como HTML)
-      if ((modeloCarta as any).headerImage) {
-        htmlContent += (modeloCarta as any).headerImage;
-      }
-      
-      // Adiciona o conteúdo processado
-      htmlContent += `<div style="margin: 20px 0;">${conteudoProcessado}</div>`;
-      
-      // Adiciona imagem do rodapé se existir (já vem como HTML)
-      if ((modeloCarta as any).footerImage) {
-        htmlContent += (modeloCarta as any).footerImage;
-      }
+      // Template de email profissional (inspirado no listmonk)
+      const emailTemplate = `
+        <!DOCTYPE html>
+        <html lang="pt-BR">
+        <head>
+          <meta charset="UTF-8">
+          <meta name="viewport" content="width=device-width, initial-scale=1.0">
+          <title>Cobrança - ${morador.condominio.nome}</title>
+          <style>
+            body { 
+              font-family: Arial, sans-serif; 
+              line-height: 1.6; 
+              color: #333; 
+              max-width: 600px; 
+              margin: 0 auto; 
+              padding: 20px;
+              background-color: #f4f4f4;
+            }
+            .email-container {
+              background-color: #ffffff;
+              border-radius: 8px;
+              box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+              overflow: hidden;
+            }
+            .header-image {
+              width: 100%;
+              max-height: 200px;
+              object-fit: cover;
+              display: block;
+            }
+            .content {
+              padding: 30px;
+            }
+            .footer-image {
+              width: 100%;
+              max-height: 150px;
+              object-fit: contain;
+              display: block;
+            }
+            .footer {
+              background-color: #f8f9fa;
+              padding: 20px 30px;
+              text-align: center;
+              font-size: 12px;
+              color: #666;
+            }
+            @media only screen and (max-width: 600px) {
+              body { padding: 10px; }
+              .content { padding: 20px; }
+            }
+          </style>
+        </head>
+        <body>
+          <div class="email-container">
+            ${(modeloCarta as any).headerImage ? 
+              `<img src="${process.env.BASE_URL || 'http://localhost:3000'}${(modeloCarta as any).headerImage}" 
+                    alt="Cabeçalho" class="header-image">` : ''
+            }
+            
+            <div class="content">
+              ${conteudoProcessado}
+            </div>
+            
+            ${(modeloCarta as any).footerImage ? 
+              `<img src="${process.env.BASE_URL || 'http://localhost:3000'}${(modeloCarta as any).footerImage}" 
+                    alt="Rodapé/Assinatura" class="footer-image">` : ''
+            }
+            
+            <div class="footer">
+              <p>Esta é uma cobrança automática do sistema Raunaimer.</p>
+              <p>Para dúvidas, entre em contato conosco.</p>
+            </div>
+          </div>
+        </body>
+        </html>
+      `;
+
+      const htmlContent = emailTemplate;
 
       console.log('=== RESULTADO DA SUBSTITUIÇÃO ===');
       console.log('Título original:', modeloCarta.titulo);
@@ -318,4 +381,6 @@ export class CobrancaService {
       vencimento: c.vencimento,
     }));
   }
+
+
 }
