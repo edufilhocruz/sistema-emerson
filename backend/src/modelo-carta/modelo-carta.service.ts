@@ -93,6 +93,17 @@ export class ModeloCartaService {
     // Verifica se o modelo existe
     await this.findOne(id);
     
+    // Verifica se há cobranças usando este modelo
+    const cobrancasUsandoModelo = await this.prisma.cobranca.findMany({
+      where: { modeloCartaId: id },
+      select: { id: true }
+    });
+    
+    if (cobrancasUsandoModelo.length > 0) {
+      console.log('❌ Não é possível excluir o modelo. Existem cobranças usando este modelo.');
+      throw new Error(`Não é possível excluir este modelo. Existem ${cobrancasUsandoModelo.length} cobrança(s) usando este modelo. Remova as cobranças primeiro.`);
+    }
+    
     const result = await this.prisma.modeloCarta.delete({ 
       where: { id } 
     });

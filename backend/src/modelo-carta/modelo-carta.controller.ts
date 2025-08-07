@@ -55,7 +55,12 @@ export class ModeloCartaController {
   }
 
   @Delete(':id')
-  remove(@Param('id') id: string) {
-    return this.modeloCartaService.remove(id);
+  async remove(@Param('id') id: string) {
+    try {
+      return await this.modeloCartaService.remove(id);
+    } catch (error) {
+      console.error('Erro ao excluir modelo:', error.message);
+      throw error;
+    }
   }
 }
