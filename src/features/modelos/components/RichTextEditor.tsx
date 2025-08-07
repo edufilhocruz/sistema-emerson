@@ -109,30 +109,30 @@ export const RichTextEditor = ({ value, onChange, placeholder, className }: Rich
           variant="ghost"
           size="sm"
           onClick={() => execCommand('bold')}
-          className="h-8 w-8 p-0"
+          className="w-8 h-8 p-0"
         >
-          <Bold className="h-4 w-4" />
+          <Bold className="w-4 h-4" />
         </Button>
         <Button
           type="button"
           variant="ghost"
           size="sm"
           onClick={() => execCommand('italic')}
-          className="h-8 w-8 p-0"
+          className="w-8 h-8 p-0"
         >
-          <Italic className="h-4 w-4" />
+          <Italic className="w-4 h-4" />
         </Button>
         <Button
           type="button"
           variant="ghost"
           size="sm"
           onClick={() => execCommand('underline')}
-          className="h-8 w-8 p-0"
+          className="w-8 h-8 p-0"
         >
-          <Underline className="h-4 w-4" />
+          <Underline className="w-4 h-4" />
         </Button>
 
-        <div className="w-px h-6 bg-border mx-1" />
+        <div className="w-px h-6 mx-1 bg-border" />
 
         {/* Cabeçalhos */}
         <Button
@@ -163,7 +163,7 @@ export const RichTextEditor = ({ value, onChange, placeholder, className }: Rich
           H3
         </Button>
 
-        <div className="w-px h-6 bg-border mx-1" />
+        <div className="w-px h-6 mx-1 bg-border" />
 
         {/* Alinhamento */}
         <Button
@@ -171,30 +171,30 @@ export const RichTextEditor = ({ value, onChange, placeholder, className }: Rich
           variant="ghost"
           size="sm"
           onClick={() => execCommand('justifyLeft')}
-          className="h-8 w-8 p-0"
+          className="w-8 h-8 p-0"
         >
-          <AlignLeft className="h-4 w-4" />
+          <AlignLeft className="w-4 h-4" />
         </Button>
         <Button
           type="button"
           variant="ghost"
           size="sm"
           onClick={() => execCommand('justifyCenter')}
-          className="h-8 w-8 p-0"
+          className="w-8 h-8 p-0"
         >
-          <AlignCenter className="h-4 w-4" />
+          <AlignCenter className="w-4 h-4" />
         </Button>
         <Button
           type="button"
           variant="ghost"
           size="sm"
           onClick={() => execCommand('justifyRight')}
-          className="h-8 w-8 p-0"
+          className="w-8 h-8 p-0"
         >
-          <AlignRight className="h-4 w-4" />
+          <AlignRight className="w-4 h-4" />
         </Button>
 
-        <div className="w-px h-6 bg-border mx-1" />
+        <div className="w-px h-6 mx-1 bg-border" />
 
         {/* Imagens */}
         <Button
@@ -202,9 +202,9 @@ export const RichTextEditor = ({ value, onChange, placeholder, className }: Rich
           variant="ghost"
           size="sm"
           onClick={() => setShowImageUpload(!showImageUpload)}
-          className="h-8 w-8 p-0"
+          className="w-8 h-8 p-0"
         >
-          <ImageIcon className="h-4 w-4" />
+          <ImageIcon className="w-4 h-4" />
         </Button>
       </div>
 
@@ -212,8 +212,8 @@ export const RichTextEditor = ({ value, onChange, placeholder, className }: Rich
       {showImageUpload && (
         <Card className="p-4">
           <CardHeader className="pb-2">
-            <CardTitle className="text-sm flex items-center gap-2">
-              <Upload className="h-4 w-4" />
+            <CardTitle className="flex items-center gap-2 text-sm">
+              <Upload className="w-4 h-4" />
               Inserir Imagem
             </CardTitle>
           </CardHeader>
@@ -250,7 +250,7 @@ export const RichTextEditor = ({ value, onChange, placeholder, className }: Rich
               onClick={() => setShowImageUpload(false)}
               className="w-full"
             >
-              <X className="h-4 w-4 mr-2" />
+              <X className="w-4 h-4 mr-2" />
               Cancelar
             </Button>
           </CardContent>

@@ -1,0 +1,80 @@
+/* Estilos personalizados para o Quill Editor */
+.quill {
+  border-radius: 0.5rem;
+  overflow: hidden;
+}
+
+.ql-toolbar {
+  background-color: #f8f9fa;
+  border: 1px solid #e2e8f0;
+  border-bottom: none;
+  border-radius: 0.5rem 0.5rem 0 0;
+}
+
+.ql-container {
+  border: 1px solid #e2e8f0;
+  border-top: none;
+  border-radius: 0 0 0.5rem 0.5rem;
+  min-height: 200px;
+}
+
+.ql-editor {
+  min-height: 200px;
+  font-size: 14px;
+  line-height: 1.6;
+  padding: 1rem;
+}
+
+.ql-editor:focus {
+  outline: none;
+  border-color: #3b82f6;
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+}
+
+/* Estilos para os botões da toolbar */
+.ql-toolbar button {
+  border-radius: 0.25rem;
+  margin: 0 1px;
+}
+
+.ql-toolbar button:hover {
+  background-color: #e5e7eb;
+}
+
+.ql-toolbar button.ql-active {
+  background-color: #3b82f6;
+  color: white;
+}
+
+/* Estilos para os dropdowns */
+.ql-toolbar .ql-picker {
+  border-radius: 0.25rem;
+}
+
+.ql-toolbar .ql-picker-options {
+  border-radius: 0.5rem;
+  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+}
+
+/* Estilos para o placeholder */
+.ql-editor.ql-blank::before {
+  color: #9ca3af;
+  font-style: italic;
+}
+
+/* Estilos para imagens */
+.ql-editor img {
+  max-width: 100%;
+  height: auto;
+  border-radius: 0.25rem;
+}
+
+/* Estilos para links */
+.ql-editor a {
+  color: #3b82f6;
+  text-decoration: underline;
+}
+
+.ql-editor a:hover {
+  color: #2563eb;
+}
