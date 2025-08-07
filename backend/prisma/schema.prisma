@@ -51,6 +51,8 @@ model ModeloCarta {
   id        String     @id @default(uuid())
   titulo    String
   conteudo  String
+  headerImage String?  // URL ou base64 da imagem do cabeçalho
+  footerImage String?  // URL ou base64 da imagem do rodapé/assinatura
   createdAt DateTime   @default(now())
   updatedAt DateTime   @updatedAt
   cobrancas Cobranca[]
