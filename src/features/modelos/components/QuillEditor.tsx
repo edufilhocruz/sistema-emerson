@@ -53,7 +53,7 @@ export const QuillEditor = ({ value, onChange, placeholder, className }: QuillEd
         formats={formats}
         placeholder={placeholder}
         style={{
-          height: '200px',
+          height: '400px',
           marginBottom: '50px'
         }}
       />

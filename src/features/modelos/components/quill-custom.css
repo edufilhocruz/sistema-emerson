@@ -15,11 +15,11 @@
   border: 1px solid #e2e8f0;
   border-top: none;
   border-radius: 0 0 0.5rem 0.5rem;
-  min-height: 200px;
+  min-height: 400px;
 }
 
 .ql-editor {
-  min-height: 200px;
+  min-height: 400px;
   font-size: 14px;
   line-height: 1.6;
   padding: 1rem;

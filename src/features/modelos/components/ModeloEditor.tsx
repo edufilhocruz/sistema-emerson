@@ -497,12 +497,13 @@ export const ModeloEditor = ({ modelo, onSave, onDelete, isSaving }: Props) => {
                     <h4 className="font-semibold mb-2">Conteúdo:</h4>
                     <div className="p-3 bg-muted rounded-lg text-sm">
                       {headerImagePreview && (
-                        <div className="mb-4 text-center">
+                        <div className="mb-4 text-center border-b pb-4">
                           <img 
                             src={headerImagePreview} 
                             alt="Cabeçalho" 
-                            className="max-w-full h-20 object-contain mx-auto"
+                            className="max-w-full h-32 object-contain mx-auto shadow-sm rounded"
                           />
+                          <p className="text-xs text-gray-500 mt-2">Imagem do Cabeçalho</p>
                         </div>
                       )}
                       {previewAtivo === 'dinamico' 
@@ -510,12 +511,13 @@ export const ModeloEditor = ({ modelo, onSave, onDelete, isSaving }: Props) => {
                         : <span dangerouslySetInnerHTML={renderPreviewEstatico()} />
                       }
                       {footerImagePreview && (
-                        <div className="mt-4 text-center">
+                        <div className="mt-4 text-center border-t pt-4">
                           <img 
                             src={footerImagePreview} 
                             alt="Rodapé/Assinatura" 
-                            className="max-w-full h-16 object-contain mx-auto"
+                            className="max-w-full h-24 object-contain mx-auto shadow-sm rounded"
                           />
+                          <p className="text-xs text-gray-500 mt-2">Imagem do Rodapé/Assinatura</p>
                         </div>
                       )}
                     </div>
