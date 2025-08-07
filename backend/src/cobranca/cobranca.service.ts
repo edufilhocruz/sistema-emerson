@@ -85,7 +85,7 @@ export class CobrancaService {
         throw new NotFoundException(`Morador com ID ${moradorId} não encontrado.`);
       }
 
-      // Busca o modelo de carta
+      // Busca o modelo de carta com imagens
       const modeloCarta = await this.prisma.modeloCarta.findUnique({
         where: { id: modeloCartaId }
       });
@@ -188,17 +188,39 @@ export class CobrancaService {
       const tituloProcessado = this.substituirPlaceholders(modeloCarta.titulo, dadosSubstituicao);
       const conteudoProcessado = this.substituirPlaceholders(modeloCarta.conteudo, dadosSubstituicao);
 
+      // Monta o HTML completo com imagens
+      let htmlContent = '';
+      
+      // Adiciona imagem do cabeçalho se existir
+      if ((modeloCarta as any).headerImage) {
+        htmlContent += `<div style="text-align: center; margin-bottom: 20px;">
+          <img src="${(modeloCarta as any).headerImage}" alt="Cabeçalho" style="max-width: 100%; max-height: 200px; object-fit: contain;">
+        </div>`;
+      }
+      
+      // Adiciona o conteúdo processado
+      htmlContent += `<div style="margin: 20px 0;">${conteudoProcessado}</div>`;
+      
+      // Adiciona imagem do rodapé se existir
+      if ((modeloCarta as any).footerImage) {
+        htmlContent += `<div style="text-align: center; margin-top: 20px;">
+          <img src="${(modeloCarta as any).footerImage}" alt="Rodapé/Assinatura" style="max-width: 100%; max-height: 150px; object-fit: contain;">
+        </div>`;
+      }
+
       console.log('=== RESULTADO DA SUBSTITUIÇÃO ===');
       console.log('Título original:', modeloCarta.titulo);
       console.log('Título processado:', tituloProcessado);
       console.log('Conteúdo original:', modeloCarta.conteudo);
       console.log('Conteúdo processado:', conteudoProcessado);
+      console.log('HTML com imagens:', htmlContent);
 
-      // Envia o email
+      // Envia o email com HTML
       const emailResult = await this.emailConfigService.sendMail({
         to: morador.email,
         subject: tituloProcessado,
-        text: conteudoProcessado,
+        text: conteudoProcessado, // Fallback para clientes que não suportam HTML
+        html: htmlContent, // Versão HTML com imagens
       });
 
       if (emailResult.success) {
