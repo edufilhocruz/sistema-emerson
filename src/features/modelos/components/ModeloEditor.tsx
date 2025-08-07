@@ -38,8 +38,12 @@ interface CamposDinamicos {
 export const ModeloEditor = ({ modelo, onSave, onDelete, isSaving }: Props) => {
   const [camposDinamicos, setCamposDinamicos] = useState<CamposDinamicos | null>(null);
   const [previewAtivo, setPreviewAtivo] = useState<'estatico' | 'dinamico'>('dinamico');
-  const [headerImagePreview, setHeaderImagePreview] = useState<string | null>(modelo.headerImage || null);
-  const [footerImagePreview, setFooterImagePreview] = useState<string | null>(modelo.footerImage || null);
+  const [headerImagePreview, setHeaderImagePreview] = useState<string | null>(
+    modelo.headerImage ? `/api${modelo.headerImage}` : null
+  );
+  const [footerImagePreview, setFooterImagePreview] = useState<string | null>(
+    modelo.footerImage ? `/api${modelo.footerImage}` : null
+  );
 
   const form = useForm<ModeloFormData>({
     resolver: zodResolver(modeloSchema),
