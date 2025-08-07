@@ -9,7 +9,8 @@ import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { DialogFooter } from '@/components/ui/dialog';
-import { Trash2, Copy, Save, Info, CheckCircle, AlertCircle } from 'lucide-react';
+import { Trash2, Copy, Save, Info, CheckCircle, AlertCircle, Image as ImageIcon } from 'lucide-react';
+import { RichTextEditor } from './RichTextEditor';
 import { Badge } from '@/components/ui/badge';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
@@ -42,7 +43,9 @@ export const ModeloEditor = ({ modelo, onSave, onDelete, isSaving }: Props) => {
     resolver: zodResolver(modeloSchema),
     defaultValues: { 
       titulo: modelo.titulo || '', 
-      conteudo: modelo.conteudo || '' 
+      conteudo: modelo.conteudo || '',
+      headerImage: modelo.headerImage || '',
+      footerImage: modelo.footerImage || ''
     },
   });
 
@@ -264,16 +267,58 @@ export const ModeloEditor = ({ modelo, onSave, onDelete, isSaving }: Props) => {
                 <FormItem>
                   <FormLabel>Conteúdo da Mensagem</FormLabel>
                   <FormControl>
-                    <Textarea 
-                      placeholder="Digite sua mensagem aqui... Use os campos dinâmicos abaixo para personalizar o conteúdo." 
-                      {...field} 
-                      className="h-48 resize-none"
+                    <RichTextEditor
+                      value={field.value || ''}
+                      onChange={field.onChange}
+                      placeholder="Digite sua mensagem aqui... Use os campos dinâmicos abaixo para personalizar o conteúdo."
                     />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
               )} 
             />
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <FormField 
+                control={form.control} 
+                name="headerImage" 
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel className="flex items-center gap-2">
+                      <ImageIcon className="h-4 w-4" />
+                      Imagem do Cabeçalho
+                    </FormLabel>
+                    <FormControl>
+                      <Input 
+                        placeholder="URL da imagem do cabeçalho (opcional)" 
+                        {...field} 
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )} 
+              />
+
+              <FormField 
+                control={form.control} 
+                name="footerImage" 
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel className="flex items-center gap-2">
+                      <ImageIcon className="h-4 w-4" />
+                      Imagem do Rodapé/Assinatura
+                    </FormLabel>
+                    <FormControl>
+                      <Input 
+                        placeholder="URL da imagem do rodapé (opcional)" 
+                        {...field} 
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )} 
+              />
+            </div>
 
             <Card>
               <CardHeader>
@@ -331,9 +376,9 @@ export const ModeloEditor = ({ modelo, onSave, onDelete, isSaving }: Props) => {
                   
                   <div>
                     <h4 className="font-semibold mb-2">Conteúdo:</h4>
-                    <div className="p-3 bg-muted rounded-lg text-sm whitespace-pre-wrap">
+                    <div className="p-3 bg-muted rounded-lg text-sm">
                       {previewAtivo === 'dinamico' 
-                        ? gerarPreviewDinamico(conteudoValue || '')
+                        ? <div dangerouslySetInnerHTML={{ __html: gerarPreviewDinamico(conteudoValue || '') }} />
                         : <span dangerouslySetInnerHTML={renderPreviewEstatico()} />
                       }
                     </div>
