@@ -31,6 +31,7 @@ export const RichTextEditor = ({ value, onChange, placeholder, className }: Rich
   const [showImageUpload, setShowImageUpload] = useState(false);
   const [imageUrl, setImageUrl] = useState('');
   const editorRef = useRef<HTMLDivElement>(null);
+  const [isInitialized, setIsInitialized] = useState(false);
 
   const execCommand = (command: string, value?: string) => {
     document.execCommand(command, false, value);
@@ -69,6 +70,34 @@ export const RichTextEditor = ({ value, onChange, placeholder, className }: Rich
       execCommand('insertParagraph');
     }
   };
+
+  // Inicializar o editor com o valor correto
+  React.useEffect(() => {
+    if (editorRef.current && !isInitialized) {
+      editorRef.current.innerHTML = value || '';
+      setIsInitialized(true);
+    }
+  }, [value, isInitialized]);
+
+  // Atualizar o conteúdo quando o valor mudar externamente
+  React.useEffect(() => {
+    if (editorRef.current && isInitialized && editorRef.current.innerHTML !== value) {
+      const selection = window.getSelection();
+      const range = selection?.getRangeAt(0);
+      const wasAtEnd = range && range.collapsed && range.startOffset === range.endOffset;
+      
+      editorRef.current.innerHTML = value || '';
+      
+      // Manter o cursor no final se estava no final
+      if (wasAtEnd && editorRef.current.lastChild) {
+        const newRange = document.createRange();
+        newRange.selectNodeContents(editorRef.current);
+        newRange.collapse(false);
+        selection?.removeAllRanges();
+        selection?.addRange(newRange);
+      }
+    }
+  }, [value, isInitialized]);
 
   return (
     <div className={`space-y-2 ${className}`}>
@@ -232,14 +261,15 @@ export const RichTextEditor = ({ value, onChange, placeholder, className }: Rich
       <div
         ref={editorRef}
         contentEditable
-        dangerouslySetInnerHTML={{ __html: value }}
         onInput={(e) => onChange(e.currentTarget.innerHTML)}
         onPaste={handlePaste}
         onKeyDown={handleKeyDown}
         className="min-h-[200px] p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 bg-background"
         style={{ 
           whiteSpace: 'pre-wrap',
-          wordWrap: 'break-word'
+          wordWrap: 'break-word',
+          direction: 'ltr',
+          textAlign: 'left'
         }}
         data-placeholder={placeholder}
       />
