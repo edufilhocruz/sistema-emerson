@@ -22,6 +22,11 @@ model Condominio {
   cidade          String
   estado          String
   administradora  String?
+  tipoServico     TipoServico @default(ASSESSORIA_MENSAL)
+  sindicoNome     String
+  sindicoCpf      String
+  sindicoEmail    String
+  sindicoTelefone String
   moradores       Morador[]
   cobrancas       Cobranca[]
 
@@ -102,6 +107,11 @@ enum StatusEnvio {
   ENVIADO
   ERRO
   NAO_ENVIADO
+}
+
+enum TipoServico {
+  ASSESSORIA_MENSAL
+  SOMENTE_COBRANCAS
 }
 
 model Usuario {

@@ -1,4 +1,9 @@
-import { IsString, IsNotEmpty, Length } from 'class-validator';
+import { IsString, IsNotEmpty, Length, IsEmail, IsEnum } from 'class-validator';
+
+export enum TipoServico {
+  ASSESSORIA_MENSAL = 'ASSESSORIA_MENSAL',
+  SOMENTE_COBRANCAS = 'SOMENTE_COBRANCAS'
+}
 
 export class CreateCondominioDto {
   @IsString()
@@ -30,4 +35,27 @@ export class CreateCondominioDto {
 
   @IsString()
   estado: string;
+
+  @IsString()
+  administradora?: string;
+
+  @IsEnum(TipoServico)
+  tipoServico: TipoServico;
+
+  @IsString()
+  @IsNotEmpty()
+  sindicoNome: string;
+
+  @IsString()
+  @IsNotEmpty()
+  @Length(14, 14, { message: 'O CPF deve ter 14 caracteres.' })
+  sindicoCpf: string;
+
+  @IsEmail()
+  @IsNotEmpty()
+  sindicoEmail: string;
+
+  @IsString()
+  @IsNotEmpty()
+  sindicoTelefone: string;
 }

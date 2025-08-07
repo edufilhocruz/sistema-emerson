@@ -10,6 +10,11 @@ export class Condominio {
   cidade: string;
   estado: string;
   administradora?: string;
+  tipoServico: 'ASSESSORIA_MENSAL' | 'SOMENTE_COBRANCAS';
+  sindicoNome: string;
+  sindicoCpf: string;
+  sindicoEmail: string;
+  sindicoTelefone: string;
   createdAt: Date;
   updatedAt: Date;
 }
