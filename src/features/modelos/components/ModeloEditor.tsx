@@ -41,10 +41,10 @@ export const ModeloEditor = ({ modelo, onSave, onDelete, isSaving }: Props) => {
   const [previewAtivo, setPreviewAtivo] = useState<'estatico' | 'dinamico'>('dinamico');
   const [showPreview, setShowPreview] = useState(true);
   const [headerImagePreview, setHeaderImagePreview] = useState<string | null>(
-    modelo.headerImage ? `${window.location.origin}/api${modelo.headerImage}` : null
+    modelo.headerImage ? `${window.location.origin}${modelo.headerImage}` : null
   );
   const [footerImagePreview, setFooterImagePreview] = useState<string | null>(
-    modelo.footerImage ? `${window.location.origin}/api${modelo.footerImage}` : null
+    modelo.footerImage ? `${window.location.origin}${modelo.footerImage}` : null
   );
 
   // Log das imagens iniciais
@@ -143,8 +143,8 @@ export const ModeloEditor = ({ modelo, onSave, onDelete, isSaving }: Props) => {
         const result = await response.json();
         console.log('✅ Resultado do upload:', result);
         
-        // Salvar URL da imagem
-        const imageUrl = `${window.location.origin}/api${result.url}`;
+        // Salvar URL da imagem - CORRIGIDO: não duplicar /api
+        const imageUrl = `${window.location.origin}${result.url}`;
         console.log('🔗 URL final da imagem:', imageUrl);
         
         if (type === 'header') {
@@ -224,7 +224,7 @@ export const ModeloEditor = ({ modelo, onSave, onDelete, isSaving }: Props) => {
 
   const renderCamposDinamicos = () => {
     if (!camposDinamicos) {
-      return <div className="text-center py-4">Carregando campos dinâmicos...</div>;
+      return <div className="py-4 text-center">Carregando campos dinâmicos...</div>;
     }
 
     return (
@@ -244,7 +244,7 @@ export const ModeloEditor = ({ modelo, onSave, onDelete, isSaving }: Props) => {
           </TabsTrigger>
         </TabsList>
         
-        <TabsContent value="morador" className="space-y-2 mt-4">
+        <TabsContent value="morador" className="mt-4 space-y-2">
           <div className="grid grid-cols-2 gap-2">
             {camposDinamicos.morador.map((campo) => (
               <TooltipProvider key={campo.placeholder}>
@@ -254,7 +254,7 @@ export const ModeloEditor = ({ modelo, onSave, onDelete, isSaving }: Props) => {
                       type="button"
                       variant="outline"
                       size="sm"
-                      className="h-auto py-2 px-3 text-xs justify-start"
+                      className="justify-start h-auto px-3 py-2 text-xs"
                       onClick={() => handleVariableClick(campo.placeholder)}
                     >
                       {campo.placeholder}
@@ -269,7 +269,7 @@ export const ModeloEditor = ({ modelo, onSave, onDelete, isSaving }: Props) => {
           </div>
         </TabsContent>
         
-        <TabsContent value="condominio" className="space-y-2 mt-4">
+        <TabsContent value="condominio" className="mt-4 space-y-2">
           <div className="grid grid-cols-2 gap-2">
             {camposDinamicos.condominio.map((campo) => (
               <TooltipProvider key={campo.placeholder}>
@@ -279,7 +279,7 @@ export const ModeloEditor = ({ modelo, onSave, onDelete, isSaving }: Props) => {
                       type="button"
                       variant="outline"
                       size="sm"
-                      className="h-auto py-2 px-3 text-xs justify-start"
+                      className="justify-start h-auto px-3 py-2 text-xs"
                       onClick={() => handleVariableClick(campo.placeholder)}
                     >
                       {campo.placeholder}
@@ -294,7 +294,7 @@ export const ModeloEditor = ({ modelo, onSave, onDelete, isSaving }: Props) => {
           </div>
         </TabsContent>
         
-        <TabsContent value="cobranca" className="space-y-2 mt-4">
+        <TabsContent value="cobranca" className="mt-4 space-y-2">
           <div className="grid grid-cols-2 gap-2">
             {camposDinamicos.cobranca.map((campo) => (
               <TooltipProvider key={campo.placeholder}>
@@ -304,7 +304,7 @@ export const ModeloEditor = ({ modelo, onSave, onDelete, isSaving }: Props) => {
                       type="button"
                       variant="outline"
                       size="sm"
-                      className="h-auto py-2 px-3 text-xs justify-start"
+                      className="justify-start h-auto px-3 py-2 text-xs"
                       onClick={() => handleVariableClick(campo.placeholder)}
                     >
                       {campo.placeholder}
@@ -319,7 +319,7 @@ export const ModeloEditor = ({ modelo, onSave, onDelete, isSaving }: Props) => {
           </div>
         </TabsContent>
         
-        <TabsContent value="datas" className="space-y-2 mt-4">
+        <TabsContent value="datas" className="mt-4 space-y-2">
           <div className="grid grid-cols-2 gap-2">
             {camposDinamicos.datas.map((campo) => (
               <TooltipProvider key={campo.placeholder}>
@@ -329,7 +329,7 @@ export const ModeloEditor = ({ modelo, onSave, onDelete, isSaving }: Props) => {
                       type="button"
                       variant="outline"
                       size="sm"
-                      className="h-auto py-2 px-3 text-xs justify-start"
+                      className="justify-start h-auto px-3 py-2 text-xs"
                       onClick={() => handleVariableClick(campo.placeholder)}
                     >
                       {campo.placeholder}
@@ -351,8 +351,8 @@ export const ModeloEditor = ({ modelo, onSave, onDelete, isSaving }: Props) => {
     <Form {...form}>
       <form onSubmit={form.handleSubmit(onSave)} className="space-y-6">
         {/* Header */}
-        <div className="text-center space-y-2">
-          <h2 className="text-3xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
+        <div className="space-y-2 text-center">
+          <h2 className="text-3xl font-bold text-transparent bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text">
             {modelo.id ? 'Editar Modelo de Cobrança' : 'Criar Novo Modelo de Cobrança'}
           </h2>
           <p className="text-muted-foreground">
@@ -362,20 +362,20 @@ export const ModeloEditor = ({ modelo, onSave, onDelete, isSaving }: Props) => {
 
         {/* Alert de informações */}
         <Alert>
-          <Info className="h-4 w-4" />
+          <Info className="w-4 h-4" />
           <AlertDescription>
             Este editor suporta formatação rica de texto, imagens inline, links e campos dinâmicos que serão substituídos automaticamente pelos dados reais.
           </AlertDescription>
         </Alert>
 
-        <div className="grid grid-cols-1 xl:grid-cols-3 gap-8">
+        <div className="grid grid-cols-1 gap-8 xl:grid-cols-3">
           {/* Coluna da Esquerda: Formulário Principal */}
-          <div className="xl:col-span-2 space-y-6">
+          <div className="space-y-6 xl:col-span-2">
             {/* Nome do Modelo */}
             <Card>
               <CardHeader>
                 <CardTitle className="flex items-center gap-2">
-                  <Type className="h-5 w-5" />
+                  <Type className="w-5 h-5" />
                   Informações Básicas
                 </CardTitle>
               </CardHeader>
@@ -404,7 +404,7 @@ export const ModeloEditor = ({ modelo, onSave, onDelete, isSaving }: Props) => {
             <Card>
               <CardHeader>
                 <CardTitle className="flex items-center gap-2">
-                  <Palette className="h-5 w-5" />
+                  <Palette className="w-5 h-5" />
                   Conteúdo da Mensagem
                 </CardTitle>
                 <CardDescription>
@@ -435,7 +435,7 @@ export const ModeloEditor = ({ modelo, onSave, onDelete, isSaving }: Props) => {
             <Card>
               <CardHeader>
                 <CardTitle className="flex items-center gap-2">
-                  <ImageIcon className="h-5 w-5" />
+                  <ImageIcon className="w-5 h-5" />
                   Imagens do Email
                 </CardTitle>
                 <CardDescription>
@@ -443,14 +443,14 @@ export const ModeloEditor = ({ modelo, onSave, onDelete, isSaving }: Props) => {
                 </CardDescription>
               </CardHeader>
               <CardContent>
-                <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
                   <FormField 
                     control={form.control} 
                     name="headerImage" 
                     render={({ field }) => (
                       <FormItem>
                         <FormLabel className="flex items-center gap-2">
-                          <ImageIcon className="h-4 w-4" />
+                          <ImageIcon className="w-4 h-4" />
                           Imagem do Cabeçalho
                         </FormLabel>
                         <div className="space-y-2">
@@ -459,7 +459,7 @@ export const ModeloEditor = ({ modelo, onSave, onDelete, isSaving }: Props) => {
                             <img 
                               src={headerImagePreview} 
                               alt="Preview cabeçalho" 
-                              className="w-full max-h-32 object-contain border rounded-lg bg-white shadow-sm"
+                              className="object-contain w-full bg-white border rounded-lg shadow-sm max-h-32"
                               onLoad={() => console.log('✅ Imagem do cabeçalho carregada:', headerImagePreview)}
                               onError={(e) => console.log('❌ Erro ao carregar imagem do cabeçalho:', headerImagePreview, e)}
                             />
@@ -467,20 +467,20 @@ export const ModeloEditor = ({ modelo, onSave, onDelete, isSaving }: Props) => {
                                 type="button"
                                 variant="destructive"
                                 size="sm"
-                                className="absolute top-2 right-2 h-6 w-6 p-0"
+                                className="absolute w-6 h-6 p-0 top-2 right-2"
                                 onClick={() => removeImage('header')}
                               >
-                                <X className="h-3 w-3" />
+                                <X className="w-3 h-3" />
                               </Button>
                             </div>
                           ) : (
                             <div 
-                              className="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center cursor-pointer hover:border-gray-400 hover:bg-gray-50 transition-colors"
+                              className="p-6 text-center transition-colors border-2 border-gray-300 border-dashed rounded-lg cursor-pointer hover:border-gray-400 hover:bg-gray-50"
                               onClick={() => document.getElementById('header-image-upload')?.click()}
                             >
-                              <Upload className="h-8 w-8 mx-auto text-gray-400 mb-2" />
-                              <p className="text-sm text-gray-600 mb-2 font-medium">Clique aqui para fazer upload</p>
-                              <p className="text-xs text-gray-500 mb-3">
+                              <Upload className="w-8 h-8 mx-auto mb-2 text-gray-400" />
+                              <p className="mb-2 text-sm font-medium text-gray-600">Clique aqui para fazer upload</p>
+                              <p className="mb-3 text-xs text-gray-500">
                                 Medidas ideais: 800x200px (JPG, PNG)<br/>
                                 Máximo: 2MB
                               </p>
@@ -511,7 +511,7 @@ export const ModeloEditor = ({ modelo, onSave, onDelete, isSaving }: Props) => {
                     render={({ field }) => (
                       <FormItem>
                         <FormLabel className="flex items-center gap-2">
-                          <ImageIcon className="h-4 w-4" />
+                          <ImageIcon className="w-4 h-4" />
                           Imagem do Rodapé/Assinatura
                         </FormLabel>
                         <div className="space-y-2">
@@ -520,7 +520,7 @@ export const ModeloEditor = ({ modelo, onSave, onDelete, isSaving }: Props) => {
                             <img 
                               src={footerImagePreview} 
                               alt="Preview rodapé" 
-                              className="w-full max-h-32 object-contain border rounded-lg bg-white shadow-sm"
+                              className="object-contain w-full bg-white border rounded-lg shadow-sm max-h-32"
                               onLoad={() => console.log('✅ Imagem do rodapé carregada:', footerImagePreview)}
                               onError={(e) => console.log('❌ Erro ao carregar imagem do rodapé:', footerImagePreview, e)}
                             />
@@ -528,20 +528,20 @@ export const ModeloEditor = ({ modelo, onSave, onDelete, isSaving }: Props) => {
                                 type="button"
                                 variant="destructive"
                                 size="sm"
-                                className="absolute top-2 right-2 h-6 w-6 p-0"
+                                className="absolute w-6 h-6 p-0 top-2 right-2"
                                 onClick={() => removeImage('footer')}
                               >
-                                <X className="h-3 w-3" />
+                                <X className="w-3 h-3" />
                               </Button>
                             </div>
                           ) : (
                             <div 
-                              className="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center cursor-pointer hover:border-gray-400 hover:bg-gray-50 transition-colors"
+                              className="p-6 text-center transition-colors border-2 border-gray-300 border-dashed rounded-lg cursor-pointer hover:border-gray-400 hover:bg-gray-50"
                               onClick={() => document.getElementById('footer-image-upload')?.click()}
                             >
-                              <Upload className="h-8 w-8 mx-auto text-gray-400 mb-2" />
-                              <p className="text-sm text-gray-600 mb-2 font-medium">Clique aqui para fazer upload</p>
-                              <p className="text-xs text-gray-500 mb-3">
+                              <Upload className="w-8 h-8 mx-auto mb-2 text-gray-400" />
+                              <p className="mb-2 text-sm font-medium text-gray-600">Clique aqui para fazer upload</p>
+                              <p className="mb-3 text-xs text-gray-500">
                                 Medidas ideais: 400x150px (JPG, PNG)<br/>
                                 Máximo: 2MB
                               </p>
@@ -575,8 +575,8 @@ export const ModeloEditor = ({ modelo, onSave, onDelete, isSaving }: Props) => {
             {/* Campos Dinâmicos */}
             <Card>
               <CardHeader>
-                <CardTitle className="text-lg flex items-center gap-2">
-                  <Link className="h-5 w-5" />
+                <CardTitle className="flex items-center gap-2 text-lg">
+                  <Link className="w-5 h-5" />
                   Campos Dinâmicos
                 </CardTitle>
                 <CardDescription>
@@ -592,8 +592,8 @@ export const ModeloEditor = ({ modelo, onSave, onDelete, isSaving }: Props) => {
             <Card>
               <CardHeader>
                 <div className="flex items-center justify-between">
-                  <CardTitle className="text-lg flex items-center gap-2">
-                    <Eye className="h-5 w-5" />
+                  <CardTitle className="flex items-center gap-2 text-lg">
+                    <Eye className="w-5 h-5" />
                     Pré-visualização
                   </CardTitle>
                   <Button
@@ -602,7 +602,7 @@ export const ModeloEditor = ({ modelo, onSave, onDelete, isSaving }: Props) => {
                     size="sm"
                     onClick={() => setShowPreview(!showPreview)}
                   >
-                    {showPreview ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                    {showPreview ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
                   </Button>
                 </div>
                 {showPreview && (
@@ -613,7 +613,7 @@ export const ModeloEditor = ({ modelo, onSave, onDelete, isSaving }: Props) => {
                       size="sm"
                       onClick={() => setPreviewAtivo('dinamico')}
                     >
-                      <CheckCircle className="h-4 w-4 mr-2" />
+                      <CheckCircle className="w-4 h-4 mr-2" />
                       Preview Dinâmico
                     </Button>
                     <Button
@@ -622,7 +622,7 @@ export const ModeloEditor = ({ modelo, onSave, onDelete, isSaving }: Props) => {
                       size="sm"
                       onClick={() => setPreviewAtivo('estatico')}
                     >
-                      <AlertCircle className="h-4 w-4 mr-2" />
+                      <AlertCircle className="w-4 h-4 mr-2" />
                       Campos Destacados
                     </Button>
                   </div>
@@ -632,8 +632,8 @@ export const ModeloEditor = ({ modelo, onSave, onDelete, isSaving }: Props) => {
                 <CardContent>
                   <div className="space-y-4">
                     <div>
-                      <h4 className="font-semibold mb-2 text-sm">Assunto:</h4>
-                      <div className="p-3 bg-muted rounded-lg text-sm border">
+                      <h4 className="mb-2 text-sm font-semibold">Assunto:</h4>
+                      <div className="p-3 text-sm border rounded-lg bg-muted">
                         {previewAtivo === 'dinamico' 
                           ? gerarPreviewDinamico(tituloValue)
                           : <span dangerouslySetInnerHTML={renderPreviewEstatico()} />
@@ -642,18 +642,18 @@ export const ModeloEditor = ({ modelo, onSave, onDelete, isSaving }: Props) => {
                     </div>
                     
                     <div>
-                      <h4 className="font-semibold mb-2 text-sm">Conteúdo:</h4>
-                      <div className="p-3 bg-muted rounded-lg text-sm border max-h-96 overflow-y-auto">
+                      <h4 className="mb-2 text-sm font-semibold">Conteúdo:</h4>
+                      <div className="p-3 overflow-y-auto text-sm border rounded-lg bg-muted max-h-96">
                         {headerImagePreview && (
-                          <div className="mb-4 text-center border-b pb-4">
+                          <div className="pb-4 mb-4 text-center border-b">
                             <img 
                               src={headerImagePreview} 
                               alt="Cabeçalho" 
-                              className="max-w-full max-h-32 object-contain mx-auto shadow-sm rounded border bg-white"
+                              className="object-contain max-w-full mx-auto bg-white border rounded shadow-sm max-h-32"
                               onLoad={() => console.log('✅ Preview: Imagem do cabeçalho carregada:', headerImagePreview)}
                               onError={(e) => console.log('❌ Preview: Erro ao carregar imagem do cabeçalho:', headerImagePreview, e)}
                             />
-                            <p className="text-xs text-gray-500 mt-2">Imagem do Cabeçalho</p>
+                            <p className="mt-2 text-xs text-gray-500">Imagem do Cabeçalho</p>
                           </div>
                         )}
                         {previewAtivo === 'dinamico' 
@@ -661,15 +661,15 @@ export const ModeloEditor = ({ modelo, onSave, onDelete, isSaving }: Props) => {
                           : <span dangerouslySetInnerHTML={renderPreviewEstatico()} />
                         }
                         {footerImagePreview && (
-                          <div className="mt-4 text-center border-t pt-4">
+                          <div className="pt-4 mt-4 text-center border-t">
                             <img 
                               src={footerImagePreview} 
                               alt="Rodapé/Assinatura" 
-                              className="max-w-full max-h-24 object-contain mx-auto shadow-sm rounded border bg-white"
+                              className="object-contain max-w-full mx-auto bg-white border rounded shadow-sm max-h-24"
                               onLoad={() => console.log('✅ Preview: Imagem do rodapé carregada:', footerImagePreview)}
                               onError={(e) => console.log('❌ Preview: Erro ao carregar imagem do rodapé:', footerImagePreview, e)}
                             />
-                            <p className="text-xs text-gray-500 mt-2">Imagem do Rodapé/Assinatura</p>
+                            <p className="mt-2 text-xs text-gray-500">Imagem do Rodapé/Assinatura</p>
                           </div>
                         )}
                       </div>
@@ -682,13 +682,13 @@ export const ModeloEditor = ({ modelo, onSave, onDelete, isSaving }: Props) => {
             {/* Dicas de Uso */}
             <Card>
               <CardHeader>
-                <CardTitle className="text-lg flex items-center gap-2">
-                  <Info className="h-5 w-5" />
+                <CardTitle className="flex items-center gap-2 text-lg">
+                  <Info className="w-5 h-5" />
                   Dicas de Uso
                 </CardTitle>
               </CardHeader>
               <CardContent className="space-y-3">
-                <div className="text-sm space-y-2">
+                <div className="space-y-2 text-sm">
                   <div className="flex items-start gap-2">
                     <Bold className="h-4 w-4 mt-0.5 text-blue-600" />
                     <span>Use <kbd className="px-1 py-0.5 bg-gray-100 rounded text-xs">Ctrl+B</kbd> para negrito</span>
@@ -726,7 +726,7 @@ export const ModeloEditor = ({ modelo, onSave, onDelete, isSaving }: Props) => {
               onClick={() => onDelete(modelo.id!)} 
               disabled={!modelo.id || isSaving}
             >
-              <Trash2 className="mr-2 h-4 w-4" /> 
+              <Trash2 className="w-4 h-4 mr-2" /> 
               Excluir
             </Button>
             <Button 
@@ -734,16 +734,16 @@ export const ModeloEditor = ({ modelo, onSave, onDelete, isSaving }: Props) => {
               type="button" 
               disabled={isSaving}
             >
-              <Copy className="mr-2 h-4 w-4" /> 
+              <Copy className="w-4 h-4 mr-2" /> 
               Duplicar
             </Button>
           </div>
           <Button 
             type="submit" 
-            className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white" 
+            className="text-white bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700" 
             disabled={isSaving}
           >
-            <Save className="mr-2 h-4 w-4" /> 
+            <Save className="w-4 h-4 mr-2" /> 
             {isSaving ? "Salvando..." : "Salvar Modelo"}
           </Button>
         </DialogFooter>
