@@ -14,7 +14,7 @@ async function bootstrap() {
   app.use(urlencoded({ extended: true, limit: '5mb' }));
 
   // Servir arquivos estáticos (imagens uploadadas) - CORRIGIDO
-  app.use('/api/uploads', require('express').static(path.join(process.cwd(), 'uploads')));
+  app.use('/api/uploads', require('express').static(path.join(process.cwd(), 'backend', 'uploads')));
 
   const config = new DocumentBuilder()
     .setTitle('Documentação da API')
