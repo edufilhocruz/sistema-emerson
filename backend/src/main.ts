@@ -5,7 +5,6 @@ import { SwaggerModule, DocumentBuilder } from '@nestjs/swagger';
 import helmet from 'helmet';
 import * as cookieParser from 'cookie-parser';
 import { json, urlencoded } from 'express';
-import * as express from 'express';
 import * as path from 'path';
 
 async function bootstrap() {
@@ -34,7 +33,7 @@ async function bootstrap() {
   app.use(urlencoded({ extended: true, limit: '5mb' }));
 
   // Servir arquivos estáticos (imagens uploadadas)
-  app.use('/api/uploads', express.static(path.join(process.cwd(), 'uploads')));
+  app.use('/api/uploads', require('express').static(path.join(process.cwd(), 'uploads')));
 
   const config = new DocumentBuilder()
     .setTitle('Documentação da API')
