@@ -47,6 +47,16 @@ export const ModeloEditor = ({ modelo, onSave, onDelete, isSaving }: Props) => {
     modelo.footerImage ? `${window.location.origin}/api${modelo.footerImage}` : null
   );
 
+  // Log das imagens iniciais
+  useEffect(() => {
+    console.log('=== IMAGENS INICIAIS ===');
+    console.log('Modelo headerImage:', modelo.headerImage);
+    console.log('Modelo footerImage:', modelo.footerImage);
+    console.log('Header preview inicial:', headerImagePreview);
+    console.log('Footer preview inicial:', footerImagePreview);
+    console.log('Window location origin:', window.location.origin);
+  }, []);
+
   const form = useForm<ModeloFormData>({
     resolver: zodResolver(modeloSchema),
     defaultValues: { 
@@ -82,23 +92,37 @@ export const ModeloEditor = ({ modelo, onSave, onDelete, isSaving }: Props) => {
   };
 
   const handleImageUpload = async (file: File, type: 'header' | 'footer') => {
+    console.log('=== INICIANDO UPLOAD DE IMAGEM ===');
+    console.log('Tipo:', type);
+    console.log('Arquivo:', file);
+    console.log('Nome do arquivo:', file.name);
+    console.log('Tamanho:', file.size);
+    console.log('Tipo MIME:', file.type);
+    
     if (file) {
       // Validar tipo de arquivo
       if (!file.type.startsWith('image/')) {
+        console.log('❌ Erro: Arquivo não é uma imagem');
         alert('Por favor, selecione apenas arquivos de imagem.');
         return;
       }
 
       // Validar tamanho (máximo 2MB)
       if (file.size > 2 * 1024 * 1024) {
+        console.log('❌ Erro: Arquivo muito grande');
         alert('A imagem deve ter no máximo 2MB.');
         return;
       }
 
       try {
+        console.log('📤 Fazendo upload da imagem...');
+        
         // Criar FormData para upload
         const formData = new FormData();
         formData.append('image', file);
+
+        console.log('URL do upload:', '/api/modelo-carta/upload-image');
+        console.log('FormData criado:', formData);
 
         // Fazer upload da imagem
         const response = await fetch('/api/modelo-carta/upload-image', {
@@ -106,22 +130,37 @@ export const ModeloEditor = ({ modelo, onSave, onDelete, isSaving }: Props) => {
           body: formData,
         });
 
+        console.log('📥 Resposta recebida:', response);
+        console.log('Status:', response.status);
+        console.log('OK:', response.ok);
+
         if (!response.ok) {
-          throw new Error('Erro no upload da imagem');
+          const errorText = await response.text();
+          console.log('❌ Erro na resposta:', errorText);
+          throw new Error(`Erro no upload da imagem: ${response.status} ${errorText}`);
         }
 
         const result = await response.json();
+        console.log('✅ Resultado do upload:', result);
         
         // Salvar URL da imagem
+        const imageUrl = `${window.location.origin}/api${result.url}`;
+        console.log('🔗 URL final da imagem:', imageUrl);
+        
         if (type === 'header') {
-          setHeaderImagePreview(`${window.location.origin}/api${result.url}`);
+          console.log('📸 Definindo imagem do cabeçalho:', imageUrl);
+          setHeaderImagePreview(imageUrl);
           form.setValue('headerImage', result.url);
         } else {
-          setFooterImagePreview(`${window.location.origin}/api${result.url}`);
+          console.log('📸 Definindo imagem do rodapé:', imageUrl);
+          setFooterImagePreview(imageUrl);
           form.setValue('footerImage', result.url);
         }
+        
+        console.log('✅ Upload concluído com sucesso!');
       } catch (error) {
-        console.error('Erro no upload:', error);
+        console.error('❌ Erro no upload:', error);
+        console.error('Stack trace:', error.stack);
         alert('Erro ao fazer upload da imagem. Tente novamente.');
       }
     }
@@ -415,13 +454,15 @@ export const ModeloEditor = ({ modelo, onSave, onDelete, isSaving }: Props) => {
                           Imagem do Cabeçalho
                         </FormLabel>
                         <div className="space-y-2">
-                          {headerImagePreview ? (
-                            <div className="relative">
-                              <img 
-                                src={headerImagePreview} 
-                                alt="Preview cabeçalho" 
-                                className="w-full max-h-32 object-contain border rounded-lg bg-white shadow-sm"
-                              />
+                                                  {headerImagePreview ? (
+                          <div className="relative">
+                            <img 
+                              src={headerImagePreview} 
+                              alt="Preview cabeçalho" 
+                              className="w-full max-h-32 object-contain border rounded-lg bg-white shadow-sm"
+                              onLoad={() => console.log('✅ Imagem do cabeçalho carregada:', headerImagePreview)}
+                              onError={(e) => console.log('❌ Erro ao carregar imagem do cabeçalho:', headerImagePreview, e)}
+                            />
                               <Button
                                 type="button"
                                 variant="destructive"
@@ -474,13 +515,15 @@ export const ModeloEditor = ({ modelo, onSave, onDelete, isSaving }: Props) => {
                           Imagem do Rodapé/Assinatura
                         </FormLabel>
                         <div className="space-y-2">
-                          {footerImagePreview ? (
-                            <div className="relative">
-                              <img 
-                                src={footerImagePreview} 
-                                alt="Preview rodapé" 
-                                className="w-full max-h-32 object-contain border rounded-lg bg-white shadow-sm"
-                              />
+                                                  {footerImagePreview ? (
+                          <div className="relative">
+                            <img 
+                              src={footerImagePreview} 
+                              alt="Preview rodapé" 
+                              className="w-full max-h-32 object-contain border rounded-lg bg-white shadow-sm"
+                              onLoad={() => console.log('✅ Imagem do rodapé carregada:', footerImagePreview)}
+                              onError={(e) => console.log('❌ Erro ao carregar imagem do rodapé:', footerImagePreview, e)}
+                            />
                               <Button
                                 type="button"
                                 variant="destructive"
@@ -607,6 +650,8 @@ export const ModeloEditor = ({ modelo, onSave, onDelete, isSaving }: Props) => {
                               src={headerImagePreview} 
                               alt="Cabeçalho" 
                               className="max-w-full max-h-32 object-contain mx-auto shadow-sm rounded border bg-white"
+                              onLoad={() => console.log('✅ Preview: Imagem do cabeçalho carregada:', headerImagePreview)}
+                              onError={(e) => console.log('❌ Preview: Erro ao carregar imagem do cabeçalho:', headerImagePreview, e)}
                             />
                             <p className="text-xs text-gray-500 mt-2">Imagem do Cabeçalho</p>
                           </div>
@@ -621,6 +666,8 @@ export const ModeloEditor = ({ modelo, onSave, onDelete, isSaving }: Props) => {
                               src={footerImagePreview} 
                               alt="Rodapé/Assinatura" 
                               className="max-w-full max-h-24 object-contain mx-auto shadow-sm rounded border bg-white"
+                              onLoad={() => console.log('✅ Preview: Imagem do rodapé carregada:', footerImagePreview)}
+                              onError={(e) => console.log('❌ Preview: Erro ao carregar imagem do rodapé:', footerImagePreview, e)}
                             />
                             <p className="text-xs text-gray-500 mt-2">Imagem do Rodapé/Assinatura</p>
                           </div>
