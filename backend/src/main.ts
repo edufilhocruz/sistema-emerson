@@ -5,6 +5,7 @@ import { SwaggerModule, DocumentBuilder } from '@nestjs/swagger';
 import helmet from 'helmet';
 import * as cookieParser from 'cookie-parser';
 import { json, urlencoded } from 'express';
+import * as express from 'express';
 import * as path from 'path';
 
 async function bootstrap() {

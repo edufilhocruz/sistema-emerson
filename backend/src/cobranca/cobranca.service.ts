@@ -15,6 +15,44 @@ export class CobrancaService {
   ) {}
 
   /**
+   * Processa o conteúdo HTML do Quill para ser compatível com emails
+   */
+  private processarConteudoHtml(html: string): string {
+    // Remove estilos inline que podem causar problemas em emails
+    let processado = html
+      // Remove estilos de background que podem não funcionar
+      .replace(/background-color:\s*[^;]+;/gi, '')
+      .replace(/background:\s*[^;]+;/gi, '')
+      
+      // Converte cores para formato compatível
+      .replace(/color:\s*rgb\(([^)]+)\)/gi, (match, rgb) => {
+        const [r, g, b] = rgb.split(',').map(n => parseInt(n.trim()));
+        return `color: #${r.toString(16).padStart(2, '0')}${g.toString(16).padStart(2, '0')}${b.toString(16).padStart(2, '0')}`;
+      })
+      
+      // Remove propriedades CSS que podem não funcionar em emails
+      .replace(/box-shadow:\s*[^;]+;/gi, '')
+      .replace(/border-radius:\s*[^;]+;/gi, '')
+      .replace(/transform:\s*[^;]+;/gi, '')
+      
+      // Garante que imagens tenham atributos necessários
+      .replace(/<img([^>]*)>/gi, (match, attrs) => {
+        if (!attrs.includes('style=')) {
+          attrs += ' style="max-width: 100%; height: auto; border: 0;"';
+        }
+        if (!attrs.includes('alt=')) {
+          attrs += ' alt="Imagem"';
+        }
+        return `<img${attrs}>`;
+      })
+      
+      // Converte quebras de linha para <br> se necessário
+      .replace(/\n/g, '<br>');
+    
+    return processado;
+  }
+
+  /**
    * Substitui todos os placeholders dinâmicos no texto
    */
   private substituirPlaceholders(texto: string, dados: Record<string, any>): string {
@@ -186,80 +224,98 @@ export class CobrancaService {
 
       // Substitui os placeholders no título e conteúdo
       const tituloProcessado = this.substituirPlaceholders(modeloCarta.titulo, dadosSubstituicao);
-      const conteudoProcessado = this.substituirPlaceholders(modeloCarta.conteudo, dadosSubstituicao);
+      const conteudoComPlaceholders = this.substituirPlaceholders(modeloCarta.conteudo, dadosSubstituicao);
+      
+      // Processa o conteúdo HTML para ser compatível com emails
+      const conteudoProcessado = this.processarConteudoHtml(conteudoComPlaceholders);
 
-      // Template de email profissional (inspirado no listmonk)
+      // Template de email profissional com HTML inline (compatível com todos os clientes)
       const emailTemplate = `
         <!DOCTYPE html>
         <html lang="pt-BR">
         <head>
           <meta charset="UTF-8">
           <meta name="viewport" content="width=device-width, initial-scale=1.0">
+          <meta http-equiv="X-UA-Compatible" content="IE=edge">
           <title>Cobrança - ${morador.condominio.nome}</title>
-          <style>
-            body { 
-              font-family: Arial, sans-serif; 
-              line-height: 1.6; 
-              color: #333; 
-              max-width: 600px; 
-              margin: 0 auto; 
-              padding: 20px;
-              background-color: #f4f4f4;
-            }
-            .email-container {
-              background-color: #ffffff;
-              border-radius: 8px;
-              box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-              overflow: hidden;
-            }
-            .header-image {
-              width: 100%;
-              max-height: 200px;
-              object-fit: cover;
-              display: block;
-            }
-            .content {
-              padding: 30px;
-            }
-            .footer-image {
-              width: 100%;
-              max-height: 150px;
-              object-fit: contain;
-              display: block;
-            }
-            .footer {
-              background-color: #f8f9fa;
-              padding: 20px 30px;
-              text-align: center;
-              font-size: 12px;
-              color: #666;
-            }
-            @media only screen and (max-width: 600px) {
-              body { padding: 10px; }
-              .content { padding: 20px; }
-            }
-          </style>
+          <!--[if mso]>
+          <noscript>
+            <xml>
+              <o:OfficeDocumentSettings>
+                <o:PixelsPerInch>96</o:PixelsPerInch>
+              </o:OfficeDocumentSettings>
+            </xml>
+          </noscript>
+          <![endif]-->
         </head>
-        <body>
-          <div class="email-container">
-            ${(modeloCarta as any).headerImage ? 
-              `<img src="${process.env.BASE_URL || 'https://app.raunaimer.adv.br'}${(modeloCarta as any).headerImage}" 
-                    alt="Cabeçalho" class="header-image">` : ''
-            }
-            
-            <div class="content">
-              ${conteudoProcessado}
-            </div>
-            
-            ${(modeloCarta as any).footerImage ? 
-              `<img src="${process.env.BASE_URL || 'https://app.raunaimer.adv.br'}${(modeloCarta as any).footerImage}" 
-                    alt="Rodapé/Assinatura" class="footer-image">` : ''
-            }
-            
-            <div class="footer">
-              <p>Esta é uma cobrança automática do sistema Raunaimer.</p>
-              <p>Para dúvidas, entre em contato conosco.</p>
-            </div>
+        <body style="margin: 0; padding: 0; background-color: #f4f4f4; font-family: Arial, Helvetica, sans-serif; line-height: 1.6; color: #333333;">
+          <!-- Wrapper principal -->
+          <table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%" style="background-color: #f4f4f4;">
+            <tr>
+              <td align="center" style="padding: 20px 0;">
+                <!-- Container do email -->
+                <table role="presentation" cellspacing="0" cellpadding="0" border="0" width="600" style="max-width: 600px; background-color: #ffffff; border-radius: 8px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); overflow: hidden;">
+                  
+                  <!-- Imagem do cabeçalho -->
+                  ${(modeloCarta as any).headerImage ? `
+                  <tr>
+                    <td style="text-align: center; padding: 0;">
+                      <img src="${process.env.BASE_URL || 'https://app.raunaimer.adv.br'}${(modeloCarta as any).headerImage}" 
+                           alt="Cabeçalho" 
+                           style="width: 100%; max-height: 200px; object-fit: cover; display: block; border: 0;">
+                    </td>
+                  </tr>
+                  ` : ''}
+                  
+                  <!-- Conteúdo principal -->
+                  <tr>
+                    <td style="padding: 30px; text-align: left;">
+                      <div style="font-family: Arial, Helvetica, sans-serif; font-size: 14px; line-height: 1.6; color: #333333;">
+                        ${conteudoProcessado}
+                      </div>
+                    </td>
+                  </tr>
+                  
+                  <!-- Imagem do rodapé -->
+                  ${(modeloCarta as any).footerImage ? `
+                  <tr>
+                    <td style="text-align: center; padding: 0;">
+                      <img src="${process.env.BASE_URL || 'https://app.raunaimer.adv.br'}${(modeloCarta as any).footerImage}" 
+                           alt="Rodapé/Assinatura" 
+                           style="width: 100%; max-height: 150px; object-fit: contain; display: block; border: 0;">
+                    </td>
+                  </tr>
+                  ` : ''}
+                  
+                  <!-- Rodapé do sistema -->
+                  <tr>
+                    <td style="background-color: #f8f9fa; padding: 20px 30px; text-align: center;">
+                      <table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%">
+                        <tr>
+                          <td style="font-family: Arial, Helvetica, sans-serif; font-size: 12px; color: #666666; line-height: 1.4;">
+                            <p style="margin: 0 0 10px 0;">Esta é uma cobrança automática do sistema Raunaimer.</p>
+                            <p style="margin: 0;">Para dúvidas, entre em contato conosco.</p>
+                          </td>
+                        </tr>
+                      </table>
+                    </td>
+                  </tr>
+                  
+                </table>
+              </td>
+            </tr>
+          </table>
+          
+          <!-- Fallback para clientes que não suportam tabelas -->
+          <!--[if !mso]><!-->
+          <div style="display: none; max-height: 0; overflow: hidden;">
+            Esta é uma cobrança automática do sistema Raunaimer.
+          </div>
+          <!--<![endif]-->
+          
+          <!-- Preheader text -->
+          <div style="display: none; max-height: 0; overflow: hidden;">
+            Cobrança - ${morador.condominio.nome} - ${tituloProcessado}
           </div>
         </body>
         </html>

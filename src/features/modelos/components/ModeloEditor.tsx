@@ -7,14 +7,15 @@ import { ModeloCarta, ModeloFormData, modeloSchema } from '@/entities/modelos/ty
 import { Button } from "@/components/ui/button";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
-import { Textarea } from "@/components/ui/textarea";
 import { DialogFooter } from '@/components/ui/dialog';
-import { Trash2, Copy, Save, Info, CheckCircle, AlertCircle, Image as ImageIcon, Upload, X } from 'lucide-react';
+import { Trash2, Copy, Save, Info, CheckCircle, AlertCircle, Image as ImageIcon, Upload, X, Eye, EyeOff, Palette, Type, Link, List, AlignLeft, AlignCenter, AlignRight, Bold, Italic, Underline } from 'lucide-react';
 import { QuillEditor } from './QuillEditor';
 import { Badge } from '@/components/ui/badge';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
+import { Separator } from '@/components/ui/separator';
+import { Alert, AlertDescription } from '@/components/ui/alert';
 
 interface Props {
   modelo: Partial<ModeloCarta>;
@@ -38,6 +39,7 @@ interface CamposDinamicos {
 export const ModeloEditor = ({ modelo, onSave, onDelete, isSaving }: Props) => {
   const [camposDinamicos, setCamposDinamicos] = useState<CamposDinamicos | null>(null);
   const [previewAtivo, setPreviewAtivo] = useState<'estatico' | 'dinamico'>('dinamico');
+  const [showPreview, setShowPreview] = useState(true);
   const [headerImagePreview, setHeaderImagePreview] = useState<string | null>(
     modelo.headerImage ? `${window.location.origin}/api${modelo.headerImage}` : null
   );
@@ -110,7 +112,7 @@ export const ModeloEditor = ({ modelo, onSave, onDelete, isSaving }: Props) => {
 
         const result = await response.json();
         
-        // Salvar URL da imagem (não base64)
+        // Salvar URL da imagem
         if (type === 'header') {
           setHeaderImagePreview(`${window.location.origin}/api${result.url}`);
           form.setValue('headerImage', result.url);
@@ -189,102 +191,118 @@ export const ModeloEditor = ({ modelo, onSave, onDelete, isSaving }: Props) => {
     return (
       <Tabs defaultValue="morador" className="w-full">
         <TabsList className="grid w-full grid-cols-4">
-          <TabsTrigger value="morador">👤 Morador</TabsTrigger>
-          <TabsTrigger value="condominio">🏢 Condomínio</TabsTrigger>
-          <TabsTrigger value="cobranca">💰 Cobrança</TabsTrigger>
-          <TabsTrigger value="datas">📅 Datas</TabsTrigger>
+          <TabsTrigger value="morador" className="flex items-center gap-1">
+            <span className="text-sm">👤</span> Morador
+          </TabsTrigger>
+          <TabsTrigger value="condominio" className="flex items-center gap-1">
+            <span className="text-sm">🏢</span> Condomínio
+          </TabsTrigger>
+          <TabsTrigger value="cobranca" className="flex items-center gap-1">
+            <span className="text-sm">💰</span> Cobrança
+          </TabsTrigger>
+          <TabsTrigger value="datas" className="flex items-center gap-1">
+            <span className="text-sm">📅</span> Datas
+          </TabsTrigger>
         </TabsList>
         
-        <TabsContent value="morador" className="space-y-2">
-          {camposDinamicos.morador.map((campo) => (
-            <TooltipProvider key={campo.placeholder}>
-              <Tooltip>
-                <TooltipTrigger asChild>
-                  <Button
-                    type="button"
-                    variant="outline"
-                    size="sm"
-                    className="h-auto py-2 px-3 text-xs"
-                    onClick={() => handleVariableClick(campo.placeholder)}
-                  >
-                    {campo.placeholder}
-                  </Button>
-                </TooltipTrigger>
-                <TooltipContent>
-                  <p>{campo.descricao}</p>
-                </TooltipContent>
-              </Tooltip>
-            </TooltipProvider>
-          ))}
+        <TabsContent value="morador" className="space-y-2 mt-4">
+          <div className="grid grid-cols-2 gap-2">
+            {camposDinamicos.morador.map((campo) => (
+              <TooltipProvider key={campo.placeholder}>
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <Button
+                      type="button"
+                      variant="outline"
+                      size="sm"
+                      className="h-auto py-2 px-3 text-xs justify-start"
+                      onClick={() => handleVariableClick(campo.placeholder)}
+                    >
+                      {campo.placeholder}
+                    </Button>
+                  </TooltipTrigger>
+                  <TooltipContent>
+                    <p>{campo.descricao}</p>
+                  </TooltipContent>
+                </Tooltip>
+              </TooltipProvider>
+            ))}
+          </div>
         </TabsContent>
         
-        <TabsContent value="condominio" className="space-y-2">
-          {camposDinamicos.condominio.map((campo) => (
-            <TooltipProvider key={campo.placeholder}>
-              <Tooltip>
-                <TooltipTrigger asChild>
-                  <Button
-                    type="button"
-                    variant="outline"
-                    size="sm"
-                    className="h-auto py-2 px-3 text-xs"
-                    onClick={() => handleVariableClick(campo.placeholder)}
-                  >
-                    {campo.placeholder}
-                  </Button>
-                </TooltipTrigger>
-                <TooltipContent>
-                  <p>{campo.descricao}</p>
-                </TooltipContent>
-              </Tooltip>
-            </TooltipProvider>
-          ))}
+        <TabsContent value="condominio" className="space-y-2 mt-4">
+          <div className="grid grid-cols-2 gap-2">
+            {camposDinamicos.condominio.map((campo) => (
+              <TooltipProvider key={campo.placeholder}>
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <Button
+                      type="button"
+                      variant="outline"
+                      size="sm"
+                      className="h-auto py-2 px-3 text-xs justify-start"
+                      onClick={() => handleVariableClick(campo.placeholder)}
+                    >
+                      {campo.placeholder}
+                    </Button>
+                  </TooltipTrigger>
+                  <TooltipContent>
+                    <p>{campo.descricao}</p>
+                  </TooltipContent>
+                </Tooltip>
+              </TooltipProvider>
+            ))}
+          </div>
         </TabsContent>
         
-        <TabsContent value="cobranca" className="space-y-2">
-          {camposDinamicos.cobranca.map((campo) => (
-            <TooltipProvider key={campo.placeholder}>
-              <Tooltip>
-                <TooltipTrigger asChild>
-                  <Button
-                    type="button"
-                    variant="outline"
-                    size="sm"
-                    className="h-auto py-2 px-3 text-xs"
-                    onClick={() => handleVariableClick(campo.placeholder)}
-                  >
-                    {campo.placeholder}
-                  </Button>
-                </TooltipTrigger>
-                <TooltipContent>
-                  <p>{campo.descricao}</p>
-                </TooltipContent>
-              </Tooltip>
-            </TooltipProvider>
-          ))}
+        <TabsContent value="cobranca" className="space-y-2 mt-4">
+          <div className="grid grid-cols-2 gap-2">
+            {camposDinamicos.cobranca.map((campo) => (
+              <TooltipProvider key={campo.placeholder}>
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <Button
+                      type="button"
+                      variant="outline"
+                      size="sm"
+                      className="h-auto py-2 px-3 text-xs justify-start"
+                      onClick={() => handleVariableClick(campo.placeholder)}
+                    >
+                      {campo.placeholder}
+                    </Button>
+                  </TooltipTrigger>
+                  <TooltipContent>
+                    <p>{campo.descricao}</p>
+                  </TooltipContent>
+                </Tooltip>
+              </TooltipProvider>
+            ))}
+          </div>
         </TabsContent>
         
-        <TabsContent value="datas" className="space-y-2">
-          {camposDinamicos.datas.map((campo) => (
-            <TooltipProvider key={campo.placeholder}>
-              <Tooltip>
-                <TooltipTrigger asChild>
-                  <Button
-                    type="button"
-                    variant="outline"
-                    size="sm"
-                    className="h-auto py-2 px-3 text-xs"
-                    onClick={() => handleVariableClick(campo.placeholder)}
-                  >
-                    {campo.placeholder}
-                  </Button>
-                </TooltipTrigger>
-                <TooltipContent>
-                  <p>{campo.descricao}</p>
-                </TooltipContent>
-              </Tooltip>
-            </TooltipProvider>
-          ))}
+        <TabsContent value="datas" className="space-y-2 mt-4">
+          <div className="grid grid-cols-2 gap-2">
+            {camposDinamicos.datas.map((campo) => (
+              <TooltipProvider key={campo.placeholder}>
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <Button
+                      type="button"
+                      variant="outline"
+                      size="sm"
+                      className="h-auto py-2 px-3 text-xs justify-start"
+                      onClick={() => handleVariableClick(campo.placeholder)}
+                    >
+                      {campo.placeholder}
+                    </Button>
+                  </TooltipTrigger>
+                  <TooltipContent>
+                    <p>{campo.descricao}</p>
+                  </TooltipContent>
+                </Tooltip>
+              </TooltipProvider>
+            ))}
+          </div>
         </TabsContent>
       </Tabs>
     );
@@ -293,178 +311,230 @@ export const ModeloEditor = ({ modelo, onSave, onDelete, isSaving }: Props) => {
   return (
     <Form {...form}>
       <form onSubmit={form.handleSubmit(onSave)} className="space-y-6">
-        <div className="text-center">
-          <h2 className="text-2xl font-bold">
+        {/* Header */}
+        <div className="text-center space-y-2">
+          <h2 className="text-3xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
             {modelo.id ? 'Editar Modelo de Cobrança' : 'Criar Novo Modelo de Cobrança'}
           </h2>
-          <p className="text-muted-foreground mt-2">
-            Crie um modelo personalizado com campos dinâmicos que serão preenchidos automaticamente
+          <p className="text-muted-foreground">
+            Crie um modelo profissional com formatação rica e campos dinâmicos
           </p>
         </div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-          {/* Coluna da Esquerda: Formulário */}
+        {/* Alert de informações */}
+        <Alert>
+          <Info className="h-4 w-4" />
+          <AlertDescription>
+            Este editor suporta formatação rica de texto, imagens inline, links e campos dinâmicos que serão substituídos automaticamente pelos dados reais.
+          </AlertDescription>
+        </Alert>
+
+        <div className="grid grid-cols-1 xl:grid-cols-3 gap-8">
+          {/* Coluna da Esquerda: Formulário Principal */}
+          <div className="xl:col-span-2 space-y-6">
+            {/* Nome do Modelo */}
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <Type className="h-5 w-5" />
+                  Informações Básicas
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <FormField 
+                  control={form.control} 
+                  name="titulo" 
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Nome do Modelo</FormLabel>
+                      <FormControl>
+                        <Input 
+                          placeholder="Ex: Cobrança Padrão Mensal" 
+                          {...field} 
+                          className="text-lg"
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )} 
+                />
+              </CardContent>
+            </Card>
+
+            {/* Editor de Conteúdo */}
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <Palette className="h-5 w-5" />
+                  Conteúdo da Mensagem
+                </CardTitle>
+                <CardDescription>
+                  Use o editor abaixo para criar o conteúdo da sua mensagem. Suporte completo a formatação rica.
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                <FormField 
+                  control={form.control} 
+                  name="conteudo" 
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormControl>
+                        <QuillEditor
+                          value={field.value || ''}
+                          onChange={field.onChange}
+                          placeholder="Digite sua mensagem aqui... Use os campos dinâmicos para personalizar o conteúdo."
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )} 
+                />
+              </CardContent>
+            </Card>
+
+            {/* Imagens do Cabeçalho e Rodapé */}
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <ImageIcon className="h-5 w-5" />
+                  Imagens do Email
+                </CardTitle>
+                <CardDescription>
+                  Adicione imagens para o cabeçalho e rodapé do email. Estas aparecerão automaticamente em todas as cobranças.
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                  <FormField 
+                    control={form.control} 
+                    name="headerImage" 
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel className="flex items-center gap-2">
+                          <ImageIcon className="h-4 w-4" />
+                          Imagem do Cabeçalho
+                        </FormLabel>
+                        <div className="space-y-2">
+                          {headerImagePreview ? (
+                            <div className="relative">
+                              <img 
+                                src={headerImagePreview} 
+                                alt="Preview cabeçalho" 
+                                className="w-full max-h-32 object-contain border rounded-lg bg-white shadow-sm"
+                              />
+                              <Button
+                                type="button"
+                                variant="destructive"
+                                size="sm"
+                                className="absolute top-2 right-2 h-6 w-6 p-0"
+                                onClick={() => removeImage('header')}
+                              >
+                                <X className="h-3 w-3" />
+                              </Button>
+                            </div>
+                          ) : (
+                            <div 
+                              className="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center cursor-pointer hover:border-gray-400 hover:bg-gray-50 transition-colors"
+                              onClick={() => document.getElementById('header-image-upload')?.click()}
+                            >
+                              <Upload className="h-8 w-8 mx-auto text-gray-400 mb-2" />
+                              <p className="text-sm text-gray-600 mb-2 font-medium">Clique aqui para fazer upload</p>
+                              <p className="text-xs text-gray-500 mb-3">
+                                Medidas ideais: 800x200px (JPG, PNG)<br/>
+                                Máximo: 2MB
+                              </p>
+                              <input
+                                type="file"
+                                accept="image/*"
+                                className="hidden"
+                                id="header-image-upload"
+                                onChange={(e) => {
+                                  const file = e.target.files?.[0];
+                                  if (file) handleImageUpload(file, 'header');
+                                }}
+                              />
+                              <Button type="button" variant="outline" size="sm" className="cursor-pointer">
+                                Selecionar Imagem
+                              </Button>
+                            </div>
+                          )}
+                        </div>
+                        <FormMessage />
+                      </FormItem>
+                    )} 
+                  />
+
+                  <FormField 
+                    control={form.control} 
+                    name="footerImage" 
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel className="flex items-center gap-2">
+                          <ImageIcon className="h-4 w-4" />
+                          Imagem do Rodapé/Assinatura
+                        </FormLabel>
+                        <div className="space-y-2">
+                          {footerImagePreview ? (
+                            <div className="relative">
+                              <img 
+                                src={footerImagePreview} 
+                                alt="Preview rodapé" 
+                                className="w-full max-h-32 object-contain border rounded-lg bg-white shadow-sm"
+                              />
+                              <Button
+                                type="button"
+                                variant="destructive"
+                                size="sm"
+                                className="absolute top-2 right-2 h-6 w-6 p-0"
+                                onClick={() => removeImage('footer')}
+                              >
+                                <X className="h-3 w-3" />
+                              </Button>
+                            </div>
+                          ) : (
+                            <div 
+                              className="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center cursor-pointer hover:border-gray-400 hover:bg-gray-50 transition-colors"
+                              onClick={() => document.getElementById('footer-image-upload')?.click()}
+                            >
+                              <Upload className="h-8 w-8 mx-auto text-gray-400 mb-2" />
+                              <p className="text-sm text-gray-600 mb-2 font-medium">Clique aqui para fazer upload</p>
+                              <p className="text-xs text-gray-500 mb-3">
+                                Medidas ideais: 400x150px (JPG, PNG)<br/>
+                                Máximo: 2MB
+                              </p>
+                              <input
+                                type="file"
+                                accept="image/*"
+                                className="hidden"
+                                id="footer-image-upload"
+                                onChange={(e) => {
+                                  const file = e.target.files?.[0];
+                                  if (file) handleImageUpload(file, 'footer');
+                                }}
+                              />
+                              <Button type="button" variant="outline" size="sm" className="cursor-pointer">
+                                Selecionar Imagem
+                              </Button>
+                            </div>
+                          )}
+                        </div>
+                        <FormMessage />
+                      </FormItem>
+                    )} 
+                  />
+                </div>
+              </CardContent>
+            </Card>
+          </div>
+
+          {/* Coluna da Direita: Sidebar */}
           <div className="space-y-6">
-            <FormField 
-              control={form.control} 
-              name="titulo" 
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Nome do Modelo</FormLabel>
-                  <FormControl>
-                    <Input 
-                      placeholder="Ex: Cobrança Padrão Mensal" 
-                      {...field} 
-                    />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )} 
-            />
-
-            <FormField 
-              control={form.control} 
-              name="conteudo" 
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Conteúdo da Mensagem</FormLabel>
-                  <FormControl>
-                    <QuillEditor
-                      value={field.value || ''}
-                      onChange={field.onChange}
-                      placeholder="Digite sua mensagem aqui... Use os campos dinâmicos abaixo para personalizar o conteúdo."
-                    />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )} 
-            />
-
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mt-6">
-              <FormField 
-                control={form.control} 
-                name="headerImage" 
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel className="flex items-center gap-2">
-                      <ImageIcon className="h-4 w-4" />
-                      Imagem do Cabeçalho
-                    </FormLabel>
-                    <div className="space-y-2">
-                      {headerImagePreview ? (
-                        <div className="relative">
-                          <img 
-                            src={headerImagePreview} 
-                            alt="Preview cabeçalho" 
-                            className="w-full max-h-32 object-contain border rounded-lg bg-white"
-                          />
-                          <Button
-                            type="button"
-                            variant="destructive"
-                            size="sm"
-                            className="absolute top-2 right-2 h-6 w-6 p-0"
-                            onClick={() => removeImage('header')}
-                          >
-                            <X className="h-3 w-3" />
-                          </Button>
-                        </div>
-                      ) : (
-                        <div 
-                          className="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center cursor-pointer hover:border-gray-400 hover:bg-gray-50 transition-colors"
-                          onClick={() => document.getElementById('header-image-upload')?.click()}
-                        >
-                          <Upload className="h-8 w-8 mx-auto text-gray-400 mb-2" />
-                          <p className="text-sm text-gray-600 mb-2 font-medium">Clique aqui para fazer upload</p>
-                          <p className="text-xs text-gray-500 mb-3">
-                            Medidas ideais: 800x200px (JPG, PNG)<br/>
-                            Máximo: 2MB
-                          </p>
-                          <input
-                            type="file"
-                            accept="image/*"
-                            className="hidden"
-                            id="header-image-upload"
-                            onChange={(e) => {
-                              const file = e.target.files?.[0];
-                              if (file) handleImageUpload(file, 'header');
-                            }}
-                          />
-                          <Button type="button" variant="outline" size="sm" className="cursor-pointer">
-                            Selecionar Imagem
-                          </Button>
-                        </div>
-                      )}
-                    </div>
-                    <FormMessage />
-                  </FormItem>
-                )} 
-              />
-
-              <FormField 
-                control={form.control} 
-                name="footerImage" 
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel className="flex items-center gap-2">
-                      <ImageIcon className="h-4 w-4" />
-                      Imagem do Rodapé/Assinatura
-                    </FormLabel>
-                    <div className="space-y-2">
-                      {footerImagePreview ? (
-                        <div className="relative">
-                          <img 
-                            src={footerImagePreview} 
-                            alt="Preview rodapé" 
-                            className="w-full max-h-32 object-contain border rounded-lg bg-white"
-                          />
-                          <Button
-                            type="button"
-                            variant="destructive"
-                            size="sm"
-                            className="absolute top-2 right-2 h-6 w-6 p-0"
-                            onClick={() => removeImage('footer')}
-                          >
-                            <X className="h-3 w-3" />
-                          </Button>
-                        </div>
-                      ) : (
-                        <div 
-                          className="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center cursor-pointer hover:border-gray-400 hover:bg-gray-50 transition-colors"
-                          onClick={() => document.getElementById('footer-image-upload')?.click()}
-                        >
-                          <Upload className="h-8 w-8 mx-auto text-gray-400 mb-2" />
-                          <p className="text-sm text-gray-600 mb-2 font-medium">Clique aqui para fazer upload</p>
-                          <p className="text-xs text-gray-500 mb-3">
-                            Medidas ideais: 400x150px (JPG, PNG)<br/>
-                            Máximo: 2MB
-                          </p>
-                          <input
-                            type="file"
-                            accept="image/*"
-                            className="hidden"
-                            id="footer-image-upload"
-                            onChange={(e) => {
-                              const file = e.target.files?.[0];
-                              if (file) handleImageUpload(file, 'footer');
-                            }}
-                          />
-                          <Button type="button" variant="outline" size="sm" className="cursor-pointer">
-                            Selecionar Imagem
-                          </Button>
-                        </div>
-                      )}
-                    </div>
-                    <FormMessage />
-                  </FormItem>
-                )} 
-              />
-            </div>
-
+            {/* Campos Dinâmicos */}
             <Card>
               <CardHeader>
                 <CardTitle className="text-lg flex items-center gap-2">
-                  <Info className="h-5 w-5" />
-                  Campos Dinâmicos Disponíveis
+                  <Link className="h-5 w-5" />
+                  Campos Dinâmicos
                 </CardTitle>
                 <CardDescription>
                   Clique nos campos abaixo para inserir no conteúdo. Eles serão substituídos automaticamente pelos dados reais.
@@ -474,74 +544,123 @@ export const ModeloEditor = ({ modelo, onSave, onDelete, isSaving }: Props) => {
                 {renderCamposDinamicos()}
               </CardContent>
             </Card>
-          </div>
 
-          {/* Coluna da Direita: Pré-visualização */}
-          <div className="space-y-6">
+            {/* Pré-visualização */}
             <Card>
               <CardHeader>
-                <CardTitle className="text-lg">Pré-visualização</CardTitle>
-                <div className="flex gap-2">
+                <div className="flex items-center justify-between">
+                  <CardTitle className="text-lg flex items-center gap-2">
+                    <Eye className="h-5 w-5" />
+                    Pré-visualização
+                  </CardTitle>
                   <Button
                     type="button"
-                    variant={previewAtivo === 'dinamico' ? 'default' : 'outline'}
+                    variant="ghost"
                     size="sm"
-                    onClick={() => setPreviewAtivo('dinamico')}
+                    onClick={() => setShowPreview(!showPreview)}
                   >
-                    <CheckCircle className="h-4 w-4 mr-2" />
-                    Preview Dinâmico
-                  </Button>
-                  <Button
-                    type="button"
-                    variant={previewAtivo === 'estatico' ? 'default' : 'outline'}
-                    size="sm"
-                    onClick={() => setPreviewAtivo('estatico')}
-                  >
-                    <AlertCircle className="h-4 w-4 mr-2" />
-                    Campos Destacados
+                    {showPreview ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
                   </Button>
                 </div>
+                {showPreview && (
+                  <div className="flex gap-2">
+                    <Button
+                      type="button"
+                      variant={previewAtivo === 'dinamico' ? 'default' : 'outline'}
+                      size="sm"
+                      onClick={() => setPreviewAtivo('dinamico')}
+                    >
+                      <CheckCircle className="h-4 w-4 mr-2" />
+                      Preview Dinâmico
+                    </Button>
+                    <Button
+                      type="button"
+                      variant={previewAtivo === 'estatico' ? 'default' : 'outline'}
+                      size="sm"
+                      onClick={() => setPreviewAtivo('estatico')}
+                    >
+                      <AlertCircle className="h-4 w-4 mr-2" />
+                      Campos Destacados
+                    </Button>
+                  </div>
+                )}
               </CardHeader>
-              <CardContent>
-                <div className="space-y-4">
-                  <div>
-                    <h4 className="font-semibold mb-2">Assunto:</h4>
-                    <div className="p-3 bg-muted rounded-lg text-sm">
-                      {previewAtivo === 'dinamico' 
-                        ? gerarPreviewDinamico(tituloValue)
-                        : <span dangerouslySetInnerHTML={renderPreviewEstatico()} />
-                      }
+              {showPreview && (
+                <CardContent>
+                  <div className="space-y-4">
+                    <div>
+                      <h4 className="font-semibold mb-2 text-sm">Assunto:</h4>
+                      <div className="p-3 bg-muted rounded-lg text-sm border">
+                        {previewAtivo === 'dinamico' 
+                          ? gerarPreviewDinamico(tituloValue)
+                          : <span dangerouslySetInnerHTML={renderPreviewEstatico()} />
+                        }
+                      </div>
+                    </div>
+                    
+                    <div>
+                      <h4 className="font-semibold mb-2 text-sm">Conteúdo:</h4>
+                      <div className="p-3 bg-muted rounded-lg text-sm border max-h-96 overflow-y-auto">
+                        {headerImagePreview && (
+                          <div className="mb-4 text-center border-b pb-4">
+                            <img 
+                              src={headerImagePreview} 
+                              alt="Cabeçalho" 
+                              className="max-w-full max-h-32 object-contain mx-auto shadow-sm rounded border bg-white"
+                            />
+                            <p className="text-xs text-gray-500 mt-2">Imagem do Cabeçalho</p>
+                          </div>
+                        )}
+                        {previewAtivo === 'dinamico' 
+                          ? <div dangerouslySetInnerHTML={{ __html: gerarPreviewDinamico(conteudoValue || '') }} />
+                          : <span dangerouslySetInnerHTML={renderPreviewEstatico()} />
+                        }
+                        {footerImagePreview && (
+                          <div className="mt-4 text-center border-t pt-4">
+                            <img 
+                              src={footerImagePreview} 
+                              alt="Rodapé/Assinatura" 
+                              className="max-w-full max-h-24 object-contain mx-auto shadow-sm rounded border bg-white"
+                            />
+                            <p className="text-xs text-gray-500 mt-2">Imagem do Rodapé/Assinatura</p>
+                          </div>
+                        )}
+                      </div>
                     </div>
                   </div>
-                  
-                  <div>
-                    <h4 className="font-semibold mb-2">Conteúdo:</h4>
-                    <div className="p-3 bg-muted rounded-lg text-sm">
-                      {headerImagePreview && (
-                        <div className="mb-4 text-center border-b pb-4">
-                          <img 
-                            src={headerImagePreview} 
-                            alt="Cabeçalho" 
-                            className="max-w-full max-h-32 object-contain mx-auto shadow-sm rounded border bg-white"
-                          />
-                          <p className="text-xs text-gray-500 mt-2">Imagem do Cabeçalho</p>
-                        </div>
-                      )}
-                      {previewAtivo === 'dinamico' 
-                        ? <div dangerouslySetInnerHTML={{ __html: gerarPreviewDinamico(conteudoValue || '') }} />
-                        : <span dangerouslySetInnerHTML={renderPreviewEstatico()} />
-                      }
-                      {footerImagePreview && (
-                        <div className="mt-4 text-center border-t pt-4">
-                          <img 
-                            src={footerImagePreview} 
-                            alt="Rodapé/Assinatura" 
-                            className="max-w-full max-h-24 object-contain mx-auto shadow-sm rounded border bg-white"
-                          />
-                          <p className="text-xs text-gray-500 mt-2">Imagem do Rodapé/Assinatura</p>
-                        </div>
-                      )}
-                    </div>
+                </CardContent>
+              )}
+            </Card>
+
+            {/* Dicas de Uso */}
+            <Card>
+              <CardHeader>
+                <CardTitle className="text-lg flex items-center gap-2">
+                  <Info className="h-5 w-5" />
+                  Dicas de Uso
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-3">
+                <div className="text-sm space-y-2">
+                  <div className="flex items-start gap-2">
+                    <Bold className="h-4 w-4 mt-0.5 text-blue-600" />
+                    <span>Use <kbd className="px-1 py-0.5 bg-gray-100 rounded text-xs">Ctrl+B</kbd> para negrito</span>
+                  </div>
+                  <div className="flex items-start gap-2">
+                    <Italic className="h-4 w-4 mt-0.5 text-blue-600" />
+                    <span>Use <kbd className="px-1 py-0.5 bg-gray-100 rounded text-xs">Ctrl+I</kbd> para itálico</span>
+                  </div>
+                  <div className="flex items-start gap-2">
+                    <Underline className="h-4 w-4 mt-0.5 text-blue-600" />
+                    <span>Use <kbd className="px-1 py-0.5 bg-gray-100 rounded text-xs">Ctrl+U</kbd> para sublinhado</span>
+                  </div>
+                  <div className="flex items-start gap-2">
+                    <List className="h-4 w-4 mt-0.5 text-blue-600" />
+                    <span>Use listas para organizar informações</span>
+                  </div>
+                  <div className="flex items-start gap-2">
+                    <AlignLeft className="h-4 w-4 mt-0.5 text-blue-600" />
+                    <span>Alinhe o texto conforme necessário</span>
                   </div>
                 </div>
               </CardContent>
@@ -549,6 +668,9 @@ export const ModeloEditor = ({ modelo, onSave, onDelete, isSaving }: Props) => {
           </div>
         </div>
 
+        <Separator />
+
+        {/* Footer com ações */}
         <DialogFooter className="justify-between pt-6">
           <div className="flex gap-2">
             <Button 
@@ -571,7 +693,7 @@ export const ModeloEditor = ({ modelo, onSave, onDelete, isSaving }: Props) => {
           </div>
           <Button 
             type="submit" 
-            className="bg-gold hover:bg-gold-hover" 
+            className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white" 
             disabled={isSaving}
           >
             <Save className="mr-2 h-4 w-4" /> 
