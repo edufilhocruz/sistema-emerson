@@ -41,10 +41,10 @@ export const ModeloEditor = ({ modelo, onSave, onDelete, isSaving }: Props) => {
   const [previewAtivo, setPreviewAtivo] = useState<'estatico' | 'dinamico'>('dinamico');
   const [showPreview, setShowPreview] = useState(true);
   const [headerImagePreview, setHeaderImagePreview] = useState<string | null>(
-    modelo.headerImage ? `${window.location.origin}${modelo.headerImage}` : null
+    modelo.headerImage ? `${window.location.origin}/api${modelo.headerImage}` : null
   );
   const [footerImagePreview, setFooterImagePreview] = useState<string | null>(
-    modelo.footerImage ? `${window.location.origin}${modelo.footerImage}` : null
+    modelo.footerImage ? `${window.location.origin}/api${modelo.footerImage}` : null
   );
 
   // Log das imagens iniciais
@@ -143,8 +143,8 @@ export const ModeloEditor = ({ modelo, onSave, onDelete, isSaving }: Props) => {
         const result = await response.json();
         console.log('✅ Resultado do upload:', result);
         
-        // Salvar URL da imagem - CORRIGIDO: não duplicar /api
-        const imageUrl = `${window.location.origin}${result.url}`;
+        // Salvar URL da imagem - CORRIGIDO: usar /api/uploads conforme backend
+        const imageUrl = `${window.location.origin}/api${result.url}`;
         console.log('🔗 URL final da imagem:', imageUrl);
         
         if (type === 'header') {
