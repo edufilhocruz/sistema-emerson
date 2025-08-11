@@ -143,18 +143,22 @@ export const ModeloEditor = ({ modelo, onSave, onDelete, isSaving }: Props) => {
         const result = await response.json();
         console.log('✅ Resultado do upload:', result);
         
-        // Salvar Base64 da imagem
+        // Salvar Base64 e URL da imagem
         const dataUrl = result.dataUrl;
+        const imageUrl = result.imageUrl;
         console.log('🔗 Data URL da imagem:', dataUrl ? 'Base64 recebido' : 'Nenhum Base64');
+        console.log('🔗 Image URL da imagem:', imageUrl ? 'URL recebida' : 'Nenhuma URL');
         
         if (type === 'header') {
-          console.log('📸 Definindo imagem do cabeçalho (Base64)');
+          console.log('📸 Definindo imagem do cabeçalho (Base64 + URL)');
           setHeaderImagePreview(dataUrl);
           form.setValue('headerImage', dataUrl);
+          form.setValue('headerImageUrl', imageUrl);
         } else {
-          console.log('📸 Definindo imagem do rodapé (Base64)');
+          console.log('📸 Definindo imagem do rodapé (Base64 + URL)');
           setFooterImagePreview(dataUrl);
           form.setValue('footerImage', dataUrl);
+          form.setValue('footerImageUrl', imageUrl);
         }
         
         console.log('✅ Upload concluído com sucesso!');

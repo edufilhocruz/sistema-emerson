@@ -10,8 +10,10 @@ export interface ModeloCarta {
   id: string;
   titulo: string;
   conteudo?: string; // Conteúdo da mensagem com suporte a campos dinâmicos
-  headerImage?: string; // URL ou base64 da imagem do cabeçalho
-  footerImage?: string; // URL ou base64 da imagem do rodapé/assinatura
+  headerImage?: string; // Base64 da imagem do cabeçalho
+  footerImage?: string; // Base64 da imagem do rodapé/assinatura
+  headerImageUrl?: string; // URL da imagem do cabeçalho (fallback)
+  footerImageUrl?: string; // URL da imagem do rodapé (fallback)
 }
 
 /**
@@ -33,6 +35,8 @@ export const modeloSchema = z.object({
     }, { message: "O conteúdo deve incluir pelo menos um campo dinâmico básico ou ter pelo menos 20 caracteres." }),
   headerImage: z.string().optional(),
   footerImage: z.string().optional(),
+  headerImageUrl: z.string().optional(),
+  footerImageUrl: z.string().optional(),
 });
 
 export type ModeloFormData = z.infer<typeof modeloSchema>;

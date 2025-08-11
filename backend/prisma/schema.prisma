@@ -53,6 +53,8 @@ model ModeloCarta {
   conteudo  String
   headerImage String?  // Base64 da imagem do cabeçalho
   footerImage String?  // Base64 da imagem do rodapé/assinatura
+  headerImageUrl String?  // URL da imagem do cabeçalho (fallback)
+  footerImageUrl String?  // URL da imagem do rodapé (fallback)
   createdAt DateTime   @default(now())
   updatedAt DateTime   @updatedAt
   cobrancas Cobranca[]

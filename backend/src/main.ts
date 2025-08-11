@@ -3,10 +3,12 @@ import { AppModule } from './app.module';
 import { ValidationPipe } from '@nestjs/common';
 import { SwaggerModule, DocumentBuilder } from '@nestjs/swagger';
 import { json, urlencoded } from 'express';
+import { join } from 'path';
+import { NestExpressApplication } from '@nestjs/platform-express';
 
 async function bootstrap() {
   // Removido HTTPS para produção, pois o proxy (Traefik/Nginx) já faz o HTTPS
-  const app = await NestFactory.create(AppModule);
+  const app = await NestFactory.create<NestExpressApplication>(AppModule);
 
   // Configurações básicas
   app.use(json({ limit: '5mb' }));
@@ -40,6 +42,11 @@ async function bootstrap() {
 
   // Define um prefixo global para todas as rotas da API
   app.setGlobalPrefix('api');
+
+  // Configurar arquivos estáticos para uploads
+  app.useStaticAssets(join(__dirname, '..', 'uploads'), {
+    prefix: '/api/static/uploads/',
+  });
 
   await app.listen(3001);
   console.log(`Application is running on: ${await app.getUrl()}`);

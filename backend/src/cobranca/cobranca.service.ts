@@ -255,14 +255,20 @@ private processarConteudoHtml(html: string): string {
         console.log('🔍 DEBUG: footerImage tamanho total:', (modeloCarta as any).footerImage.length);
       }
       
+      // Abordagem híbrida: Base64 + URL de fallback
       const headerImageBase64 = (modeloCarta as any).headerImage && this.isBase64Image((modeloCarta as any).headerImage) ? 
         (modeloCarta as any).headerImage : null;
       const footerImageBase64 = (modeloCarta as any).footerImage && this.isBase64Image((modeloCarta as any).footerImage) ? 
         (modeloCarta as any).footerImage : null;
+      
+      const headerImageUrl = (modeloCarta as any).headerImageUrl || null;
+      const footerImageUrl = (modeloCarta as any).footerImageUrl || null;
 
-      console.log('🖼️ Status das imagens:');
-      console.log(`Header: ${headerImageBase64 ? 'Base64 válido' : 'Sem imagem'}`);
-      console.log(`Footer: ${footerImageBase64 ? 'Base64 válido' : 'Sem imagem'}`);
+      console.log('🖼️ Status das imagens (Híbrido):');
+      console.log(`Header Base64: ${headerImageBase64 ? 'Válido' : 'Sem Base64'}`);
+      console.log(`Header URL: ${headerImageUrl ? 'Válida' : 'Sem URL'}`);
+      console.log(`Footer Base64: ${footerImageBase64 ? 'Válido' : 'Sem Base64'}`);
+      console.log(`Footer URL: ${footerImageUrl ? 'Válida' : 'Sem URL'}`);
       
       // Log do template de email
       console.log('📧 DEBUG: Template de email será gerado com imagens?');
@@ -270,18 +276,27 @@ private processarConteudoHtml(html: string): string {
       console.log('📧 DEBUG: footerImageBase64 será incluído?', !!footerImageBase64);
 
       // Log detalhado da construção do HTML
-      console.log('🔍 DEBUG: Construindo template de email...');
+      console.log('🔍 DEBUG: Construindo template de email (Híbrido)...');
       
-      // Construir a parte do header com imagem
+      // Construir a parte do header com imagem (Base64 + fallback URL)
       const headerImageHtml = headerImageBase64 ? `
                   <tr>
                     <td style="text-align: center; padding: 0;">
                       <img src="${headerImageBase64}" 
                            alt="Cabeçalho" 
+                           style="width: 100%; max-height: 200px; object-fit: cover; display: block; border: 0;"
+                           ${headerImageUrl ? `data-fallback="${headerImageUrl}"` : ''}>
+                    </td>
+                  </tr>
+                  ` : (headerImageUrl ? `
+                  <tr>
+                    <td style="text-align: center; padding: 0;">
+                      <img src="${headerImageUrl}" 
+                           alt="Cabeçalho" 
                            style="width: 100%; max-height: 200px; object-fit: cover; display: block; border: 0;">
                     </td>
                   </tr>
-                  ` : '';
+                  ` : '');
       
       console.log('🔍 DEBUG: Header HTML construído:', headerImageHtml ? 'SIM' : 'NÃO');
       if (headerImageHtml) {
@@ -335,10 +350,19 @@ private processarConteudoHtml(html: string): string {
                     <td style="text-align: center; padding: 0;">
                       <img src="${footerImageBase64}" 
                            alt="Rodapé/Assinatura" 
+                           style="width: 100%; max-height: 150px; object-fit: contain; display: block; border: 0;"
+                           ${footerImageUrl ? `data-fallback="${footerImageUrl}"` : ''}>
+                    </td>
+                  </tr>
+                  ` : (footerImageUrl ? `
+                  <tr>
+                    <td style="text-align: center; padding: 0;">
+                      <img src="${footerImageUrl}" 
+                           alt="Rodapé/Assinatura" 
                            style="width: 100%; max-height: 150px; object-fit: contain; display: block; border: 0;">
                     </td>
                   </tr>
-                  ` : ''}
+                  ` : '')}
                   
                   <!-- Rodapé do sistema -->
                   <tr>

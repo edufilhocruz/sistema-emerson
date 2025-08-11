@@ -64,17 +64,47 @@ export class ModeloCartaController {
       throw new BadRequestException('A imagem deve ter no máximo 2MB.');
     }
 
-    // Converter para Base64
-    const base64 = file.buffer.toString('base64');
-    const mimeType = file.mimetype;
-    const dataUrl = `data:${mimeType};base64,${base64}`;
+    try {
+      // Criar diretório se não existir
+      const uploadsDir = path.join(process.cwd(), 'uploads', 'images');
+      if (!fs.existsSync(uploadsDir)) {
+        fs.mkdirSync(uploadsDir, { recursive: true });
+      }
 
-    return {
-      success: true,
-      dataUrl: dataUrl,
-      mimeType: mimeType,
-      size: file.size
-    };
+      // Gerar nome único para o arquivo
+      const timestamp = Date.now();
+      const randomString = Math.random().toString(36).substring(2, 15);
+      const extension = path.extname(file.originalname) || '.jpg';
+      const filename = `header_${timestamp}_${randomString}${extension}`;
+      const filepath = path.join(uploadsDir, filename);
+
+      // Salvar arquivo
+      fs.writeFileSync(filepath, file.buffer);
+      console.log(`✅ Imagem salva em: ${filepath}`);
+
+      // Converter para Base64
+      const base64 = file.buffer.toString('base64');
+      const mimeType = file.mimetype;
+      const dataUrl = `data:${mimeType};base64,${base64}`;
+
+      // URL para fallback
+      const baseUrl = process.env.BASE_URL || 'https://app.raunaimer.adv.br';
+      const imageUrl = `${baseUrl}/api/static/uploads/${filename}`;
+
+      console.log(`🔗 URL da imagem: ${imageUrl}`);
+
+      return {
+        success: true,
+        dataUrl: dataUrl,        // Base64 para clientes que suportam
+        imageUrl: imageUrl,      // URL para fallback
+        mimeType: mimeType,
+        size: file.size,
+        filename: filename
+      };
+    } catch (error) {
+      console.error('❌ Erro ao processar imagem:', error);
+      throw new BadRequestException('Erro ao processar a imagem.');
+    }
   }
 
   @Get(':id')
