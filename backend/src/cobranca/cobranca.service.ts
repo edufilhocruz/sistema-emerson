@@ -269,6 +269,27 @@ private processarConteudoHtml(html: string): string {
       console.log('📧 DEBUG: headerImageBase64 será incluído?', !!headerImageBase64);
       console.log('📧 DEBUG: footerImageBase64 será incluído?', !!footerImageBase64);
 
+      // Log detalhado da construção do HTML
+      console.log('🔍 DEBUG: Construindo template de email...');
+      
+      // Construir a parte do header com imagem
+      const headerImageHtml = headerImageBase64 ? `
+                  <tr>
+                    <td style="text-align: center; padding: 0;">
+                      <img src="${headerImageBase64}" 
+                           alt="Cabeçalho" 
+                           style="width: 100%; max-height: 200px; object-fit: cover; display: block; border: 0;">
+                    </td>
+                  </tr>
+                  ` : '';
+      
+      console.log('🔍 DEBUG: Header HTML construído:', headerImageHtml ? 'SIM' : 'NÃO');
+      if (headerImageHtml) {
+        console.log('🔍 DEBUG: Header HTML contém src?', headerImageHtml.includes('src='));
+        console.log('🔍 DEBUG: Header HTML contém data:image?', headerImageHtml.includes('data:image'));
+        console.log('🔍 DEBUG: Primeiros 200 chars do header HTML:', headerImageHtml.substring(0, 200));
+      }
+
       // Template de email profissional com HTML inline (compatível com todos os clientes)
       const emailTemplate = `
         <!DOCTYPE html>
@@ -297,15 +318,7 @@ private processarConteudoHtml(html: string): string {
                 <table role="presentation" cellspacing="0" cellpadding="0" border="0" width="600" style="max-width: 600px; background-color: #ffffff; border-radius: 8px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); overflow: hidden;">
                   
                   <!-- Imagem do cabeçalho -->
-                  ${headerImageBase64 ? `
-                  <tr>
-                    <td style="text-align: center; padding: 0;">
-                      <img src="${headerImageBase64}" 
-                           alt="Cabeçalho" 
-                           style="width: 100%; max-height: 200px; object-fit: cover; display: block; border: 0;">
-                    </td>
-                  </tr>
-                  ` : ''}
+                  ${headerImageHtml}
                   
                   <!-- Conteúdo principal -->
                   <tr>
@@ -373,8 +386,29 @@ private processarConteudoHtml(html: string): string {
       console.log('📧 DEBUG: HTML contém data:image?', htmlContent.includes('data:image'));
       console.log('📧 DEBUG: Tamanho do HTML:', htmlContent.length);
       console.log('📧 DEBUG: Primeiros 500 chars do HTML:', htmlContent.substring(0, 500));
+      
+      // Log detalhado do HTML final
+      console.log('🔍 DEBUG: Verificando HTML final...');
+      console.log('🔍 DEBUG: HTML contém <img?', htmlContent.includes('<img'));
+      console.log('🔍 DEBUG: HTML contém src="data:image?', htmlContent.includes('src="data:image'));
+      console.log('🔍 DEBUG: Posição da primeira <img:', htmlContent.indexOf('<img'));
+      console.log('🔍 DEBUG: Posição da primeira data:image:', htmlContent.indexOf('data:image'));
+      
+      // Encontra e loga a primeira tag img
+      const imgMatch = htmlContent.match(/<img[^>]+>/);
+      if (imgMatch) {
+        console.log('🔍 DEBUG: Primeira tag img encontrada:', imgMatch[0]);
+        console.log('🔍 DEBUG: Tag img contém data:image?', imgMatch[0].includes('data:image'));
+      } else {
+        console.log('🔍 DEBUG: Nenhuma tag img encontrada no HTML!');
+      }
 
       // Envia o email com HTML
+      console.log('📧 DEBUG: Enviando email...');
+      console.log('📧 DEBUG: Para:', morador.email);
+      console.log('📧 DEBUG: Assunto:', tituloProcessado);
+      console.log('📧 DEBUG: HTML será enviado?', !!htmlContent);
+      
       const emailResult = await this.emailConfigService.sendMail({
         to: morador.email,
         subject: tituloProcessado,
