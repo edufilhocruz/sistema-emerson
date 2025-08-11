@@ -239,14 +239,35 @@ private processarConteudoHtml(html: string): string {
       const conteudoProcessado = this.processarConteudoHtml(conteudoComPlaceholders);
 
       // Usa as imagens Base64 diretamente do banco
+      console.log('🔍 DEBUG: Verificando imagens do modelo...');
+      console.log('🔍 DEBUG: headerImage existe?', !!(modeloCarta as any).headerImage);
+      console.log('🔍 DEBUG: footerImage existe?', !!(modeloCarta as any).footerImage);
+      
+      if ((modeloCarta as any).headerImage) {
+        console.log('🔍 DEBUG: headerImage é Base64?', this.isBase64Image((modeloCarta as any).headerImage));
+        console.log('🔍 DEBUG: headerImage primeiros 50 chars:', (modeloCarta as any).headerImage.substring(0, 50));
+        console.log('🔍 DEBUG: headerImage tamanho total:', (modeloCarta as any).headerImage.length);
+      }
+      
+      if ((modeloCarta as any).footerImage) {
+        console.log('🔍 DEBUG: footerImage é Base64?', this.isBase64Image((modeloCarta as any).footerImage));
+        console.log('🔍 DEBUG: footerImage primeiros 50 chars:', (modeloCarta as any).footerImage.substring(0, 50));
+        console.log('🔍 DEBUG: footerImage tamanho total:', (modeloCarta as any).footerImage.length);
+      }
+      
       const headerImageBase64 = (modeloCarta as any).headerImage && this.isBase64Image((modeloCarta as any).headerImage) ? 
         (modeloCarta as any).headerImage : null;
       const footerImageBase64 = (modeloCarta as any).footerImage && this.isBase64Image((modeloCarta as any).footerImage) ? 
         (modeloCarta as any).footerImage : null;
 
       console.log('🖼️ Status das imagens:');
-      console.log(`Header: ${(modeloCarta as any).headerImage ? 'Base64 válido' : 'Sem imagem'}`);
-      console.log(`Footer: ${(modeloCarta as any).footerImage ? 'Base64 válido' : 'Sem imagem'}`);
+      console.log(`Header: ${headerImageBase64 ? 'Base64 válido' : 'Sem imagem'}`);
+      console.log(`Footer: ${footerImageBase64 ? 'Base64 válido' : 'Sem imagem'}`);
+      
+      // Log do template de email
+      console.log('📧 DEBUG: Template de email será gerado com imagens?');
+      console.log('📧 DEBUG: headerImageBase64 será incluído?', !!headerImageBase64);
+      console.log('📧 DEBUG: footerImageBase64 será incluído?', !!footerImageBase64);
 
       // Template de email profissional com HTML inline (compatível com todos os clientes)
       const emailTemplate = `
@@ -347,7 +368,11 @@ private processarConteudoHtml(html: string): string {
       console.log('Título processado:', tituloProcessado);
       console.log('Conteúdo original:', modeloCarta.conteudo);
       console.log('Conteúdo processado:', conteudoProcessado);
-      console.log('HTML com imagens:', htmlContent);
+      console.log('📧 DEBUG: HTML contém headerImage?', htmlContent.includes('headerImageBase64'));
+      console.log('📧 DEBUG: HTML contém footerImage?', htmlContent.includes('footerImageBase64'));
+      console.log('📧 DEBUG: HTML contém data:image?', htmlContent.includes('data:image'));
+      console.log('📧 DEBUG: Tamanho do HTML:', htmlContent.length);
+      console.log('📧 DEBUG: Primeiros 500 chars do HTML:', htmlContent.substring(0, 500));
 
       // Envia o email com HTML
       const emailResult = await this.emailConfigService.sendMail({
