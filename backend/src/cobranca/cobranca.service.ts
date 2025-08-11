@@ -7,6 +7,7 @@ import { StatusEnvio } from '@prisma/client';
 import { EmailConfigService } from '../email-config.service';
 import * as fs from 'fs';
 import * as path from 'path';
+import * as nodemailer from 'nodemailer';
 
 @Injectable()
 export class CobrancaService {
@@ -21,6 +22,114 @@ export class CobrancaService {
      */
     private isBase64Image(dataUrl: string): boolean {
       return Boolean(dataUrl && dataUrl.startsWith('data:image/') && dataUrl.includes(';base64,'));
+    }
+
+    /**
+     * Extrai dados do Base64 para criar anexo inline
+     */
+    private extractBase64Data(dataUrl: string): { buffer: Buffer; mimeType: string; filename: string } | null {
+      if (!this.isBase64Image(dataUrl)) return null;
+      
+      const matches = dataUrl.match(/^data:([^;]+);base64,(.+)$/);
+      if (!matches) return null;
+      
+      const [, mimeType, base64Data] = matches;
+      const buffer = Buffer.from(base64Data, 'base64');
+      const extension = mimeType.split('/')[1] || 'png';
+      const filename = `image_${Date.now()}.${extension}`;
+      
+      return { buffer, mimeType, filename };
+    }
+
+    /**
+     * Cria email com MIME multipart e CID embedding (estilo Mailchimp)
+     */
+    private async createMultipartEmail(
+      to: string,
+      subject: string,
+      htmlContent: string,
+      headerImageBase64?: string,
+      footerImageBase64?: string
+    ) {
+      const emailConfig = await this.emailConfigService.getConfig();
+      
+      if (!emailConfig) {
+        throw new Error('Configuração de email não encontrada');
+      }
+
+      const transporter = nodemailer.createTransporter({
+        host: emailConfig.host,
+        port: emailConfig.port,
+        secure: emailConfig.secure,
+        auth: {
+          user: emailConfig.user,
+          pass: emailConfig.pass,
+        },
+      });
+
+      // Preparar anexos inline
+      const attachments: any[] = [];
+      
+      if (headerImageBase64) {
+        const headerData = this.extractBase64Data(headerImageBase64);
+        if (headerData) {
+          attachments.push({
+            filename: headerData.filename,
+            content: headerData.buffer,
+            contentType: headerData.mimeType,
+            cid: 'header_image'
+          });
+        }
+      }
+      
+      if (footerImageBase64) {
+        const footerData = this.extractBase64Data(footerImageBase64);
+        if (footerData) {
+          attachments.push({
+            filename: footerData.filename,
+            content: footerData.buffer,
+            contentType: footerData.mimeType,
+            cid: 'footer_image'
+          });
+        }
+      }
+
+      // Substituir Base64 por CID no HTML
+      let processedHtml = htmlContent;
+      if (headerImageBase64) {
+        processedHtml = processedHtml.replace(
+          new RegExp(headerImageBase64.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'), 'g'),
+          'cid:header_image'
+        );
+      }
+      if (footerImageBase64) {
+        processedHtml = processedHtml.replace(
+          new RegExp(footerImageBase64.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'), 'g'),
+          'cid:footer_image'
+        );
+      }
+
+      const mailOptions = {
+        from: emailConfig.user,
+        to,
+        subject,
+        html: processedHtml,
+        attachments,
+        headers: {
+          'X-Mailer': 'Raunaimer System',
+          'X-Priority': '3',
+          'X-MSMail-Priority': 'Normal',
+          'Importance': 'Normal'
+        }
+      };
+
+      try {
+        const result = await transporter.sendMail(mailOptions);
+        return { success: true, messageId: result.messageId };
+      } catch (error) {
+        console.error('Erro ao enviar email multipart:', error);
+        return { success: false, error: error.message };
+      }
     }
 
   /**
@@ -278,11 +387,11 @@ private processarConteudoHtml(html: string): string {
       // Log detalhado da construção do HTML
       console.log('🔍 DEBUG: Construindo template de email (Híbrido)...');
       
-      // Construir a parte do header com imagem (Base64 + fallback URL)
+      // Construir a parte do header com imagem (CID + fallback URL)
       const headerImageHtml = headerImageBase64 ? `
                   <tr>
                     <td style="text-align: center; padding: 0;">
-                      <img src="${headerImageBase64}" 
+                      <img src="cid:header_image" 
                            alt="Cabeçalho" 
                            style="width: 100%; max-height: 200px; object-fit: cover; display: block; border: 0;"
                            ${headerImageUrl ? `data-fallback="${headerImageUrl}"` : ''}>
@@ -348,7 +457,7 @@ private processarConteudoHtml(html: string): string {
                   ${footerImageBase64 ? `
                   <tr>
                     <td style="text-align: center; padding: 0;">
-                      <img src="${footerImageBase64}" 
+                      <img src="cid:footer_image" 
                            alt="Rodapé/Assinatura" 
                            style="width: 100%; max-height: 150px; object-fit: contain; display: block; border: 0;"
                            ${footerImageUrl ? `data-fallback="${footerImageUrl}"` : ''}>
@@ -405,8 +514,8 @@ private processarConteudoHtml(html: string): string {
       console.log('Título processado:', tituloProcessado);
       console.log('Conteúdo original:', modeloCarta.conteudo);
       console.log('Conteúdo processado:', conteudoProcessado);
-      console.log('📧 DEBUG: HTML contém headerImage?', htmlContent.includes('headerImageBase64'));
-      console.log('📧 DEBUG: HTML contém footerImage?', htmlContent.includes('footerImageBase64'));
+      console.log('📧 DEBUG: HTML contém cid:header_image?', htmlContent.includes('cid:header_image'));
+      console.log('📧 DEBUG: HTML contém cid:footer_image?', htmlContent.includes('cid:footer_image'));
       console.log('📧 DEBUG: HTML contém data:image?', htmlContent.includes('data:image'));
       console.log('📧 DEBUG: Tamanho do HTML:', htmlContent.length);
       console.log('📧 DEBUG: Primeiros 500 chars do HTML:', htmlContent.substring(0, 500));
@@ -414,31 +523,34 @@ private processarConteudoHtml(html: string): string {
       // Log detalhado do HTML final
       console.log('🔍 DEBUG: Verificando HTML final...');
       console.log('🔍 DEBUG: HTML contém <img?', htmlContent.includes('<img'));
-      console.log('🔍 DEBUG: HTML contém src="data:image?', htmlContent.includes('src="data:image'));
+      console.log('🔍 DEBUG: HTML contém src="cid:?', htmlContent.includes('src="cid:'));
       console.log('🔍 DEBUG: Posição da primeira <img:', htmlContent.indexOf('<img'));
-      console.log('🔍 DEBUG: Posição da primeira data:image:', htmlContent.indexOf('data:image'));
+      console.log('🔍 DEBUG: Posição da primeira cid:', htmlContent.indexOf('cid:'));
       
       // Encontra e loga a primeira tag img
       const imgMatch = htmlContent.match(/<img[^>]+>/);
       if (imgMatch) {
         console.log('🔍 DEBUG: Primeira tag img encontrada:', imgMatch[0]);
-        console.log('🔍 DEBUG: Tag img contém data:image?', imgMatch[0].includes('data:image'));
+        console.log('🔍 DEBUG: Tag img contém cid:?', imgMatch[0].includes('cid:'));
       } else {
         console.log('🔍 DEBUG: Nenhuma tag img encontrada no HTML!');
       }
 
-      // Envia o email com HTML
-      console.log('📧 DEBUG: Enviando email...');
+      // Envia o email com MIME multipart (estilo Mailchimp)
+      console.log('📧 DEBUG: Enviando email com MIME multipart...');
       console.log('📧 DEBUG: Para:', morador.email);
       console.log('📧 DEBUG: Assunto:', tituloProcessado);
       console.log('📧 DEBUG: HTML será enviado?', !!htmlContent);
+      console.log('📧 DEBUG: Header Base64 será usado?', !!headerImageBase64);
+      console.log('📧 DEBUG: Footer Base64 será usado?', !!footerImageBase64);
       
-      const emailResult = await this.emailConfigService.sendMail({
-        to: morador.email,
-        subject: tituloProcessado,
-        text: conteudoProcessado, // Fallback para clientes que não suportam HTML
-        html: htmlContent, // Versão HTML com imagens
-      });
+      const emailResult = await this.createMultipartEmail(
+        morador.email,
+        tituloProcessado,
+        htmlContent,
+        headerImageBase64,
+        footerImageBase64
+      );
 
       if (emailResult.success) {
         console.log(`✅ Email enviado com sucesso para: ${morador.email}`);
