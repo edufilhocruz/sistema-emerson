@@ -80,7 +80,7 @@ export class ModeloCartaController {
     fs.writeFileSync(filepath, file.buffer);
 
     // Retornar URL da imagem
-    const imageUrl = `/uploads/images/${filename}`;
+    const imageUrl = `/static/uploads/images/${filename}`;
 
     return {
       success: true,

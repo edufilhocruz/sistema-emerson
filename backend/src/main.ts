@@ -3,7 +3,6 @@ import { AppModule } from './app.module';
 import { ValidationPipe } from '@nestjs/common';
 import { SwaggerModule, DocumentBuilder } from '@nestjs/swagger';
 import { json, urlencoded } from 'express';
-import * as path from 'path';
 
 async function bootstrap() {
   // Removido HTTPS para produção, pois o proxy (Traefik/Nginx) já faz o HTTPS
@@ -12,9 +11,6 @@ async function bootstrap() {
   // Configurações básicas
   app.use(json({ limit: '5mb' }));
   app.use(urlencoded({ extended: true, limit: '5mb' }));
-
-  // Servir arquivos estáticos (imagens uploadadas) - CORRIGIDO
-  app.use('/api/uploads', require('express').static(path.join(process.cwd(), 'backend', 'uploads')));
 
   const config = new DocumentBuilder()
     .setTitle('Documentação da API')

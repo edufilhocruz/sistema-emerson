@@ -5,6 +5,8 @@ import { CobrancaRepository } from './cobranca.repository';
 import { PrismaService } from '../prisma/prisma.service';
 import { StatusEnvio } from '@prisma/client';
 import { EmailConfigService } from '../email-config.service';
+import * as fs from 'fs';
+import * as path from 'path';
 
 @Injectable()
 export class CobrancaService {
@@ -14,10 +16,54 @@ export class CobrancaService {
     private readonly emailConfigService: EmailConfigService,
   ) {}
 
+    /**
+   * Converte uma imagem para Base64
+   */
+  private async converterImagemParaBase64(imagePath: string): Promise<string | null> {
+    try {
+      // Remove a barra inicial se houver
+      const cleanPath = imagePath.startsWith('/') ? imagePath.substring(1) : imagePath;
+      
+      // Constrói o caminho completo para o arquivo
+      const fullPath = path.join(process.cwd(), cleanPath);
+      
+      console.log(`🔍 Tentando carregar imagem: ${fullPath}`);
+      
+      // Verifica se o arquivo existe
+      if (!fs.existsSync(fullPath)) {
+        console.log(`❌ Arquivo não encontrado: ${fullPath}`);
+        return null;
+      }
+      
+      // Lê o arquivo
+      const imageBuffer = fs.readFileSync(fullPath);
+      
+      // Detecta o tipo MIME baseado na extensão
+      const ext = path.extname(fullPath).toLowerCase();
+      let mimeType = 'image/jpeg'; // default
+      
+      if (ext === '.png') mimeType = 'image/png';
+      else if (ext === '.jpg' || ext === '.jpeg') mimeType = 'image/jpeg';
+      else if (ext === '.gif') mimeType = 'image/gif';
+      else if (ext === '.webp') mimeType = 'image/webp';
+      
+      // Converte para base64
+      const base64String = imageBuffer.toString('base64');
+      const dataUrl = `data:${mimeType};base64,${base64String}`;
+      
+      console.log(`✅ Imagem convertida para base64: ${fullPath} (${imageBuffer.length} bytes)`);
+      return dataUrl;
+      
+    } catch (error) {
+      console.error(`❌ Erro ao converter imagem para base64: ${imagePath}`, error);
+      return null;
+    }
+  }
+
   /**
    * Processa o conteúdo HTML do Quill para ser compatível com emails
    */
-  private processarConteudoHtml(html: string): string {
+private processarConteudoHtml(html: string): string {
     // Remove estilos inline que podem causar problemas em emails
     let processado = html
       // Remove estilos de background que podem não funcionar
@@ -229,6 +275,16 @@ export class CobrancaService {
       // Processa o conteúdo HTML para ser compatível com emails
       const conteudoProcessado = this.processarConteudoHtml(conteudoComPlaceholders);
 
+      // Converte as imagens para base64
+      const headerImageBase64 = (modeloCarta as any).headerImage ? 
+        await this.converterImagemParaBase64((modeloCarta as any).headerImage) : null;
+      const footerImageBase64 = (modeloCarta as any).footerImage ? 
+        await this.converterImagemParaBase64((modeloCarta as any).footerImage) : null;
+
+      console.log('🖼️ Status das imagens:');
+      console.log(`Header: ${(modeloCarta as any).headerImage} -> ${headerImageBase64 ? 'Convertida para base64' : 'Falha na conversão'}`);
+      console.log(`Footer: ${(modeloCarta as any).footerImage} -> ${footerImageBase64 ? 'Convertida para base64' : 'Falha na conversão'}`);
+
       // Template de email profissional com HTML inline (compatível com todos os clientes)
       const emailTemplate = `
         <!DOCTYPE html>
@@ -257,10 +313,10 @@ export class CobrancaService {
                 <table role="presentation" cellspacing="0" cellpadding="0" border="0" width="600" style="max-width: 600px; background-color: #ffffff; border-radius: 8px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); overflow: hidden;">
                   
                   <!-- Imagem do cabeçalho -->
-                  ${(modeloCarta as any).headerImage ? `
+                  ${headerImageBase64 ? `
                   <tr>
                     <td style="text-align: center; padding: 0;">
-                      <img src="${process.env.BASE_URL || 'https://app.raunaimer.adv.br'}${(modeloCarta as any).headerImage}" 
+                      <img src="${headerImageBase64}" 
                            alt="Cabeçalho" 
                            style="width: 100%; max-height: 200px; object-fit: cover; display: block; border: 0;">
                     </td>
@@ -277,10 +333,10 @@ export class CobrancaService {
                   </tr>
                   
                   <!-- Imagem do rodapé -->
-                  ${(modeloCarta as any).footerImage ? `
+                  ${footerImageBase64 ? `
                   <tr>
                     <td style="text-align: center; padding: 0;">
-                      <img src="${process.env.BASE_URL || 'https://app.raunaimer.adv.br'}${(modeloCarta as any).footerImage}" 
+                      <img src="${footerImageBase64}" 
                            alt="Rodapé/Assinatura" 
                            style="width: 100%; max-height: 150px; object-fit: contain; display: block; border: 0;">
                     </td>
