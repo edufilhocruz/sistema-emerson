@@ -41,10 +41,10 @@ export const ModeloEditor = ({ modelo, onSave, onDelete, isSaving }: Props) => {
   const [previewAtivo, setPreviewAtivo] = useState<'estatico' | 'dinamico'>('dinamico');
   const [showPreview, setShowPreview] = useState(true);
   const [headerImagePreview, setHeaderImagePreview] = useState<string | null>(
-    modelo.headerImage ? modelo.headerImage : null
+    modelo.headerImage ? `${window.location.origin}${modelo.headerImage}` : null
   );
   const [footerImagePreview, setFooterImagePreview] = useState<string | null>(
-    modelo.footerImage ? modelo.footerImage : null
+    modelo.footerImage ? `${window.location.origin}${modelo.footerImage}` : null
   );
 
   // Log das imagens iniciais
@@ -149,11 +149,11 @@ export const ModeloEditor = ({ modelo, onSave, onDelete, isSaving }: Props) => {
         
         if (type === 'header') {
           console.log('📸 Definindo imagem do cabeçalho:', imageUrl);
-          setHeaderImagePreview(imageUrl);
+          setHeaderImagePreview(`${window.location.origin}${imageUrl}`);
           form.setValue('headerImage', imageUrl);
         } else {
           console.log('📸 Definindo imagem do rodapé:', imageUrl);
-          setFooterImagePreview(imageUrl);
+          setFooterImagePreview(`${window.location.origin}${imageUrl}`);
           form.setValue('footerImage', imageUrl);
         }
         
