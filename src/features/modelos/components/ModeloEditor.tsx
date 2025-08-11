@@ -41,10 +41,10 @@ export const ModeloEditor = ({ modelo, onSave, onDelete, isSaving }: Props) => {
   const [previewAtivo, setPreviewAtivo] = useState<'estatico' | 'dinamico'>('dinamico');
   const [showPreview, setShowPreview] = useState(true);
   const [headerImagePreview, setHeaderImagePreview] = useState<string | null>(
-    modelo.headerImage ? `${window.location.origin}${modelo.headerImage}` : null
+    modelo.headerImage || null
   );
   const [footerImagePreview, setFooterImagePreview] = useState<string | null>(
-    modelo.footerImage ? `${window.location.origin}${modelo.footerImage}` : null
+    modelo.footerImage || null
   );
 
   // Log das imagens iniciais
@@ -143,18 +143,18 @@ export const ModeloEditor = ({ modelo, onSave, onDelete, isSaving }: Props) => {
         const result = await response.json();
         console.log('✅ Resultado do upload:', result);
         
-        // Salvar URL da imagem - CORRIGIDO: usar URL relativa conforme backend
-        const imageUrl = result.url;
-        console.log('🔗 URL final da imagem:', imageUrl);
+        // Salvar Base64 da imagem
+        const dataUrl = result.dataUrl;
+        console.log('🔗 Data URL da imagem:', dataUrl ? 'Base64 recebido' : 'Nenhum Base64');
         
         if (type === 'header') {
-          console.log('📸 Definindo imagem do cabeçalho:', imageUrl);
-          setHeaderImagePreview(`${window.location.origin}${imageUrl}`);
-          form.setValue('headerImage', imageUrl);
+          console.log('📸 Definindo imagem do cabeçalho (Base64)');
+          setHeaderImagePreview(dataUrl);
+          form.setValue('headerImage', dataUrl);
         } else {
-          console.log('📸 Definindo imagem do rodapé:', imageUrl);
-          setFooterImagePreview(`${window.location.origin}${imageUrl}`);
-          form.setValue('footerImage', imageUrl);
+          console.log('📸 Definindo imagem do rodapé (Base64)');
+          setFooterImagePreview(dataUrl);
+          form.setValue('footerImage', dataUrl);
         }
         
         console.log('✅ Upload concluído com sucesso!');

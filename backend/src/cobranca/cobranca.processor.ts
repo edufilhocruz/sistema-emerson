@@ -33,47 +33,10 @@ export class CobrancaProcessor {
   ) {}
 
   /**
-   * Converte uma imagem para Base64
+   * Verifica se uma string é um Base64 válido
    */
-  private async converterImagemParaBase64(imagePath: string): Promise<string | null> {
-    try {
-      // Remove a barra inicial se houver
-      const cleanPath = imagePath.startsWith('/') ? imagePath.substring(1) : imagePath;
-      
-      // Constrói o caminho completo para o arquivo
-      const fullPath = path.join(process.cwd(), cleanPath);
-      
-      console.log(`🔍 WORKER: Tentando carregar imagem: ${fullPath}`);
-      
-      // Verifica se o arquivo existe
-      if (!fs.existsSync(fullPath)) {
-        console.log(`❌ WORKER: Arquivo não encontrado: ${fullPath}`);
-        return null;
-      }
-      
-      // Lê o arquivo
-      const imageBuffer = fs.readFileSync(fullPath);
-      
-      // Detecta o tipo MIME baseado na extensão
-      const ext = path.extname(fullPath).toLowerCase();
-      let mimeType = 'image/jpeg'; // default
-      
-      if (ext === '.png') mimeType = 'image/png';
-      else if (ext === '.jpg' || ext === '.jpeg') mimeType = 'image/jpeg';
-      else if (ext === '.gif') mimeType = 'image/gif';
-      else if (ext === '.webp') mimeType = 'image/webp';
-      
-      // Converte para base64
-      const base64String = imageBuffer.toString('base64');
-      const dataUrl = `data:${mimeType};base64,${base64String}`;
-      
-      console.log(`✅ WORKER: Imagem convertida para base64: ${fullPath} (${imageBuffer.length} bytes)`);
-      return dataUrl;
-      
-    } catch (error) {
-      console.error(`❌ WORKER: Erro ao converter imagem para base64: ${imagePath}`, error);
-      return null;
-    }
+  private isBase64Image(dataUrl: string): boolean {
+    return Boolean(dataUrl && dataUrl.startsWith('data:image/') && dataUrl.includes(';base64,'));
   }
 
   /**
@@ -270,11 +233,11 @@ export class CobrancaProcessor {
           // Processa o conteúdo HTML para ser compatível com emails
           const conteudoProcessado = this.processarConteudoHtml(conteudoComPlaceholders);
 
-          // Converte as imagens para base64
-          const headerImageBase64 = (modeloCarta as any).headerImage ? 
-            await this.converterImagemParaBase64((modeloCarta as any).headerImage) : null;
-          const footerImageBase64 = (modeloCarta as any).footerImage ? 
-            await this.converterImagemParaBase64((modeloCarta as any).footerImage) : null;
+          // Usa as imagens Base64 diretamente do banco
+          const headerImageBase64 = (modeloCarta as any).headerImage && this.isBase64Image((modeloCarta as any).headerImage) ? 
+            (modeloCarta as any).headerImage : null;
+          const footerImageBase64 = (modeloCarta as any).footerImage && this.isBase64Image((modeloCarta as any).footerImage) ? 
+            (modeloCarta as any).footerImage : null;
 
           // Template de email profissional com HTML inline
           const emailTemplate = `

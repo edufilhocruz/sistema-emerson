@@ -64,28 +64,16 @@ export class ModeloCartaController {
       throw new BadRequestException('A imagem deve ter no máximo 2MB.');
     }
 
-    // Criar diretório de uploads se não existir
-    const uploadDir = path.join(process.cwd(), 'uploads', 'images');
-    if (!fs.existsSync(uploadDir)) {
-      fs.mkdirSync(uploadDir, { recursive: true });
-    }
-
-    // Gerar nome único para o arquivo
-    const timestamp = Date.now();
-    const extension = path.extname(file.originalname);
-    const filename = `image_${timestamp}${extension}`;
-    const filepath = path.join(uploadDir, filename);
-
-    // Salvar arquivo
-    fs.writeFileSync(filepath, file.buffer);
-
-    // Retornar URL da imagem
-    const imageUrl = `/api/static/uploads/images/${filename}`;
+    // Converter para Base64
+    const base64 = file.buffer.toString('base64');
+    const mimeType = file.mimetype;
+    const dataUrl = `data:${mimeType};base64,${base64}`;
 
     return {
       success: true,
-      url: imageUrl,
-      filename: filename
+      dataUrl: dataUrl,
+      mimeType: mimeType,
+      size: file.size
     };
   }
 
