@@ -246,101 +246,101 @@ export const ModeloEditor = ({ modelo, onSave, onDelete, isSaving }: Props) => {
         
         <TabsContent value="morador" className="mt-4 space-y-2">
           <div className="grid grid-cols-2 gap-2">
-            {camposDinamicos.morador.map((campo) => (
-              <TooltipProvider key={campo.placeholder}>
-                <Tooltip>
-                  <TooltipTrigger asChild>
-                    <Button
-                      type="button"
-                      variant="outline"
-                      size="sm"
+          {camposDinamicos.morador.map((campo) => (
+            <TooltipProvider key={campo.placeholder}>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <Button
+                    type="button"
+                    variant="outline"
+                    size="sm"
                       className="justify-start h-auto px-3 py-2 text-xs"
-                      onClick={() => handleVariableClick(campo.placeholder)}
-                    >
-                      {campo.placeholder}
-                    </Button>
-                  </TooltipTrigger>
-                  <TooltipContent>
-                    <p>{campo.descricao}</p>
-                  </TooltipContent>
-                </Tooltip>
-              </TooltipProvider>
-            ))}
+                    onClick={() => handleVariableClick(campo.placeholder)}
+                  >
+                    {campo.placeholder}
+                  </Button>
+                </TooltipTrigger>
+                <TooltipContent>
+                  <p>{campo.descricao}</p>
+                </TooltipContent>
+              </Tooltip>
+            </TooltipProvider>
+          ))}
           </div>
         </TabsContent>
         
         <TabsContent value="condominio" className="mt-4 space-y-2">
           <div className="grid grid-cols-2 gap-2">
-            {camposDinamicos.condominio.map((campo) => (
-              <TooltipProvider key={campo.placeholder}>
-                <Tooltip>
-                  <TooltipTrigger asChild>
-                    <Button
-                      type="button"
-                      variant="outline"
-                      size="sm"
+          {camposDinamicos.condominio.map((campo) => (
+            <TooltipProvider key={campo.placeholder}>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <Button
+                    type="button"
+                    variant="outline"
+                    size="sm"
                       className="justify-start h-auto px-3 py-2 text-xs"
-                      onClick={() => handleVariableClick(campo.placeholder)}
-                    >
-                      {campo.placeholder}
-                    </Button>
-                  </TooltipTrigger>
-                  <TooltipContent>
-                    <p>{campo.descricao}</p>
-                  </TooltipContent>
-                </Tooltip>
-              </TooltipProvider>
-            ))}
+                    onClick={() => handleVariableClick(campo.placeholder)}
+                  >
+                    {campo.placeholder}
+                  </Button>
+                </TooltipTrigger>
+                <TooltipContent>
+                  <p>{campo.descricao}</p>
+                </TooltipContent>
+              </Tooltip>
+            </TooltipProvider>
+          ))}
           </div>
         </TabsContent>
         
         <TabsContent value="cobranca" className="mt-4 space-y-2">
           <div className="grid grid-cols-2 gap-2">
-            {camposDinamicos.cobranca.map((campo) => (
-              <TooltipProvider key={campo.placeholder}>
-                <Tooltip>
-                  <TooltipTrigger asChild>
-                    <Button
-                      type="button"
-                      variant="outline"
-                      size="sm"
+          {camposDinamicos.cobranca.map((campo) => (
+            <TooltipProvider key={campo.placeholder}>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <Button
+                    type="button"
+                    variant="outline"
+                    size="sm"
                       className="justify-start h-auto px-3 py-2 text-xs"
-                      onClick={() => handleVariableClick(campo.placeholder)}
-                    >
-                      {campo.placeholder}
-                    </Button>
-                  </TooltipTrigger>
-                  <TooltipContent>
-                    <p>{campo.descricao}</p>
-                  </TooltipContent>
-                </Tooltip>
-              </TooltipProvider>
-            ))}
+                    onClick={() => handleVariableClick(campo.placeholder)}
+                  >
+                    {campo.placeholder}
+                  </Button>
+                </TooltipTrigger>
+                <TooltipContent>
+                  <p>{campo.descricao}</p>
+                </TooltipContent>
+              </Tooltip>
+            </TooltipProvider>
+          ))}
           </div>
         </TabsContent>
         
         <TabsContent value="datas" className="mt-4 space-y-2">
           <div className="grid grid-cols-2 gap-2">
-            {camposDinamicos.datas.map((campo) => (
-              <TooltipProvider key={campo.placeholder}>
-                <Tooltip>
-                  <TooltipTrigger asChild>
-                    <Button
-                      type="button"
-                      variant="outline"
-                      size="sm"
+          {camposDinamicos.datas.map((campo) => (
+            <TooltipProvider key={campo.placeholder}>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <Button
+                    type="button"
+                    variant="outline"
+                    size="sm"
                       className="justify-start h-auto px-3 py-2 text-xs"
-                      onClick={() => handleVariableClick(campo.placeholder)}
-                    >
-                      {campo.placeholder}
-                    </Button>
-                  </TooltipTrigger>
-                  <TooltipContent>
-                    <p>{campo.descricao}</p>
-                  </TooltipContent>
-                </Tooltip>
-              </TooltipProvider>
-            ))}
+                    onClick={() => handleVariableClick(campo.placeholder)}
+                  >
+                    {campo.placeholder}
+                  </Button>
+                </TooltipTrigger>
+                <TooltipContent>
+                  <p>{campo.descricao}</p>
+                </TooltipContent>
+              </Tooltip>
+            </TooltipProvider>
+          ))}
           </div>
         </TabsContent>
       </Tabs>
@@ -380,23 +380,23 @@ export const ModeloEditor = ({ modelo, onSave, onDelete, isSaving }: Props) => {
                 </CardTitle>
               </CardHeader>
               <CardContent>
-                <FormField 
-                  control={form.control} 
-                  name="titulo" 
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Nome do Modelo</FormLabel>
-                      <FormControl>
-                        <Input 
-                          placeholder="Ex: Cobrança Padrão Mensal" 
-                          {...field} 
+            <FormField 
+              control={form.control} 
+              name="titulo" 
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Nome do Modelo</FormLabel>
+                  <FormControl>
+                    <Input 
+                      placeholder="Ex: Cobrança Padrão Mensal" 
+                      {...field} 
                           className="text-lg"
-                        />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )} 
-                />
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )} 
+            />
               </CardContent>
             </Card>
 
@@ -412,22 +412,22 @@ export const ModeloEditor = ({ modelo, onSave, onDelete, isSaving }: Props) => {
                 </CardDescription>
               </CardHeader>
               <CardContent>
-                <FormField 
-                  control={form.control} 
-                  name="conteudo" 
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormControl>
+            <FormField 
+              control={form.control} 
+              name="conteudo" 
+              render={({ field }) => (
+                <FormItem>
+                  <FormControl>
                         <QuillEditor
                           value={field.value || ''}
                           onChange={field.onChange}
                           placeholder="Digite sua mensagem aqui... Use os campos dinâmicos para personalizar o conteúdo."
-                        />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )} 
-                />
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )} 
+            />
               </CardContent>
             </Card>
 
@@ -615,33 +615,33 @@ export const ModeloEditor = ({ modelo, onSave, onDelete, isSaving }: Props) => {
                     >
                       <CheckCircle className="w-4 h-4 mr-2" />
                       Preview Dinâmico
-                    </Button>
-                    <Button
-                      type="button"
-                      variant={previewAtivo === 'estatico' ? 'default' : 'outline'}
-                      size="sm"
-                      onClick={() => setPreviewAtivo('estatico')}
-                    >
+                  </Button>
+                  <Button
+                    type="button"
+                    variant={previewAtivo === 'estatico' ? 'default' : 'outline'}
+                    size="sm"
+                    onClick={() => setPreviewAtivo('estatico')}
+                  >
                       <AlertCircle className="w-4 h-4 mr-2" />
-                      Campos Destacados
-                    </Button>
-                  </div>
+                    Campos Destacados
+                  </Button>
+                </div>
                 )}
               </CardHeader>
               {showPreview && (
-                <CardContent>
-                  <div className="space-y-4">
-                    <div>
+              <CardContent>
+                <div className="space-y-4">
+                  <div>
                       <h4 className="mb-2 text-sm font-semibold">Assunto:</h4>
                       <div className="p-3 text-sm border rounded-lg bg-muted">
-                        {previewAtivo === 'dinamico' 
-                          ? gerarPreviewDinamico(tituloValue)
-                          : <span dangerouslySetInnerHTML={renderPreviewEstatico()} />
-                        }
-                      </div>
+                      {previewAtivo === 'dinamico' 
+                        ? gerarPreviewDinamico(tituloValue)
+                        : <span dangerouslySetInnerHTML={renderPreviewEstatico()} />
+                      }
                     </div>
-                    
-                    <div>
+                  </div>
+                  
+                  <div>
                       <h4 className="mb-2 text-sm font-semibold">Conteúdo:</h4>
                       <div className="p-3 overflow-y-auto text-sm border rounded-lg bg-muted max-h-96">
                         {headerImagePreview && (
@@ -656,10 +656,10 @@ export const ModeloEditor = ({ modelo, onSave, onDelete, isSaving }: Props) => {
                             <p className="mt-2 text-xs text-gray-500">Imagem do Cabeçalho</p>
                           </div>
                         )}
-                        {previewAtivo === 'dinamico' 
+                      {previewAtivo === 'dinamico' 
                           ? <div dangerouslySetInnerHTML={{ __html: gerarPreviewDinamico(conteudoValue || '') }} />
-                          : <span dangerouslySetInnerHTML={renderPreviewEstatico()} />
-                        }
+                        : <span dangerouslySetInnerHTML={renderPreviewEstatico()} />
+                      }
                         {footerImagePreview && (
                           <div className="pt-4 mt-4 text-center border-t">
                             <img 
