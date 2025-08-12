@@ -1,6 +1,7 @@
 import { Injectable, Logger } from '@nestjs/common';
 import * as fs from 'fs';
 import * as path from 'path';
+import { TemplateEngineService, TemplateData, TemplateConfig } from './template-engine.service';
 
 /**
  * Interface para dados de imagem com CID
@@ -28,26 +29,28 @@ export interface EmailTemplate {
 export class EmailTemplateService {
   private readonly logger = new Logger(EmailTemplateService.name);
 
+  constructor(private readonly templateEngine: TemplateEngineService) {}
+
   /**
    * Gera um template de email com imagens usando CID
    */
   async generateEmailTemplate(
     conteudo: string,
     headerImageUrl?: string,
-    footerImageUrl?: string
+    footerImageUrl?: string,
+    templateData?: TemplateData,
+    config?: TemplateConfig
   ): Promise<EmailTemplate> {
     try {
-      this.logger.log('Gerando template de email com CID');
+      this.logger.log('Gerando template de email com CID e Handlebars');
 
       const attachments: ImageWithCid[] = [];
-      let processedHtml = conteudo;
 
       // Processa imagem do cabeçalho
       if (headerImageUrl) {
         const headerCid = await this.processImageForCid(headerImageUrl, 'header');
         if (headerCid) {
           attachments.push(headerCid);
-          processedHtml = this.insertImageInHtml(processedHtml, headerCid.cid, 'header');
         }
       }
 
@@ -56,12 +59,22 @@ export class EmailTemplateService {
         const footerCid = await this.processImageForCid(footerImageUrl, 'footer');
         if (footerCid) {
           attachments.push(footerCid);
-          processedHtml = this.insertImageInHtml(processedHtml, footerCid.cid, 'footer');
         }
       }
 
-      // Aplica template HTML base
-      const finalHtml = this.applyBaseTemplate(processedHtml);
+      // Configuração do template
+      const templateConfig: TemplateConfig = {
+        headerImageUrl: headerImageUrl ? 'cid:header_image' : undefined,
+        footerImageUrl: footerImageUrl ? 'cid:footer_image' : undefined,
+        ...config
+      };
+
+      // Gera o HTML usando o TemplateEngineService
+      const finalHtml = this.templateEngine.generateEmailTemplate(
+        conteudo,
+        templateData || {},
+        templateConfig
+      );
 
       this.logger.log(`Template gerado com ${attachments.length} anexos`);
       
@@ -115,81 +128,6 @@ export class EmailTemplateService {
   }
 
   /**
-   * Insere imagem no HTML usando CID
-   */
-  private insertImageInHtml(html: string, cid: string, type: 'header' | 'footer'): string {
-    const imgTag = `<img src="cid:${cid}" alt="${type}" style="max-width: 100%; height: auto; display: block; margin: 0 auto;" />`;
-    
-    if (type === 'header') {
-      // Insere no início do conteúdo
-      return `<div style="text-align: center; margin-bottom: 20px;">${imgTag}</div>\n${html}`;
-    } else {
-      // Insere no final do conteúdo
-      return `${html}\n<div style="text-align: center; margin-top: 20px;">${imgTag}</div>`;
-    }
-  }
-
-  /**
-   * Aplica template HTML base
-   */
-  private applyBaseTemplate(content: string): string {
-    return `
-<!DOCTYPE html>
-<html lang="pt-BR">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Cobrança</title>
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            line-height: 1.6;
-            color: #333;
-            max-width: 600px;
-            margin: 0 auto;
-            padding: 20px;
-            background-color: #f4f4f4;
-        }
-        .email-container {
-            background-color: #ffffff;
-            padding: 30px;
-            border-radius: 8px;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-        }
-        .content {
-            margin: 20px 0;
-        }
-        .footer {
-            margin-top: 30px;
-            padding-top: 20px;
-            border-top: 1px solid #eee;
-            font-size: 12px;
-            color: #666;
-            text-align: center;
-        }
-        img {
-            max-width: 100%;
-            height: auto;
-            display: block;
-            margin: 0 auto;
-        }
-    </style>
-</head>
-<body>
-    <div class="email-container">
-        <div class="content">
-            ${content}
-        </div>
-        <div class="footer">
-            <p>Esta é uma cobrança automática do sistema Raunaimer.</p>
-            <p>Para dúvidas, entre em contato conosco.</p>
-        </div>
-    </div>
-</body>
-</html>`;
-  }
-
-  /**
    * Determina o tipo MIME baseado na extensão do arquivo
    */
   private getMimeType(fileName: string): string {
@@ -207,9 +145,23 @@ export class EmailTemplateService {
   }
 
   /**
-   * Substitui placeholders no conteúdo
+   * Substitui placeholders no conteúdo usando Handlebars
    */
   substitutePlaceholders(content: string, data: Record<string, any>): string {
+    try {
+      // Usa o TemplateEngineService para renderizar o conteúdo
+      return this.templateEngine.renderTemplate(content, data);
+    } catch (error) {
+      this.logger.error(`Erro ao substituir placeholders: ${error.message}`);
+      // Fallback para substituição simples se Handlebars falhar
+      return this.simplePlaceholderSubstitution(content, data);
+    }
+  }
+
+  /**
+   * Substituição simples de placeholders (fallback)
+   */
+  private simplePlaceholderSubstitution(content: string, data: Record<string, any>): string {
     let processedContent = content;
 
     // Substitui cada placeholder pelos dados correspondentes
@@ -220,5 +172,76 @@ export class EmailTemplateService {
     });
 
     return processedContent;
+  }
+
+  /**
+   * Valida um template Handlebars
+   */
+  validateTemplate(template: string): boolean {
+    return this.templateEngine.validateTemplate(template);
+  }
+
+  /**
+   * Lista todos os helpers disponíveis
+   */
+  getAvailableHelpers(): string[] {
+    return this.templateEngine.getAvailableHelpers();
+  }
+
+  /**
+   * Lista todos os partials disponíveis
+   */
+  getAvailablePartials(): string[] {
+    return this.templateEngine.getAvailablePartials();
+  }
+
+  /**
+   * Gera um exemplo de template com dados de teste
+   */
+  generateExampleTemplate(): { template: string; data: TemplateData } {
+    const template = `
+{{> header}}
+
+<div class="content">
+    {{> moradorInfo}}
+    {{> condominioInfo}}
+    {{> cobrancaInfo}}
+    
+    <div class="mb-20">
+        <h2>Olá {{nome_morador}}!</h2>
+        <p>Esta é uma cobrança referente ao mês de {{monthYear data_vencimento}}.</p>
+        <p>Valor: {{currency valor}}</p>
+        <p>Vencimento: {{dateFull data_vencimento}}</p>
+        
+        {{#if diasAtraso}}
+        <div class="warning">
+            <p>⚠️ Esta cobrança está em atraso há {{daysLate data_vencimento}} dias.</p>
+            <p>Valor com multa: {{valueWithPenalty valor (daysLate data_vencimento)}}</p>
+        </div>
+        {{/if}}
+    </div>
+</div>
+
+{{> footer}}`;
+
+    const data: TemplateData = {
+      nome_morador: 'João Silva',
+      email: 'joao@email.com',
+      telefone: '11999887766',
+      bloco: 'A',
+      apartamento: '101',
+      nome_condominio: 'Residencial Exemplo',
+      cnpj: '12345678000190',
+      logradouro: 'Rua das Flores',
+      numero: '123',
+      bairro: 'Centro',
+      cidade: 'São Paulo',
+      estado: 'SP',
+      valor: 500.00,
+      data_vencimento: new Date('2024-02-15'),
+      diasAtraso: 5
+    };
+
+    return { template, data };
   }
 }

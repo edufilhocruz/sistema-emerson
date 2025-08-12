@@ -25,6 +25,7 @@ import { AuthGuard } from './auth.guard';
 import { RegisterController } from './register.controller';
 import { ContactController } from './contact.controller';
 import { ContactService } from './contact.service';
+import { SharedModule } from './shared/shared.module';
 
 @Module({
   imports: [
@@ -45,6 +46,7 @@ import { ContactService } from './contact.service';
     CobrancaModule,
     ModeloCartaModule,
     DashboardModule,
+    SharedModule,
     JwtModule.register({
       secret: 'sua_chave_secreta_aqui', // Troque por variável de ambiente em produção
       signOptions: { expiresIn: '1d' },

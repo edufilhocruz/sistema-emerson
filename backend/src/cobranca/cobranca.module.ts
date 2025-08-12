@@ -7,14 +7,14 @@ import { PrismaService } from '../prisma/prisma.service';
 import { CobrancaProcessor } from './cobranca.processor';
 import { EmailConfigService } from '../email-config.service';
 import { ModeloCartaService } from '../modelo-carta/modelo-carta.service';
-import { EmailTemplateService } from '../shared/services/email-template.service';
-import { FileManagerService } from '../shared/services/file-manager.service';
+import { SharedModule } from '../shared/shared.module';
 
 @Module({
   imports: [
     BullModule.registerQueue({
       name: 'import-cobranca', // Registra a fila a ser usada neste módulo
     }),
+    SharedModule,
   ],
   controllers: [CobrancaController],
   providers: [
@@ -24,8 +24,6 @@ import { FileManagerService } from '../shared/services/file-manager.service';
     CobrancaProcessor, // Adiciona o worker como um provider para que o NestJS o gerencie
     EmailConfigService,
     ModeloCartaService,
-    EmailTemplateService,
-    FileManagerService,
   ],
 })
 export class CobrancaModule {}
