@@ -7,7 +7,7 @@ import { StatusEnvio } from '@prisma/client';
 import { EmailConfigService } from '../email-config.service';
 import { EmailTemplateService } from '../shared/services/email-template.service';
 import { CobrancaProcessor } from './cobranca.processor';
-import nodemailer from 'nodemailer';
+import * as nodemailer from 'nodemailer';
 
 /**
  * Serviço responsável por gerenciar cobranças
