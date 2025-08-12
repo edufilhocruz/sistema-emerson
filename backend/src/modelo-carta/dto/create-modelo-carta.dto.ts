@@ -9,11 +9,11 @@ export class CreateModeloCartaDto {
   @IsNotEmpty({ message: 'O conteúdo não pode ser vazio.' })
   conteudo: string;
 
-  @IsString({ message: 'A imagem do cabeçalho deve ser um texto.' })
+  @IsString({ message: 'A URL da imagem do cabeçalho deve ser um texto.' })
   @IsOptional()
-  headerImage?: string;
+  headerImageUrl?: string;
 
-  @IsString({ message: 'A imagem do rodapé deve ser um texto.' })
+  @IsString({ message: 'A URL da imagem do rodapé deve ser um texto.' })
   @IsOptional()
-  footerImage?: string;
+  footerImageUrl?: string;
 }

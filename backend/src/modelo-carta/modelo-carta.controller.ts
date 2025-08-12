@@ -14,12 +14,18 @@ import { FileInterceptor } from '@nestjs/platform-express';
 import { ModeloCartaService } from './modelo-carta.service';
 import { CreateModeloCartaDto } from './dto/create-modelo-carta.dto';
 import { UpdateModeloCartaDto } from './dto/update-modelo-carta.dto';
-import * as fs from 'fs';
-import * as path from 'path';
+import { FileManagerService } from '../shared/services/file-manager.service';
 
+/**
+ * Controller responsável por gerenciar modelos de carta
+ * Implementa arquitetura limpa com separação de responsabilidades
+ */
 @Controller('modelo-carta')
 export class ModeloCartaController {
-  constructor(private readonly modeloCartaService: ModeloCartaService) {
+  constructor(
+    private readonly modeloCartaService: ModeloCartaService,
+    private readonly fileManager: FileManagerService
+  ) {
     console.log('=== MODELO CARTA CONTROLLER INSTANCIADO ===');
   }
 
@@ -54,56 +60,24 @@ export class ModeloCartaController {
       throw new BadRequestException('Nenhuma imagem enviada.');
     }
 
-    // Validar tipo de arquivo
-    if (!file.mimetype.startsWith('image/')) {
-      throw new BadRequestException('Apenas arquivos de imagem são permitidos.');
-    }
-
-    // Validar tamanho (máximo 2MB)
-    if (file.size > 2 * 1024 * 1024) {
-      throw new BadRequestException('A imagem deve ter no máximo 2MB.');
-    }
-
     try {
-      // Criar diretório se não existir
-      const uploadsDir = path.join(process.cwd(), 'uploads', 'images');
-      if (!fs.existsSync(uploadsDir)) {
-        fs.mkdirSync(uploadsDir, { recursive: true });
-      }
-
-      // Gerar nome único para o arquivo
-      const timestamp = Date.now();
-      const randomString = Math.random().toString(36).substring(2, 15);
-      const extension = path.extname(file.originalname) || '.jpg';
-      const filename = `header_${timestamp}_${randomString}${extension}`;
-      const filepath = path.join(uploadsDir, filename);
-
-      // Salvar arquivo
-      fs.writeFileSync(filepath, file.buffer);
-      console.log(`✅ Imagem salva em: ${filepath}`);
-
-      // Converter para Base64
-      const base64 = file.buffer.toString('base64');
-      const mimeType = file.mimetype;
-      const dataUrl = `data:${mimeType};base64,${base64}`;
-
-      // URL para fallback
-      const baseUrl = process.env.BASE_URL || 'https://app.raunaimer.adv.br';
-      const imageUrl = `${baseUrl}/api/static/uploads/${filename}`;
-
-      console.log(`🔗 URL da imagem: ${imageUrl}`);
+      console.log(`=== UPLOAD DE IMAGEM: ${file.originalname} ===`);
+      
+      // Usa o FileManagerService para salvar a imagem
+      const imageUrl = await this.fileManager.saveImage(file);
+      
+      console.log(`✅ Imagem salva com sucesso: ${imageUrl}`);
 
       return {
         success: true,
-        dataUrl: dataUrl,        // Base64 para clientes que suportam
-        imageUrl: imageUrl,      // URL para fallback
-        mimeType: mimeType,
+        imageUrl: imageUrl,
+        mimeType: file.mimetype,
         size: file.size,
-        filename: filename
+        filename: file.originalname
       };
     } catch (error) {
       console.error('❌ Erro ao processar imagem:', error);
-      throw new BadRequestException('Erro ao processar a imagem.');
+      throw new BadRequestException(`Erro ao processar a imagem: ${error.message}`);
     }
   }
 

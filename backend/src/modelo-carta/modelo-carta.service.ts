@@ -2,10 +2,18 @@ import { Injectable, NotFoundException } from '@nestjs/common';
 import { CreateModeloCartaDto } from './dto/create-modelo-carta.dto';
 import { UpdateModeloCartaDto } from './dto/update-modelo-carta.dto';
 import { PrismaService } from '../prisma/prisma.service';
+import { FileManagerService } from '../shared/services/file-manager.service';
 
+/**
+ * Serviço responsável por gerenciar modelos de carta
+ * Implementa arquitetura limpa com separação de responsabilidades
+ */
 @Injectable()
 export class ModeloCartaService {
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(
+    private readonly prisma: PrismaService,
+    private readonly fileManager: FileManagerService
+  ) {}
 
   /**
    * Cria um novo modelo de carta
@@ -67,11 +75,24 @@ export class ModeloCartaService {
     console.log('Dados recebidos:', JSON.stringify(updateModeloCartaDto, null, 2));
     
     // Verifica se o modelo existe
-    await this.findOne(id);
+    const existingModel = await this.findOne(id);
     
     // Valida campos dinâmicos se o conteúdo foi alterado
     if (updateModeloCartaDto.conteudo) {
       this.validarCamposDinamicos(updateModeloCartaDto.conteudo);
+    }
+
+    // Remove imagens antigas se novas foram fornecidas
+    if (updateModeloCartaDto.headerImageUrl && existingModel.headerImageUrl !== updateModeloCartaDto.headerImageUrl) {
+      if (existingModel.headerImageUrl) {
+        await this.fileManager.deleteImage(existingModel.headerImageUrl);
+      }
+    }
+    
+    if (updateModeloCartaDto.footerImageUrl && existingModel.footerImageUrl !== updateModeloCartaDto.footerImageUrl) {
+      if (existingModel.footerImageUrl) {
+        await this.fileManager.deleteImage(existingModel.footerImageUrl);
+      }
     }
     
     const result = await this.prisma.modeloCarta.update({
@@ -91,7 +112,7 @@ export class ModeloCartaService {
     console.log('ID:', id);
     
     // Verifica se o modelo existe
-    await this.findOne(id);
+    const existingModel = await this.findOne(id);
     
     // Verifica se há cobranças usando este modelo
     const cobrancasUsandoModelo = await this.prisma.cobranca.findMany({
@@ -102,6 +123,15 @@ export class ModeloCartaService {
     if (cobrancasUsandoModelo.length > 0) {
       console.log('❌ Não é possível excluir o modelo. Existem cobranças usando este modelo.');
       throw new Error(`Não é possível excluir este modelo. Existem ${cobrancasUsandoModelo.length} cobrança(s) usando este modelo. Remova as cobranças primeiro.`);
+    }
+
+    // Remove imagens associadas
+    if (existingModel.headerImageUrl) {
+      await this.fileManager.deleteImage(existingModel.headerImageUrl);
+    }
+    
+    if (existingModel.footerImageUrl) {
+      await this.fileManager.deleteImage(existingModel.footerImageUrl);
     }
     
     const result = await this.prisma.modeloCarta.delete({ 
