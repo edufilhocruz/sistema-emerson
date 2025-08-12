@@ -160,6 +160,68 @@ export class CobrancaController {
   }
 
   /**
+   * Envia uma cobrança específica por email.
+   * @param id O UUID da cobrança.
+   */
+  @Post(':id/enviar')
+  async enviarCobranca(@Param('id') id: string) {
+    try {
+      console.log(`=== INICIANDO ENVIO DE COBRANÇA ${id} ===`);
+      const result = await this.cobrancaService.enviarCobranca(id);
+      console.log(`=== COBRANÇA ${id} ENVIADA COM SUCESSO ===`);
+      return {
+        success: true,
+        message: 'Cobrança enviada com sucesso',
+        data: result
+      };
+    } catch (error) {
+      console.error(`=== ERRO AO ENVIAR COBRANÇA ${id} ===`);
+      console.error('Erro:', error);
+      
+      throw new HttpException({
+        statusCode: HttpStatus.INTERNAL_SERVER_ERROR,
+        message: 'Erro ao enviar cobrança',
+        error: 'Erro interno',
+        details: {
+          suggestion: 'Verifique se a cobrança existe e tente novamente',
+          errorDetails: error.message
+        }
+      }, HttpStatus.INTERNAL_SERVER_ERROR);
+    }
+  }
+
+  /**
+   * Envia múltiplas cobranças por email.
+   * @param ids Array de UUIDs das cobranças.
+   */
+  @Post('enviar-massa')
+  async enviarCobrancasEmMassa(@Body() body: { ids: string[] }) {
+    try {
+      console.log(`=== INICIANDO ENVIO EM MASSA DE ${body.ids.length} COBRANÇAS ===`);
+      const result = await this.cobrancaService.enviarCobrancasEmMassa(body.ids);
+      console.log(`=== ENVIO EM MASSA CONCLUÍDO ===`);
+      return {
+        success: true,
+        message: 'Envio em massa concluído',
+        data: result
+      };
+    } catch (error) {
+      console.error('=== ERRO NO ENVIO EM MASSA ===');
+      console.error('Erro:', error);
+      
+      throw new HttpException({
+        statusCode: HttpStatus.INTERNAL_SERVER_ERROR,
+        message: 'Erro no envio em massa',
+        error: 'Erro interno',
+        details: {
+          suggestion: 'Verifique se as cobranças existem e tente novamente',
+          errorDetails: error.message
+        }
+      }, HttpStatus.INTERNAL_SERVER_ERROR);
+    }
+  }
+
+  /**
    * Busca uma cobrança específica pelo seu ID.
    * @param id O UUID da cobrança.
    */
