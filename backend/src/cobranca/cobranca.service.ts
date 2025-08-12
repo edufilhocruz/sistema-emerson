@@ -5,602 +5,271 @@ import { CobrancaRepository } from './cobranca.repository';
 import { PrismaService } from '../prisma/prisma.service';
 import { StatusEnvio } from '@prisma/client';
 import { EmailConfigService } from '../email-config.service';
-import * as fs from 'fs';
-import * as path from 'path';
+import { EmailTemplateService } from '../shared/services/email-template.service';
+import { CobrancaProcessor } from './cobranca.processor';
 import * as nodemailer from 'nodemailer';
 
+/**
+ * Serviço responsável por gerenciar cobranças
+ * Implementa arquitetura limpa com separação de responsabilidades
+ */
 @Injectable()
 export class CobrancaService {
   constructor(
     private readonly repository: CobrancaRepository,
     private readonly prisma: PrismaService,
     private readonly emailConfigService: EmailConfigService,
+    private readonly emailTemplateService: EmailTemplateService,
+    private readonly cobrancaProcessor: CobrancaProcessor,
   ) {}
 
-    /**
-     * Verifica se uma string é um Base64 válido
-     */
-    private isBase64Image(dataUrl: string): boolean {
-      return Boolean(dataUrl && dataUrl.startsWith('data:image/') && dataUrl.includes(';base64,'));
-    }
-
-    /**
-     * Extrai dados do Base64 para criar anexo inline
-     */
-    private extractBase64Data(dataUrl: string): { buffer: Buffer; mimeType: string; filename: string } | null {
-      if (!this.isBase64Image(dataUrl)) return null;
-      
-      const matches = dataUrl.match(/^data:([^;]+);base64,(.+)$/);
-      if (!matches) return null;
-      
-      const [, mimeType, base64Data] = matches;
-      const buffer = Buffer.from(base64Data, 'base64');
-      const extension = mimeType.split('/')[1] || 'png';
-      const filename = `image_${Date.now()}.${extension}`;
-      
-      return { buffer, mimeType, filename };
-    }
-
-    /**
-     * Cria email com MIME multipart e CID embedding (estilo Mailchimp)
-     */
-    private async createMultipartEmail(
-      to: string,
-      subject: string,
-      htmlContent: string,
-      headerImageBase64?: string,
-      footerImageBase64?: string
-    ) {
-      const emailConfig = await this.emailConfigService.getConfig();
-      
-      if (!emailConfig) {
-        throw new Error('Configuração de email não encontrada');
-      }
-
-      const transporter = nodemailer.createTransporter({
-        host: emailConfig.host,
-        port: emailConfig.port,
-        secure: emailConfig.secure,
-        auth: {
-          user: emailConfig.user,
-          pass: emailConfig.pass,
-        },
-      });
-
-      // Preparar anexos inline
-      const attachments: any[] = [];
-      
-      if (headerImageBase64) {
-        const headerData = this.extractBase64Data(headerImageBase64);
-        if (headerData) {
-          attachments.push({
-            filename: headerData.filename,
-            content: headerData.buffer,
-            contentType: headerData.mimeType,
-            cid: 'header_image'
-          });
-        }
-      }
-      
-      if (footerImageBase64) {
-        const footerData = this.extractBase64Data(footerImageBase64);
-        if (footerData) {
-          attachments.push({
-            filename: footerData.filename,
-            content: footerData.buffer,
-            contentType: footerData.mimeType,
-            cid: 'footer_image'
-          });
-        }
-      }
-
-      // Substituir Base64 por CID no HTML
-      let processedHtml = htmlContent;
-      if (headerImageBase64) {
-        processedHtml = processedHtml.replace(
-          new RegExp(headerImageBase64.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'), 'g'),
-          'cid:header_image'
-        );
-      }
-      if (footerImageBase64) {
-        processedHtml = processedHtml.replace(
-          new RegExp(footerImageBase64.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'), 'g'),
-          'cid:footer_image'
-        );
-      }
-
-      const mailOptions = {
-        from: emailConfig.user,
-        to,
-        subject,
-        html: processedHtml,
-        attachments,
-        headers: {
-          'X-Mailer': 'Raunaimer System',
-          'X-Priority': '3',
-          'X-MSMail-Priority': 'Normal',
-          'Importance': 'Normal'
-        }
-      };
-
-      try {
-        const result = await transporter.sendMail(mailOptions);
-        return { success: true, messageId: result.messageId };
-      } catch (error) {
-        console.error('Erro ao enviar email multipart:', error);
-        return { success: false, error: error.message };
-      }
-    }
-
   /**
-   * Processa o conteúdo HTML do Quill para ser compatível com emails
+   * Cria uma nova cobrança
    */
-private processarConteudoHtml(html: string): string {
-    // Remove estilos inline que podem causar problemas em emails
-    let processado = html
-      // Remove estilos de background que podem não funcionar
-      .replace(/background-color:\s*[^;]+;/gi, '')
-      .replace(/background:\s*[^;]+;/gi, '')
-      
-      // Converte cores para formato compatível
-      .replace(/color:\s*rgb\(([^)]+)\)/gi, (match, rgb) => {
-        const [r, g, b] = rgb.split(',').map(n => parseInt(n.trim()));
-        return `color: #${r.toString(16).padStart(2, '0')}${g.toString(16).padStart(2, '0')}${b.toString(16).padStart(2, '0')}`;
-      })
-      
-      // Remove propriedades CSS que podem não funcionar em emails
-      .replace(/box-shadow:\s*[^;]+;/gi, '')
-      .replace(/border-radius:\s*[^;]+;/gi, '')
-      .replace(/transform:\s*[^;]+;/gi, '')
-      
-      // Garante que imagens tenham atributos necessários
-      .replace(/<img([^>]*)>/gi, (match, attrs) => {
-        if (!attrs.includes('style=')) {
-          attrs += ' style="max-width: 100%; height: auto; border: 0;"';
-        }
-        if (!attrs.includes('alt=')) {
-          attrs += ' alt="Imagem"';
-        }
-        return `<img${attrs}>`;
-      })
-      
-      // Converte quebras de linha para <br> se necessário
-      .replace(/\n/g, '<br>');
-    
-    return processado;
-  }
-
-  /**
-   * Substitui todos os placeholders dinâmicos no texto
-   */
-  private substituirPlaceholders(texto: string, dados: Record<string, any>): string {
-    let resultado = texto;
-    
-    console.log('=== INICIANDO SUBSTITUIÇÃO DE PLACEHOLDERS ===');
-    console.log('Texto original:', texto);
-    console.log('Dados disponíveis:', JSON.stringify(dados, null, 2));
-    
-    // Substitui cada placeholder pelo seu valor correspondente
-    Object.entries(dados).forEach(([placeholder, valor]) => {
-      console.log(`\n--- Processando: ${placeholder} ---`);
-      console.log(`Valor para substituir: "${valor}"`);
-      console.log(`Tipo do valor: ${typeof valor}`);
-      console.log(`Existe no texto: ${resultado.includes(placeholder)}`);
-      
-      if (resultado.includes(placeholder)) {
-        // Escapa caracteres especiais para regex
-        const placeholderEscapado = placeholder.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-        const regex = new RegExp(placeholderEscapado, 'g');
-        
-        const antes = resultado;
-        resultado = resultado.replace(regex, String(valor || ''));
-        
-        if (antes !== resultado) {
-          console.log(`✅ Substituição realizada: "${placeholder}" -> "${valor}"`);
-        } else {
-          console.log(`❌ Substituição falhou para: ${placeholder}`);
-        }
-      } else {
-        console.log(`⚠️ Placeholder não encontrado no texto: ${placeholder}`);
-      }
-    });
-    
-    console.log('\n=== RESULTADO FINAL ===');
-    console.log('Texto processado:', resultado);
-    
-    return resultado;
-  }
-
   async create(createCobrancaDto: CreateCobrancaDto) {
-    try {
-      console.log('=== INICIANDO CRIAÇÃO DE COBRANÇA ===');
-      console.log('DTO recebido:', JSON.stringify(createCobrancaDto, null, 2));
-
-      const { moradorId, condominioId, modeloCartaId } = createCobrancaDto;
-
-      // Busca o morador com dados do condomínio
-      const morador = await this.prisma.morador.findUnique({
-        where: { id: moradorId },
-        include: {
-          condominio: {
-            select: {
-              id: true,
-              nome: true,
-              cnpj: true,
-              logradouro: true,
-              numero: true,
-              bairro: true,
-              cidade: true,
-              estado: true
-            }
-          }
-        }
-      });
-
-      if (!morador) {
-        throw new NotFoundException(`Morador com ID ${moradorId} não encontrado.`);
-      }
-
-      // Busca o modelo de carta com imagens
-      const modeloCarta = await this.prisma.modeloCarta.findUnique({
-        where: { id: modeloCartaId }
-      });
-
-      if (!modeloCarta) {
-        throw new NotFoundException(`Modelo de Carta com ID ${modeloCartaId} não encontrado.`);
-      }
-
-      console.log('=== DADOS CARREGADOS ===');
-      console.log('Morador:', {
-        id: morador.id,
-        nome: morador.nome,
-        bloco: morador.bloco,
-        apartamento: morador.apartamento,
-        email: morador.email
-      });
-      console.log('Condomínio:', {
-        id: morador.condominio.id,
-        nome: morador.condominio.nome,
-        logradouro: morador.condominio.logradouro,
-        numero: morador.condominio.numero,
-        bairro: morador.condominio.bairro
-      });
-
-      // Determina o valor da cobrança
-      let valor = createCobrancaDto.valor;
-      if (valor === undefined || valor === null) {
-        if (morador.valorAluguel !== undefined && morador.valorAluguel !== null) {
-          valor = morador.valorAluguel;
-        }
-      }
-
-      // Cria a cobrança com tratamento robusto do valor
-      const dadosCobranca: any = {
-        ...createCobrancaDto,
-        statusEnvio: StatusEnvio.NAO_ENVIADO
-      };
-      
-      // Tratamento robusto do campo valor
-      if (valor !== null && valor !== undefined && valor > 0) {
-        dadosCobranca.valor = Number(valor);
-      } else {
-        dadosCobranca.valor = null;
-      }
-      
-      console.log('=== DADOS FINAIS PARA CRIAÇÃO ===');
-      console.log('Dados da cobrança:', JSON.stringify(dadosCobranca, null, 2));
-      
-      const cobranca = await this.repository.create(dadosCobranca);
-
-      // Calcula mês de referência
-      const hoje = new Date();
-      const mesReferencia = `${String(hoje.getMonth() + 1).padStart(2, '0')}/${hoje.getFullYear()}`;
-
-      // Monta o endereço completo do condomínio
-      const enderecoCondominio = [
-        morador.condominio.logradouro,
-        morador.condominio.numero,
-        morador.condominio.bairro,
-        morador.condominio.cidade,
-        morador.condominio.estado
-      ].filter(Boolean).join(', ');
-
-      // Prepara todos os dados para substituição
-      const dadosSubstituicao = {
-        // Campos do morador
-        '{{nome_morador}}': morador.nome,
-        '{{nome}}': morador.nome,
-        '{{email}}': morador.email,
-        '{{telefone}}': morador.telefone || 'Telefone não informado',
-        '{{bloco}}': morador.bloco,
-        '{{apartamento}}': morador.apartamento,
-        '{{unidade}}': `${morador.bloco}-${morador.apartamento}`,
-        
-        // Campos do condomínio
-        '{{nome_condominio}}': morador.condominio.nome,
-        '{{condominio}}': morador.condominio.nome,
-        '{{cnpj}}': morador.condominio.cnpj,
-        '{{cidade}}': morador.condominio.cidade,
-        '{{estado}}': morador.condominio.estado,
-        '{{endereco}}': enderecoCondominio,
-        '{{endereco_condominio}}': enderecoCondominio,
-        
-        // Campos da cobrança
-        '{{valor}}': valor ? valor.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' }) : 'Valor não informado',
-        '{{valor_formatado}}': valor ? valor.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' }) : 'Valor não informado',
-        '{{mes_referencia}}': mesReferencia,
-        '{{data_vencimento}}': new Date(cobranca.vencimento).toLocaleDateString('pt-BR'),
-        '{{vencimento}}': new Date(cobranca.vencimento).toLocaleDateString('pt-BR'),
-        
-        // Data atual
-        '{{data_atual}}': hoje.toLocaleDateString('pt-BR'),
-        '{{hoje}}': hoje.toLocaleDateString('pt-BR')
-      };
-
-      console.log('=== DADOS PARA SUBSTITUIÇÃO ===');
-      console.log(JSON.stringify(dadosSubstituicao, null, 2));
-
-      // Substitui os placeholders no título e conteúdo
-      const tituloProcessado = this.substituirPlaceholders(modeloCarta.titulo, dadosSubstituicao);
-      const conteudoComPlaceholders = this.substituirPlaceholders(modeloCarta.conteudo, dadosSubstituicao);
-      
-      // Processa o conteúdo HTML para ser compatível com emails
-      const conteudoProcessado = this.processarConteudoHtml(conteudoComPlaceholders);
-
-      // Usa as imagens Base64 diretamente do banco
-      console.log('🔍 DEBUG: Verificando imagens do modelo...');
-      console.log('🔍 DEBUG: headerImage existe?', !!(modeloCarta as any).headerImage);
-      console.log('🔍 DEBUG: footerImage existe?', !!(modeloCarta as any).footerImage);
-      
-      if ((modeloCarta as any).headerImage) {
-        console.log('🔍 DEBUG: headerImage é Base64?', this.isBase64Image((modeloCarta as any).headerImage));
-        console.log('🔍 DEBUG: headerImage primeiros 50 chars:', (modeloCarta as any).headerImage.substring(0, 50));
-        console.log('🔍 DEBUG: headerImage tamanho total:', (modeloCarta as any).headerImage.length);
-      }
-      
-      if ((modeloCarta as any).footerImage) {
-        console.log('🔍 DEBUG: footerImage é Base64?', this.isBase64Image((modeloCarta as any).footerImage));
-        console.log('🔍 DEBUG: footerImage primeiros 50 chars:', (modeloCarta as any).footerImage.substring(0, 50));
-        console.log('🔍 DEBUG: footerImage tamanho total:', (modeloCarta as any).footerImage.length);
-      }
-      
-      // Abordagem híbrida: Base64 + URL de fallback
-      const headerImageBase64 = (modeloCarta as any).headerImage && this.isBase64Image((modeloCarta as any).headerImage) ? 
-        (modeloCarta as any).headerImage : null;
-      const footerImageBase64 = (modeloCarta as any).footerImage && this.isBase64Image((modeloCarta as any).footerImage) ? 
-        (modeloCarta as any).footerImage : null;
-      
-      const headerImageUrl = (modeloCarta as any).headerImageUrl || null;
-      const footerImageUrl = (modeloCarta as any).footerImageUrl || null;
-
-      console.log('🖼️ Status das imagens (Híbrido):');
-      console.log(`Header Base64: ${headerImageBase64 ? 'Válido' : 'Sem Base64'}`);
-      console.log(`Header URL: ${headerImageUrl ? 'Válida' : 'Sem URL'}`);
-      console.log(`Footer Base64: ${footerImageBase64 ? 'Válido' : 'Sem Base64'}`);
-      console.log(`Footer URL: ${footerImageUrl ? 'Válida' : 'Sem URL'}`);
-      
-      // Log do template de email
-      console.log('📧 DEBUG: Template de email será gerado com imagens?');
-      console.log('📧 DEBUG: headerImageBase64 será incluído?', !!headerImageBase64);
-      console.log('📧 DEBUG: footerImageBase64 será incluído?', !!footerImageBase64);
-
-      // Log detalhado da construção do HTML
-      console.log('🔍 DEBUG: Construindo template de email (Híbrido)...');
-      
-      // Construir a parte do header com imagem (CID + fallback URL)
-      const headerImageHtml = headerImageBase64 ? `
-                  <tr>
-                    <td style="text-align: center; padding: 0;">
-                      <img src="cid:header_image" 
-                           alt="Cabeçalho" 
-                           style="width: 100%; max-height: 200px; object-fit: cover; display: block; border: 0;"
-                           ${headerImageUrl ? `data-fallback="${headerImageUrl}"` : ''}>
-                    </td>
-                  </tr>
-                  ` : (headerImageUrl ? `
-                  <tr>
-                    <td style="text-align: center; padding: 0;">
-                      <img src="${headerImageUrl}" 
-                           alt="Cabeçalho" 
-                           style="width: 100%; max-height: 200px; object-fit: cover; display: block; border: 0;">
-                    </td>
-                  </tr>
-                  ` : '');
-      
-      console.log('🔍 DEBUG: Header HTML construído:', headerImageHtml ? 'SIM' : 'NÃO');
-      if (headerImageHtml) {
-        console.log('🔍 DEBUG: Header HTML contém src?', headerImageHtml.includes('src='));
-        console.log('🔍 DEBUG: Header HTML contém data:image?', headerImageHtml.includes('data:image'));
-        console.log('🔍 DEBUG: Primeiros 200 chars do header HTML:', headerImageHtml.substring(0, 200));
-      }
-
-      // Template de email profissional com HTML inline (compatível com todos os clientes)
-      const emailTemplate = `
-        <!DOCTYPE html>
-        <html lang="pt-BR">
-        <head>
-          <meta charset="UTF-8">
-          <meta name="viewport" content="width=device-width, initial-scale=1.0">
-          <meta http-equiv="X-UA-Compatible" content="IE=edge">
-          <title>Cobrança - ${morador.condominio.nome}</title>
-          <!--[if mso]>
-          <noscript>
-            <xml>
-              <o:OfficeDocumentSettings>
-                <o:PixelsPerInch>96</o:PixelsPerInch>
-              </o:OfficeDocumentSettings>
-            </xml>
-          </noscript>
-          <![endif]-->
-        </head>
-        <body style="margin: 0; padding: 0; background-color: #f4f4f4; font-family: Arial, Helvetica, sans-serif; line-height: 1.6; color: #333333;">
-          <!-- Wrapper principal -->
-          <table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%" style="background-color: #f4f4f4;">
-            <tr>
-              <td align="center" style="padding: 20px 0;">
-                <!-- Container do email -->
-                <table role="presentation" cellspacing="0" cellpadding="0" border="0" width="600" style="max-width: 600px; background-color: #ffffff; border-radius: 8px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); overflow: hidden;">
-                  
-                  <!-- Imagem do cabeçalho -->
-                  ${headerImageHtml}
-                  
-                  <!-- Conteúdo principal -->
-                  <tr>
-                    <td style="padding: 30px; text-align: left;">
-                      <div style="font-family: Arial, Helvetica, sans-serif; font-size: 14px; line-height: 1.6; color: #333333;">
-                        ${conteudoProcessado}
-                      </div>
-                    </td>
-                  </tr>
-                  
-                  <!-- Imagem do rodapé -->
-                  ${footerImageBase64 ? `
-                  <tr>
-                    <td style="text-align: center; padding: 0;">
-                      <img src="cid:footer_image" 
-                           alt="Rodapé/Assinatura" 
-                           style="width: 100%; max-height: 150px; object-fit: contain; display: block; border: 0;"
-                           ${footerImageUrl ? `data-fallback="${footerImageUrl}"` : ''}>
-                    </td>
-                  </tr>
-                  ` : (footerImageUrl ? `
-                  <tr>
-                    <td style="text-align: center; padding: 0;">
-                      <img src="${footerImageUrl}" 
-                           alt="Rodapé/Assinatura" 
-                           style="width: 100%; max-height: 150px; object-fit: contain; display: block; border: 0;">
-                    </td>
-                  </tr>
-                  ` : '')}
-                  
-                  <!-- Rodapé do sistema -->
-                  <tr>
-                    <td style="background-color: #f8f9fa; padding: 20px 30px; text-align: center;">
-                      <table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%">
-                        <tr>
-                          <td style="font-family: Arial, Helvetica, sans-serif; font-size: 12px; color: #666666; line-height: 1.4;">
-                            <p style="margin: 0 0 10px 0;">Esta é uma cobrança automática do sistema Raunaimer.</p>
-                            <p style="margin: 0;">Para dúvidas, entre em contato conosco.</p>
-                          </td>
-                        </tr>
-                      </table>
-                    </td>
-                  </tr>
-                  
-                </table>
-              </td>
-            </tr>
-          </table>
-          
-          <!-- Fallback para clientes que não suportam tabelas -->
-          <!--[if !mso]><!-->
-          <div style="display: none; max-height: 0; overflow: hidden;">
-            Esta é uma cobrança automática do sistema Raunaimer.
-          </div>
-          <!--<![endif]-->
-          
-          <!-- Preheader text -->
-          <div style="display: none; max-height: 0; overflow: hidden;">
-            Cobrança - ${morador.condominio.nome} - ${tituloProcessado}
-          </div>
-        </body>
-        </html>
-      `;
-
-      const htmlContent = emailTemplate;
-
-      console.log('=== RESULTADO DA SUBSTITUIÇÃO ===');
-      console.log('Título original:', modeloCarta.titulo);
-      console.log('Título processado:', tituloProcessado);
-      console.log('Conteúdo original:', modeloCarta.conteudo);
-      console.log('Conteúdo processado:', conteudoProcessado);
-      console.log('📧 DEBUG: HTML contém cid:header_image?', htmlContent.includes('cid:header_image'));
-      console.log('📧 DEBUG: HTML contém cid:footer_image?', htmlContent.includes('cid:footer_image'));
-      console.log('📧 DEBUG: HTML contém data:image?', htmlContent.includes('data:image'));
-      console.log('📧 DEBUG: Tamanho do HTML:', htmlContent.length);
-      console.log('📧 DEBUG: Primeiros 500 chars do HTML:', htmlContent.substring(0, 500));
-      
-      // Log detalhado do HTML final
-      console.log('🔍 DEBUG: Verificando HTML final...');
-      console.log('🔍 DEBUG: HTML contém <img?', htmlContent.includes('<img'));
-      console.log('🔍 DEBUG: HTML contém src="cid:?', htmlContent.includes('src="cid:'));
-      console.log('🔍 DEBUG: Posição da primeira <img:', htmlContent.indexOf('<img'));
-      console.log('🔍 DEBUG: Posição da primeira cid:', htmlContent.indexOf('cid:'));
-      
-      // Encontra e loga a primeira tag img
-      const imgMatch = htmlContent.match(/<img[^>]+>/);
-      if (imgMatch) {
-        console.log('🔍 DEBUG: Primeira tag img encontrada:', imgMatch[0]);
-        console.log('🔍 DEBUG: Tag img contém cid:?', imgMatch[0].includes('cid:'));
-      } else {
-        console.log('🔍 DEBUG: Nenhuma tag img encontrada no HTML!');
-      }
-
-      // Envia o email com MIME multipart (estilo Mailchimp)
-      console.log('📧 DEBUG: Enviando email com MIME multipart...');
-      console.log('📧 DEBUG: Para:', morador.email);
-      console.log('📧 DEBUG: Assunto:', tituloProcessado);
-      console.log('📧 DEBUG: HTML será enviado?', !!htmlContent);
-      console.log('📧 DEBUG: Header Base64 será usado?', !!headerImageBase64);
-      console.log('📧 DEBUG: Footer Base64 será usado?', !!footerImageBase64);
-      
-      const emailResult = await this.createMultipartEmail(
-        morador.email,
-        tituloProcessado,
-        htmlContent,
-        headerImageBase64,
-        footerImageBase64
-      );
-
-      if (emailResult.success) {
-        console.log(`✅ Email enviado com sucesso para: ${morador.email}`);
-        await this.repository.update(cobranca.id, { statusEnvio: StatusEnvio.ENVIADO });
-      } else {
-        console.error(`❌ Erro ao enviar email para ${morador.email}:`, emailResult.error);
-        await this.repository.update(cobranca.id, { statusEnvio: StatusEnvio.ERRO });
-      }
-
-      return cobranca;
-    } catch (error) {
-      console.error('=== ERRO NA CRIAÇÃO DE COBRANÇA ===');
-      console.error('Erro completo:', error);
-      
-      // Se for um erro conhecido, re-lança
-      if (error instanceof NotFoundException) {
-        throw error;
-      }
-      
-      // Para outros erros, lança um erro genérico
-      throw new Error('Erro interno ao processar cobrança');
-    }
+    console.log('=== CRIANDO NOVA COBRANÇA ===');
+    console.log('Dados recebidos:', JSON.stringify(createCobrancaDto, null, 2));
+    
+    const result = await this.repository.create(createCobrancaDto);
+    
+    console.log('✅ Cobrança criada com sucesso:', JSON.stringify(result, null, 2));
+    return result;
   }
 
-  findAll() {
-    return this.repository.findAll();
+  /**
+   * Busca todas as cobranças
+   */
+  async findAll() {
+    console.log('=== BUSCANDO TODAS AS COBRANÇAS ===');
+    const cobrancas = await this.repository.findAll();
+    
+    console.log(`✅ Encontradas ${cobrancas.length} cobranças`);
+    return cobrancas;
   }
 
+  /**
+   * Busca uma cobrança específica por ID
+   */
   async findOne(id: string) {
+    console.log('=== BUSCANDO COBRANÇA POR ID ===');
+    console.log('ID:', id);
+    
     const cobranca = await this.repository.findOne(id);
+    
     if (!cobranca) {
+      console.log('❌ Cobrança não encontrada');
       throw new NotFoundException(`Cobrança com ID ${id} não encontrada.`);
     }
+    
+    console.log('✅ Cobrança encontrada:', JSON.stringify(cobranca, null, 2));
     return cobranca;
   }
 
+  /**
+   * Atualiza uma cobrança existente
+   */
   async update(id: string, updateCobrancaDto: UpdateCobrancaDto) {
-    await this.findOne(id); // Garante que a cobrança existe
-    return this.repository.update(id, updateCobrancaDto);
+    console.log('=== ATUALIZANDO COBRANÇA ===');
+    console.log('ID:', id);
+    console.log('Dados recebidos:', JSON.stringify(updateCobrancaDto, null, 2));
+    
+    // Verifica se a cobrança existe
+    await this.findOne(id);
+    
+    const result = await this.repository.update(id, updateCobrancaDto);
+    
+    console.log('✅ Cobrança atualizada com sucesso:', JSON.stringify(result, null, 2));
+    return result;
   }
 
+  /**
+   * Remove uma cobrança
+   */
   async remove(id: string) {
-    await this.findOne(id); // Garante que a cobrança existe
-    return this.repository.remove(id);
+    console.log('=== REMOVENDO COBRANÇA ===');
+    console.log('ID:', id);
+    
+    // Verifica se a cobrança existe
+    await this.findOne(id);
+    
+    const result = await this.repository.remove(id);
+    
+    console.log('✅ Cobrança removida com sucesso:', JSON.stringify(result, null, 2));
+    return result;
   }
 
+  /**
+   * Envia uma cobrança por email usando CID
+   */
+  async enviarCobranca(id: string) {
+    console.log('=== ENVIANDO COBRANÇA POR EMAIL ===');
+    console.log('ID da cobrança:', id);
+
+    try {
+      // Busca a cobrança com dados relacionados
+      const cobranca = await this.prisma.cobranca.findUnique({
+        where: { id },
+        include: {
+          morador: true,
+          condominio: true,
+          modeloCarta: true,
+        },
+      });
+
+      if (!cobranca) {
+        throw new NotFoundException(`Cobrança com ID ${id} não encontrada.`);
+      }
+
+      // Processa os dados para substituição de placeholders
+      const dadosProcessados = this.cobrancaProcessor.processarDadosCobranca(cobranca);
+      
+      // Substitui placeholders no conteúdo
+      const conteudoProcessado = this.emailTemplateService.substitutePlaceholders(
+        cobranca.modeloCarta.conteudo,
+        dadosProcessados
+      );
+
+      // Gera template de email com CID
+      const emailTemplate = await this.emailTemplateService.generateEmailTemplate(
+        conteudoProcessado,
+        cobranca.modeloCarta.headerImageUrl || undefined,
+        cobranca.modeloCarta.footerImageUrl || undefined
+      );
+
+      // Envia o email
+      await this.enviarEmailComCid(
+        cobranca.morador.email,
+        cobranca.modeloCarta.titulo,
+        emailTemplate
+      );
+
+      // Atualiza status de envio
+      await this.prisma.cobranca.update({
+        where: { id },
+        data: { 
+          statusEnvio: StatusEnvio.ENVIADO,
+          dataEnvio: new Date()
+        },
+      });
+
+      console.log('✅ Cobrança enviada com sucesso');
+      return { success: true, message: 'Cobrança enviada com sucesso' };
+
+    } catch (error) {
+      console.error('❌ Erro ao enviar cobrança:', error);
+      
+      // Atualiza status para erro
+      await this.prisma.cobranca.update({
+        where: { id },
+        data: { statusEnvio: StatusEnvio.ERRO },
+      });
+
+      throw error;
+    }
+  }
+
+  /**
+   * Envia email usando CID
+   */
+  private async enviarEmailComCid(
+    to: string,
+    subject: string,
+    emailTemplate: any
+  ) {
+    const emailConfig = await this.emailConfigService.getConfig();
+    
+    if (!emailConfig) {
+      throw new Error('Configuração de email não encontrada');
+    }
+
+    const transporter = nodemailer.createTransporter({
+      host: emailConfig.host,
+      port: emailConfig.port,
+      secure: emailConfig.secure,
+      auth: {
+        user: emailConfig.user,
+        pass: emailConfig.pass,
+      },
+    });
+
+    // Prepara anexos com CID
+    const attachments = emailTemplate.attachments.map((attachment: any) => ({
+      filename: attachment.filename,
+      path: attachment.path,
+      contentType: attachment.contentType,
+      cid: attachment.cid
+    }));
+
+    // Envia o email
+    await transporter.sendMail({
+      from: emailConfig.from,
+      to,
+      subject,
+      html: emailTemplate.html,
+      attachments
+    });
+
+    console.log(`✅ Email enviado para ${to} com ${attachments.length} anexos`);
+  }
+
+  /**
+   * Envia cobranças em massa
+   */
+  async enviarCobrancasEmMassa(ids: string[]) {
+    console.log('=== ENVIANDO COBRANÇAS EM MASSA ===');
+    console.log('IDs:', ids);
+
+    const resultados: Array<{ id: string; success: boolean; message: string }> = [];
+
+    for (const id of ids) {
+      try {
+        const resultado = await this.enviarCobranca(id);
+        resultados.push({ id, success: true, message: resultado.message });
+      } catch (error) {
+        console.error(`❌ Erro ao enviar cobrança ${id}:`, error.message);
+        resultados.push({ id, success: false, message: error.message });
+      }
+    }
+
+    console.log(`✅ Processamento em massa concluído: ${resultados.length} cobranças`);
+    return resultados;
+  }
+
+  /**
+   * Busca cobranças por condomínio
+   */
+  async findByCondominio(condominioId: string) {
+    console.log('=== BUSCANDO COBRANÇAS POR CONDOMÍNIO ===');
+    console.log('ID do condomínio:', condominioId);
+    
+    const cobrancas = await this.repository.findByCondominio(condominioId);
+    
+    console.log(`✅ Encontradas ${cobrancas.length} cobranças para o condomínio`);
+    return cobrancas;
+  }
+
+  /**
+   * Busca cobranças por morador
+   */
+  async findByMorador(moradorId: string) {
+    console.log('=== BUSCANDO COBRANÇAS POR MORADOR ===');
+    console.log('ID do morador:', moradorId);
+    
+    const cobrancas = await this.repository.findByMorador(moradorId);
+    
+    console.log(`✅ Encontradas ${cobrancas.length} cobranças para o morador`);
+    return cobrancas;
+  }
+
+  /**
+   * Busca cobranças em inadimplência
+   */
   async getInadimplencia(condominioId?: string) {
-    // Busca todas as cobranças com status ATRASADO e, se fornecido, do condomínio filtrado
+    console.log('=== BUSCANDO COBRANÇAS EM INADIMPLÊNCIA ===');
+    
     const where: any = { status: 'ATRASADO' };
     if (condominioId) where.condominioId = condominioId;
+    
     const cobrancas = await this.prisma.cobranca.findMany({
       where,
       include: {
@@ -610,12 +279,14 @@ private processarConteudoHtml(html: string): string {
         condominio: { select: { nome: true } },
       },
     });
+
     // Mapeia para o formato esperado pelo frontend
     return cobrancas.map((c) => {
       // Calcula dias em atraso
       const hoje = new Date();
       const venc = new Date(c.vencimento);
       const diasAtraso = Math.max(0, Math.floor((hoje.getTime() - venc.getTime()) / (1000 * 60 * 60 * 24)));
+      
       return {
         id: c.id,
         morador: c.morador?.nome || '',
@@ -628,10 +299,16 @@ private processarConteudoHtml(html: string): string {
     });
   }
 
+  /**
+   * Busca histórico de cobranças
+   */
   async getHistoricoCobrancas(condominioId?: string, moradorId?: string) {
+    console.log('=== BUSCANDO HISTÓRICO DE COBRANÇAS ===');
+    
     const where: any = {};
     if (condominioId) where.condominioId = condominioId;
     if (moradorId) where.moradorId = moradorId;
+    
     const cobrancas = await this.prisma.cobranca.findMany({
       where,
       include: {
@@ -640,6 +317,7 @@ private processarConteudoHtml(html: string): string {
       },
       orderBy: { dataEnvio: 'desc' },
     });
+    
     return cobrancas.map((c) => ({
       id: c.id,
       morador: c.morador?.nome || '',
@@ -651,6 +329,4 @@ private processarConteudoHtml(html: string): string {
       vencimento: c.vencimento,
     }));
   }
-
-
 }

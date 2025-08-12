@@ -84,4 +84,44 @@ export class CobrancaRepository {
       throw new Error('Erro interno ao remover cobrança');
     }
   }
+
+  /**
+   * Busca cobranças por condomínio
+   */
+  async findByCondominio(condominioId: string) {
+    try {
+      return await this.prisma.cobranca.findMany({
+        where: { condominioId },
+        include: {
+          morador: { select: { nome: true, bloco: true, apartamento: true } },
+          condominio: { select: { nome: true } },
+          modeloCarta: { select: { titulo: true } },
+        },
+        orderBy: { createdAt: 'desc' },
+      });
+    } catch (error) {
+      console.error('Erro ao buscar cobranças por condomínio:', error);
+      throw new Error('Erro interno ao buscar cobranças por condomínio');
+    }
+  }
+
+  /**
+   * Busca cobranças por morador
+   */
+  async findByMorador(moradorId: string) {
+    try {
+      return await this.prisma.cobranca.findMany({
+        where: { moradorId },
+        include: {
+          morador: { select: { nome: true, bloco: true, apartamento: true } },
+          condominio: { select: { nome: true } },
+          modeloCarta: { select: { titulo: true } },
+        },
+        orderBy: { createdAt: 'desc' },
+      });
+    } catch (error) {
+      console.error('Erro ao buscar cobranças por morador:', error);
+      throw new Error('Erro interno ao buscar cobranças por morador');
+    }
+  }
 }
