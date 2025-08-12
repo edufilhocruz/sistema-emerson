@@ -4,16 +4,14 @@ import { z } from "zod";
  * Documentação: Modelo de Carta
  * - Adicionado o campo `conteudo` para o corpo da mensagem.
  * - Suporte a campos dinâmicos como {{nome_morador}}, {{valor}}, etc.
- * - Suporte a imagens no cabeçalho e rodapé.
+ * - Suporte a imagens no cabeçalho e rodapé usando URLs.
  */
 export interface ModeloCarta {
   id: string;
   titulo: string;
   conteudo?: string; // Conteúdo da mensagem com suporte a campos dinâmicos
-  headerImage?: string; // Base64 da imagem do cabeçalho
-  footerImage?: string; // Base64 da imagem do rodapé/assinatura
-  headerImageUrl?: string; // URL da imagem do cabeçalho (fallback)
-  footerImageUrl?: string; // URL da imagem do rodapé (fallback)
+  headerImageUrl?: string; // URL da imagem do cabeçalho
+  footerImageUrl?: string; // URL da imagem do rodapé/assinatura
 }
 
 /**
@@ -33,8 +31,6 @@ export const modeloSchema = z.object({
       const hasBasicFields = /{{(nome_morador|valor|mes_referencia)}}/i.test(content);
       return hasBasicFields || content.length >= 20;
     }, { message: "O conteúdo deve incluir pelo menos um campo dinâmico básico ou ter pelo menos 20 caracteres." }),
-  headerImage: z.string().optional(),
-  footerImage: z.string().optional(),
   headerImageUrl: z.string().optional(),
   footerImageUrl: z.string().optional(),
 });
