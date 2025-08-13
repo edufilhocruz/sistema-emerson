@@ -54,9 +54,10 @@ export class EmailTemplateService {
       const attachments: ImageWithCid[] = [];
 
       // Processa imagem do cabeçalho
+      let headerCid: ImageWithCid | null = null;
       if (headerImageUrl) {
         console.log('🔧 Processando imagem do cabeçalho...');
-        const headerCid = await this.processImageForCid(headerImageUrl, 'header');
+        headerCid = await this.processImageForCid(headerImageUrl, 'header');
         if (headerCid) {
           attachments.push(headerCid);
           console.log('✅ Imagem do cabeçalho processada:', headerCid.filename);
@@ -68,9 +69,10 @@ export class EmailTemplateService {
       }
 
       // Processa imagem do rodapé
+      let footerCid: ImageWithCid | null = null;
       if (footerImageUrl) {
         console.log('🔧 Processando imagem do rodapé...');
-        const footerCid = await this.processImageForCid(footerImageUrl, 'footer');
+        footerCid = await this.processImageForCid(footerImageUrl, 'footer');
         if (footerCid) {
           attachments.push(footerCid);
           console.log('✅ Imagem do rodapé processada:', footerCid.filename);
@@ -81,10 +83,10 @@ export class EmailTemplateService {
         console.log('ℹ️ Nenhuma imagem de rodapé fornecida');
       }
 
-      // Configuração do template
+      // Configuração do template com CIDs reais
       const templateConfig: TemplateConfig = {
-        headerImageUrl: headerImageUrl ? 'cid:header_image' : undefined,
-        footerImageUrl: footerImageUrl ? 'cid:footer_image' : undefined,
+        headerImageUrl: headerCid ? `cid:${headerCid.cid}` : undefined,
+        footerImageUrl: footerCid ? `cid:${footerCid.cid}` : undefined,
         ...config
       };
 
@@ -123,15 +125,34 @@ export class EmailTemplateService {
     try {
       if (!imageUrl) return null;
 
+      console.log(`🔧 Processando imagem para CID: ${imageUrl}`);
+
       // Extrai o nome do arquivo da URL
       const fileName = path.basename(imageUrl);
+      console.log(`📝 Nome do arquivo extraído: ${fileName}`);
+
+      // Constrói o caminho completo do arquivo
       const filePath = path.join(process.cwd(), 'uploads', 'images', fileName);
+      console.log(`📂 Caminho completo do arquivo: ${filePath}`);
 
       // Verifica se o arquivo existe
       if (!fs.existsSync(filePath)) {
         this.logger.warn(`Arquivo não encontrado: ${filePath}`);
+        console.log(`❌ Arquivo não encontrado no caminho: ${filePath}`);
+        
+        // Lista arquivos no diretório para debug
+        const uploadsDir = path.join(process.cwd(), 'uploads', 'images');
+        if (fs.existsSync(uploadsDir)) {
+          const files = fs.readdirSync(uploadsDir);
+          console.log(`📁 Arquivos no diretório uploads/images: ${files.join(', ')}`);
+        } else {
+          console.log(`❌ Diretório uploads/images não existe`);
+        }
+        
         return null;
       }
+
+      console.log(`✅ Arquivo encontrado: ${filePath}`);
 
       // Determina o tipo MIME baseado na extensão
       const contentType = this.getMimeType(fileName);
@@ -140,6 +161,7 @@ export class EmailTemplateService {
       const cid = `${type}_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
 
       this.logger.log(`Imagem processada para CID: ${cid} (${fileName})`);
+      console.log(`✅ Imagem processada com sucesso - CID: ${cid}`);
 
       return {
         cid,
@@ -150,6 +172,7 @@ export class EmailTemplateService {
 
     } catch (error) {
       this.logger.error(`Erro ao processar imagem para CID: ${error.message}`);
+      console.error(`❌ Erro ao processar imagem para CID:`, error);
       return null;
     }
   }

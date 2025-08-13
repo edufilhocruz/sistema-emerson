@@ -169,15 +169,8 @@ export class CobrancaService {
       );
       console.log('✅ Template gerado com sucesso');
 
-      // Adiciona as URLs das imagens aos dados processados
-      const dadosComImagens = {
-        ...dadosProcessados,
-        headerImageUrl: cobranca.modeloCarta.headerImageUrl,
-        footerImageUrl: cobranca.modeloCarta.footerImageUrl
-      };
-
-      // Gera o HTML final com as imagens
-      const htmlFinal = this.templateEngineService.renderTemplate(emailTemplate.html, dadosComImagens);
+      // Gera o HTML final com os dados processados
+      const htmlFinal = this.templateEngineService.renderTemplate(emailTemplate.html, dadosProcessados);
 
       // Envia o email
       console.log('📧 Enviando email...');
