@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { ModeloCarta, ModeloFormData, modeloSchema } from '@/entities/modelos/types';
@@ -36,64 +36,38 @@ interface CamposDinamicos {
   datas: CampoDinamico[];
 }
 
+/**
+ * Interface para gerenciar estado das imagens
+ */
+interface ImageState {
+  url: string | null;
+  preview: string | null;
+  loading: boolean;
+  error: string | null;
+}
+
 export const ModeloEditor = ({ modelo, onSave, onDelete, isSaving }: Props) => {
+  // Estados para campos dinâmicos e preview
   const [camposDinamicos, setCamposDinamicos] = useState<CamposDinamicos | null>(null);
   const [previewAtivo, setPreviewAtivo] = useState<'estatico' | 'dinamico'>('dinamico');
   const [showPreview, setShowPreview] = useState(true);
-  const [headerImagePreview, setHeaderImagePreview] = useState<string | null>(
-    modelo.headerImageUrl || null
-  );
-  const [footerImagePreview, setFooterImagePreview] = useState<string | null>(
-    modelo.footerImageUrl || null
-  );
 
-  // Log das imagens iniciais
-  useEffect(() => {
-    console.log('=== IMAGENS INICIAIS ===');
-    console.log('Modelo headerImageUrl:', modelo.headerImageUrl);
-    console.log('Modelo footerImageUrl:', modelo.footerImageUrl);
-    console.log('Header preview inicial:', headerImagePreview);
-    console.log('Footer preview inicial:', footerImagePreview);
-    console.log('Window location origin:', window.location.origin);
-  }, []);
+  // Estados otimizados para imagens
+  const [headerImage, setHeaderImage] = useState<ImageState>({
+    url: modelo.headerImageUrl || null,
+    preview: null,
+    loading: false,
+    error: null
+  });
 
-  // Atualizar preview quando o modelo mudar
-  useEffect(() => {
-    if (modelo.headerImageUrl) {
-      console.log('🔄 Atualizando preview do header:', modelo.headerImageUrl);
-      setHeaderImagePreview(modelo.headerImageUrl);
-    }
-    if (modelo.footerImageUrl) {
-      console.log('🔄 Atualizando preview do footer:', modelo.footerImageUrl);
-      setFooterImagePreview(modelo.footerImageUrl);
-    }
-  }, [modelo.headerImageUrl, modelo.footerImageUrl]);
+  const [footerImage, setFooterImage] = useState<ImageState>({
+    url: modelo.footerImageUrl || null,
+    preview: null,
+    loading: false,
+    error: null
+  });
 
-  // Função para construir URL completa da imagem
-  const getImageUrl = (imageUrl: string | null) => {
-    if (!imageUrl) return null;
-    
-    console.log('🔗 Construindo URL para:', imageUrl);
-    
-    // Se já é uma URL completa, retorna como está
-    if (imageUrl.startsWith('http://') || imageUrl.startsWith('https://')) {
-      console.log('✅ URL já é completa:', imageUrl);
-      return imageUrl;
-    }
-    
-    // Se é uma URL relativa que começa com /api, constrói URL completa
-    if (imageUrl.startsWith('/api/')) {
-      const fullUrl = `${window.location.origin}${imageUrl}`;
-      console.log('🔗 URL relativa convertida para:', fullUrl);
-      return fullUrl;
-    }
-    
-    // Se não tem barra, adiciona o domínio e barra
-    const fullUrl = `${window.location.origin}/${imageUrl}`;
-    console.log('🔗 URL construída:', fullUrl);
-    return fullUrl;
-  };
-
+  // Formulário com validação
   const form = useForm<ModeloFormData>({
     resolver: zodResolver(modeloSchema),
     defaultValues: { 
@@ -107,7 +81,213 @@ export const ModeloEditor = ({ modelo, onSave, onDelete, isSaving }: Props) => {
   const conteudoValue = form.watch('conteudo');
   const tituloValue = form.watch('titulo');
 
-  // Carrega os campos dinâmicos do backend
+  /**
+   * Construtor de URLs otimizado com cache
+   */
+  const buildImageUrl = useCallback((imageUrl: string | null): string | null => {
+    if (!imageUrl) return null;
+    
+    // Se já é uma URL completa, retorna como está
+    if (imageUrl.startsWith('http://') || imageUrl.startsWith('https://')) {
+      return imageUrl;
+    }
+    
+    // Se é uma URL relativa que começa com /api, constrói URL completa
+    if (imageUrl.startsWith('/api/')) {
+      return `${window.location.origin}${imageUrl}`;
+    }
+    
+    // Se não tem barra, adiciona o domínio e barra
+    return `${window.location.origin}/${imageUrl}`;
+  }, []);
+
+  /**
+   * Carregador de preview de imagem com retry e fallback
+   */
+  const loadImagePreview = useCallback(async (imageUrl: string, type: 'header' | 'footer'): Promise<string> => {
+    return new Promise((resolve, reject) => {
+      const img = new Image();
+      const fullUrl = buildImageUrl(imageUrl);
+      
+      if (!fullUrl) {
+        reject(new Error('URL inválida'));
+        return;
+      }
+
+      // Timeout para evitar travamento
+      const timeout = setTimeout(() => {
+        reject(new Error('Timeout ao carregar imagem'));
+      }, 10000);
+
+      img.onload = () => {
+        clearTimeout(timeout);
+        resolve(fullUrl);
+      };
+
+      img.onerror = () => {
+        clearTimeout(timeout);
+        reject(new Error(`Falha ao carregar imagem: ${fullUrl}`));
+      };
+
+      // Adiciona timestamp para evitar cache
+      img.src = `${fullUrl}?t=${Date.now()}`;
+    });
+  }, [buildImageUrl]);
+
+  /**
+   * Inicialização das imagens com retry automático
+   */
+  useEffect(() => {
+    const initializeImages = async () => {
+      // Inicializar header
+      if (modelo.headerImageUrl) {
+        setHeaderImage(prev => ({ ...prev, loading: true, error: null }));
+        try {
+          const preview = await loadImagePreview(modelo.headerImageUrl, 'header');
+          setHeaderImage(prev => ({ 
+            ...prev, 
+            url: modelo.headerImageUrl, 
+            preview, 
+            loading: false 
+          }));
+        } catch (error) {
+          console.error('Erro ao carregar header:', error);
+          setHeaderImage(prev => ({ 
+            ...prev, 
+            loading: false, 
+            error: error instanceof Error ? error.message : 'Erro desconhecido' 
+          }));
+        }
+      }
+
+      // Inicializar footer
+      if (modelo.footerImageUrl) {
+        setFooterImage(prev => ({ ...prev, loading: true, error: null }));
+        try {
+          const preview = await loadImagePreview(modelo.footerImageUrl, 'footer');
+          setFooterImage(prev => ({ 
+            ...prev, 
+            url: modelo.footerImageUrl, 
+            preview, 
+            loading: false 
+          }));
+        } catch (error) {
+          console.error('Erro ao carregar footer:', error);
+          setFooterImage(prev => ({ 
+            ...prev, 
+            loading: false, 
+            error: error instanceof Error ? error.message : 'Erro desconhecido' 
+          }));
+        }
+      }
+    };
+
+    initializeImages();
+  }, [modelo.headerImageUrl, modelo.footerImageUrl, loadImagePreview]);
+
+  /**
+   * Upload de imagem otimizado com validação e compressão
+   */
+  const handleImageUpload = useCallback(async (file: File, type: 'header' | 'footer') => {
+    console.log(`=== UPLOAD DE IMAGEM ${type.toUpperCase()} ===`);
+    
+    // Validações
+    if (!file.type.startsWith('image/')) {
+      alert('Por favor, selecione apenas arquivos de imagem.');
+      return;
+    }
+
+    if (file.size > 5 * 1024 * 1024) {
+      alert('A imagem deve ter no máximo 5MB.');
+      return;
+    }
+
+    // Atualizar estado de loading
+    if (type === 'header') {
+      setHeaderImage(prev => ({ ...prev, loading: true, error: null }));
+    } else {
+      setFooterImage(prev => ({ ...prev, loading: true, error: null }));
+    }
+
+    try {
+      // Criar FormData
+      const formData = new FormData();
+      formData.append('image', file);
+
+      // Upload com timeout
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 30000);
+
+      const response = await fetch('/api/modelo-carta/upload-image', {
+        method: 'POST',
+        body: formData,
+        signal: controller.signal
+      });
+
+      clearTimeout(timeoutId);
+
+      if (!response.ok) {
+        throw new Error(`Erro no upload: ${response.status} ${response.statusText}`);
+      }
+
+      const result = await response.json();
+      const imageUrl = result.imageUrl;
+
+      // Carregar preview imediatamente
+      const preview = await loadImagePreview(imageUrl, type);
+
+      // Atualizar estado
+      if (type === 'header') {
+        setHeaderImage({
+          url: imageUrl,
+          preview,
+          loading: false,
+          error: null
+        });
+        form.setValue('headerImageUrl', imageUrl);
+      } else {
+        setFooterImage({
+          url: imageUrl,
+          preview,
+          loading: false,
+          error: null
+        });
+        form.setValue('footerImageUrl', imageUrl);
+      }
+
+      console.log(`✅ Upload ${type} concluído com sucesso!`);
+
+    } catch (error) {
+      console.error(`❌ Erro no upload ${type}:`, error);
+      
+      const errorMessage = error instanceof Error ? error.message : 'Erro desconhecido';
+      
+      if (type === 'header') {
+        setHeaderImage(prev => ({ ...prev, loading: false, error: errorMessage }));
+      } else {
+        setFooterImage(prev => ({ ...prev, loading: false, error: errorMessage }));
+      }
+      
+      alert(`Erro ao fazer upload da imagem ${type}. Tente novamente.`);
+    }
+  }, [form, loadImagePreview]);
+
+  /**
+   * Remover imagem com limpeza de estado
+   */
+  const removeImage = useCallback((type: 'header' | 'footer') => {
+    if (type === 'header') {
+      setHeaderImage({ url: null, preview: null, loading: false, error: null });
+      form.setValue('headerImageUrl', '');
+    } else {
+      setFooterImage({ url: null, preview: null, loading: false, error: null });
+      form.setValue('footerImageUrl', '');
+    }
+  }, [form]);
+
+  /**
+   * Carregamento de campos dinâmicos
+   */
   useEffect(() => {
     const carregarCamposDinamicos = async () => {
       try {
@@ -122,101 +302,19 @@ export const ModeloEditor = ({ modelo, onSave, onDelete, isSaving }: Props) => {
     carregarCamposDinamicos();
   }, []);
 
-  const handleVariableClick = (variavel: string) => {
+  /**
+   * Handler para cliques em variáveis
+   */
+  const handleVariableClick = useCallback((variavel: string) => {
     const currentValue = form.getValues('conteudo') || '';
     const newValue = currentValue ? `${currentValue} ${variavel}` : variavel;
     form.setValue('conteudo', newValue, { shouldValidate: true });
-  };
-
-  const handleImageUpload = async (file: File, type: 'header' | 'footer') => {
-    console.log('=== INICIANDO UPLOAD DE IMAGEM ===');
-    console.log('Tipo:', type);
-    console.log('Arquivo:', file);
-    console.log('Nome do arquivo:', file.name);
-    console.log('Tamanho:', file.size);
-    console.log('Tipo MIME:', file.type);
-    
-    if (file) {
-      // Validar tipo de arquivo
-      if (!file.type.startsWith('image/')) {
-        console.log('❌ Erro: Arquivo não é uma imagem');
-        alert('Por favor, selecione apenas arquivos de imagem.');
-        return;
-      }
-
-      // Validar tamanho (máximo 5MB)
-      if (file.size > 5 * 1024 * 1024) {
-        console.log('❌ Erro: Arquivo muito grande');
-        alert('A imagem deve ter no máximo 5MB.');
-        return;
-      }
-
-      try {
-        console.log('📤 Fazendo upload da imagem...');
-        
-        // Criar FormData para upload
-        const formData = new FormData();
-        formData.append('image', file);
-
-        console.log('URL do upload:', '/api/modelo-carta/upload-image');
-        console.log('FormData criado:', formData);
-
-        // Fazer upload da imagem
-        const response = await fetch('/api/modelo-carta/upload-image', {
-          method: 'POST',
-          body: formData,
-        });
-
-        console.log('📥 Resposta recebida:', response);
-        console.log('Status:', response.status);
-        console.log('OK:', response.ok);
-
-        if (!response.ok) {
-          const errorText = await response.text();
-          console.log('❌ Erro na resposta:', errorText);
-          throw new Error(`Erro no upload da imagem: ${response.status} ${errorText}`);
-        }
-
-        const result = await response.json();
-        console.log('✅ Resultado do upload:', result);
-        
-        // Salvar URL da imagem
-        const imageUrl = result.imageUrl;
-        console.log('🔗 Image URL da imagem:', imageUrl ? 'URL recebida' : 'Nenhuma URL');
-        
-        if (type === 'header') {
-          console.log('📸 Definindo imagem do cabeçalho (URL)');
-          setHeaderImagePreview(imageUrl);
-          form.setValue('headerImageUrl', imageUrl);
-        } else {
-          console.log('📸 Definindo imagem do rodapé (URL)');
-          setFooterImagePreview(imageUrl);
-          form.setValue('footerImageUrl', imageUrl);
-        }
-        
-        console.log('✅ Upload concluído com sucesso!');
-      } catch (error) {
-        console.error('❌ Erro no upload:', error);
-        console.error('Stack trace:', error.stack);
-        alert('Erro ao fazer upload da imagem. Tente novamente.');
-      }
-    }
-  };
-
-  const removeImage = (type: 'header' | 'footer') => {
-    if (type === 'header') {
-      setHeaderImagePreview(null);
-      form.setValue('headerImageUrl', '');
-    } else {
-      setFooterImagePreview(null);
-      form.setValue('footerImageUrl', '');
-    }
-  };
+  }, [form]);
 
   /**
-   * Gera um preview realista substituindo as variáveis por exemplos fictícios.
+   * Geração de preview dinâmico otimizada
    */
-  const gerarPreviewDinamico = (texto: string) => {
+  const gerarPreviewDinamico = useCallback((texto: string) => {
     return texto
       // Campos do Morador
       .replace(/{{nome_morador}}/gi, 'João da Silva')
@@ -240,9 +338,12 @@ export const ModeloEditor = ({ modelo, onSave, onDelete, isSaving }: Props) => {
       .replace(/{{data_vencimento}}/gi, '15/01/2024')
       .replace(/{{data_atual}}/gi, '10/01/2024')
       .replace(/{{hoje}}/gi, '10/01/2024');
-  };
+  }, []);
 
-  const renderCamposDinamicos = () => {
+  /**
+   * Renderização de campos dinâmicos otimizada
+   */
+  const renderCamposDinamicos = useMemo(() => {
     if (!camposDinamicos) {
       return <div className="text-sm text-gray-500">Carregando campos dinâmicos...</div>;
     }
@@ -318,24 +419,107 @@ export const ModeloEditor = ({ modelo, onSave, onDelete, isSaving }: Props) => {
         </div>
       </div>
     );
-  };
+  }, [camposDinamicos, handleVariableClick]);
 
-  const handleSubmit = (data: ModeloFormData) => {
-    console.log('=== DADOS DO FORMULÁRIO ===');
-    console.log('Título:', data.titulo);
-    console.log('Conteúdo:', data.conteudo);
-    console.log('Header Image URL:', data.headerImageUrl);
-    console.log('Footer Image URL:', data.footerImageUrl);
-    
-    onSave(data);
+  /**
+   * Componente de upload de imagem otimizado
+   */
+  const ImageUploadComponent = ({ type, imageState, onUpload, onRemove }: {
+    type: 'header' | 'footer';
+    imageState: ImageState;
+    onUpload: (file: File) => void;
+    onRemove: () => void;
+  }) => {
+    const fileInputRef = React.useRef<HTMLInputElement>(null);
+    const isHeader = type === 'header';
+
+    return (
+      <div className="space-y-2">
+        {imageState.preview ? (
+          <div className="relative">
+            <img 
+              src={imageState.preview} 
+              alt={`Preview ${type}`} 
+              className="object-contain w-full bg-white border rounded-lg shadow-sm max-h-32"
+            />
+            <Button
+              type="button"
+              variant="destructive"
+              size="sm"
+              className="absolute w-6 h-6 p-0 top-2 right-2"
+              onClick={onRemove}
+            >
+              <X className="w-3 h-3" />
+            </Button>
+          </div>
+        ) : imageState.loading ? (
+          <div className="p-6 text-center border-2 border-gray-300 border-dashed rounded-lg">
+            <div className="w-8 h-8 mx-auto mb-2 border-2 border-gray-300 rounded-full border-t-blue-600 animate-spin" />
+            <p className="text-sm text-gray-600">Carregando imagem...</p>
+          </div>
+        ) : imageState.error ? (
+          <div className="p-4 text-center border-2 border-red-300 border-dashed rounded-lg bg-red-50">
+            <AlertCircle className="w-8 h-8 mx-auto mb-2 text-red-500" />
+            <p className="mb-2 text-sm text-red-600">Erro ao carregar imagem</p>
+            <p className="text-xs text-red-500">{imageState.error}</p>
+            <Button 
+              type="button" 
+              variant="outline" 
+              size="sm" 
+              className="mt-2"
+              onClick={() => fileInputRef.current?.click()}
+            >
+              Tentar Novamente
+            </Button>
+          </div>
+        ) : (
+          <div 
+            className="p-6 text-center transition-colors border-2 border-gray-300 border-dashed rounded-lg cursor-pointer hover:border-gray-400 hover:bg-gray-50"
+            onClick={() => fileInputRef.current?.click()}
+          >
+            <Upload className="w-8 h-8 mx-auto mb-2 text-gray-400" />
+            <p className="mb-2 text-sm font-medium text-gray-600">Clique aqui para fazer upload</p>
+            <p className="mb-3 text-xs text-gray-500">
+              Medidas ideais: {isHeader ? '800x200px' : '400x150px'} (JPG, PNG)<br/>
+              Máximo: 5MB
+            </p>
+            <input
+              type="file"
+              accept="image/*"
+              className="hidden"
+              ref={fileInputRef}
+              onChange={(e) => {
+                const file = e.target.files?.[0];
+                if (file) onUpload(file);
+              }}
+            />
+            <Button type="button" variant="outline" size="sm" className="cursor-pointer">
+              Selecionar Imagem
+            </Button>
+          </div>
+        )}
+      </div>
+    );
   };
 
   return (
-    <div className="space-y-6">
+    <div className="p-6 mx-auto max-w-7xl">
       <Form {...form}>
-        <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-6">
+        <form onSubmit={form.handleSubmit(onSave)} className="space-y-6">
+          {/* Cabeçalho */}
+          <div className="flex items-center justify-between">
+            <div>
+              <h2 className="text-2xl font-bold text-foreground">
+                {modelo.id ? 'Editar Modelo' : 'Novo Modelo'}
+              </h2>
+              <p className="text-muted-foreground">
+                Configure o modelo de carta para envio de cobranças
+              </p>
+            </div>
+          </div>
+
           <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
-            {/* Coluna da Esquerda: Formulário */}
+            {/* Coluna da Esquerda: Editor Principal */}
             <div className="space-y-6 lg:col-span-2">
               {/* Informações Básicas */}
               <Card>
@@ -344,11 +528,8 @@ export const ModeloEditor = ({ modelo, onSave, onDelete, isSaving }: Props) => {
                     <Type className="w-5 h-5" />
                     Informações Básicas
                   </CardTitle>
-                  <CardDescription>
-                    Configure o título e as informações básicas do modelo de cobrança.
-                  </CardDescription>
                 </CardHeader>
-                <CardContent>
+                <CardContent className="space-y-4">
                   <FormField 
                     control={form.control} 
                     name="titulo" 
@@ -356,10 +537,7 @@ export const ModeloEditor = ({ modelo, onSave, onDelete, isSaving }: Props) => {
                       <FormItem>
                         <FormLabel>Título do Modelo</FormLabel>
                         <FormControl>
-                          <Input 
-                            placeholder="Ex: Cobrança Mensal - Janeiro 2024" 
-                            {...field} 
-                          />
+                          <Input placeholder="Ex: Cobrança de Condomínio - Janeiro 2024" {...field} />
                         </FormControl>
                         <FormMessage />
                       </FormItem>
@@ -372,30 +550,19 @@ export const ModeloEditor = ({ modelo, onSave, onDelete, isSaving }: Props) => {
               <Card>
                 <CardHeader>
                   <CardTitle className="flex items-center gap-2">
-                    <Palette className="w-5 h-5" />
+                    <AlignLeft className="w-5 h-5" />
                     Conteúdo da Mensagem
                   </CardTitle>
                   <CardDescription>
-                    Use o editor abaixo para criar o conteúdo da sua mensagem. Suporte completo a formatação rica.
+                    Escreva a mensagem que será enviada. Use os campos dinâmicos para personalizar.
                   </CardDescription>
                 </CardHeader>
                 <CardContent>
-              <FormField 
-                control={form.control} 
-                name="conteudo" 
-                render={({ field }) => (
-                  <FormItem>
-                    <FormControl>
-                          <QuillEditor
-                            value={field.value || ''}
-                            onChange={field.onChange}
-                            placeholder="Digite sua mensagem aqui... Use os campos dinâmicos para personalizar o conteúdo."
-                      />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )} 
-              />
+                  <QuillEditor
+                    value={conteudoValue}
+                    onChange={(value) => form.setValue('conteudo', value)}
+                    placeholder="Digite aqui o conteúdo da sua mensagem..."
+                  />
                 </CardContent>
               </Card>
 
@@ -421,53 +588,12 @@ export const ModeloEditor = ({ modelo, onSave, onDelete, isSaving }: Props) => {
                             <ImageIcon className="w-4 h-4" />
                             Imagem do Cabeçalho
                           </FormLabel>
-                          <div className="space-y-2">
-                            {headerImagePreview ? (
-                              <div className="relative">
-                                <img 
-                                  src={getImageUrl(headerImagePreview)} 
-                                  alt="Preview cabeçalho" 
-                                  className="object-contain w-full bg-white border rounded-lg shadow-sm max-h-32"
-                                  onLoad={() => console.log('✅ Imagem do cabeçalho carregada:', getImageUrl(headerImagePreview))}
-                                  onError={(e) => console.log('❌ Erro ao carregar imagem do cabeçalho:', getImageUrl(headerImagePreview), e)}
-                                />
-                                <Button
-                                  type="button"
-                                  variant="destructive"
-                                  size="sm"
-                                  className="absolute w-6 h-6 p-0 top-2 right-2"
-                                  onClick={() => removeImage('header')}
-                                >
-                                  <X className="w-3 h-3" />
-                                </Button>
-                              </div>
-                            ) : (
-                              <div 
-                                className="p-6 text-center transition-colors border-2 border-gray-300 border-dashed rounded-lg cursor-pointer hover:border-gray-400 hover:bg-gray-50"
-                                onClick={() => document.getElementById('header-image-upload')?.click()}
-                              >
-                                <Upload className="w-8 h-8 mx-auto mb-2 text-gray-400" />
-                                <p className="mb-2 text-sm font-medium text-gray-600">Clique aqui para fazer upload</p>
-                                <p className="mb-3 text-xs text-gray-500">
-                                  Medidas ideais: 800x200px (JPG, PNG)<br/>
-                                  Máximo: 5MB
-                                </p>
-                                <input
-                                  type="file"
-                                  accept="image/*"
-                                  className="hidden"
-                                  id="header-image-upload"
-                                  onChange={(e) => {
-                                    const file = e.target.files?.[0];
-                                    if (file) handleImageUpload(file, 'header');
-                                  }}
-                                />
-                                <Button type="button" variant="outline" size="sm" className="cursor-pointer">
-                                  Selecionar Imagem
-                                </Button>
-                              </div>
-                            )}
-                          </div>
+                          <ImageUploadComponent
+                            type="header"
+                            imageState={headerImage}
+                            onUpload={(file) => handleImageUpload(file, 'header')}
+                            onRemove={() => removeImage('header')}
+                          />
                           <FormMessage />
                         </FormItem>
                       )} 
@@ -482,53 +608,12 @@ export const ModeloEditor = ({ modelo, onSave, onDelete, isSaving }: Props) => {
                             <ImageIcon className="w-4 h-4" />
                             Imagem do Rodapé/Assinatura
                           </FormLabel>
-                          <div className="space-y-2">
-                            {footerImagePreview ? (
-                              <div className="relative">
-                                <img 
-                                  src={getImageUrl(footerImagePreview)} 
-                                  alt="Preview rodapé" 
-                                  className="object-contain w-full bg-white border rounded-lg shadow-sm max-h-32"
-                                  onLoad={() => console.log('✅ Imagem do rodapé carregada:', getImageUrl(footerImagePreview))}
-                                  onError={(e) => console.log('❌ Erro ao carregar imagem do rodapé:', getImageUrl(footerImagePreview), e)}
-                                />
-                                <Button
-                                  type="button"
-                                  variant="destructive"
-                                  size="sm"
-                                  className="absolute w-6 h-6 p-0 top-2 right-2"
-                                  onClick={() => removeImage('footer')}
-                                >
-                                  <X className="w-3 h-3" />
-                                </Button>
-                              </div>
-                            ) : (
-                              <div 
-                                className="p-6 text-center transition-colors border-2 border-gray-300 border-dashed rounded-lg cursor-pointer hover:border-gray-400 hover:bg-gray-50"
-                                onClick={() => document.getElementById('footer-image-upload')?.click()}
-                              >
-                                <Upload className="w-8 h-8 mx-auto mb-2 text-gray-400" />
-                                <p className="mb-2 text-sm font-medium text-gray-600">Clique aqui para fazer upload</p>
-                                <p className="mb-3 text-xs text-gray-500">
-                                  Medidas ideais: 400x150px (JPG, PNG)<br/>
-                                  Máximo: 5MB
-                                </p>
-                                <input
-                                  type="file"
-                                  accept="image/*"
-                                  className="hidden"
-                                  id="footer-image-upload"
-                                  onChange={(e) => {
-                                    const file = e.target.files?.[0];
-                                    if (file) handleImageUpload(file, 'footer');
-                                  }}
-                                />
-                                <Button type="button" variant="outline" size="sm" className="cursor-pointer">
-                                  Selecionar Imagem
-                                </Button>
-                              </div>
-                            )}
-                          </div>
+                          <ImageUploadComponent
+                            type="footer"
+                            imageState={footerImage}
+                            onUpload={(file) => handleImageUpload(file, 'footer')}
+                            onRemove={() => removeImage('footer')}
+                          />
                           <FormMessage />
                         </FormItem>
                       )} 
@@ -552,7 +637,7 @@ export const ModeloEditor = ({ modelo, onSave, onDelete, isSaving }: Props) => {
                   </CardDescription>
                 </CardHeader>
                 <CardContent>
-                  {renderCamposDinamicos()}
+                  {renderCamposDinamicos}
                 </CardContent>
               </Card>
 
@@ -601,60 +686,23 @@ export const ModeloEditor = ({ modelo, onSave, onDelete, isSaving }: Props) => {
                         </Button>
                       </div>
                       
-                      <div className="p-4 text-sm border rounded-lg bg-gray-50 max-h-96 overflow-y-auto">
-                        <div className="mb-4">
-                          <strong>Assunto:</strong> {tituloValue || 'Título do modelo'}
-                        </div>
+                      {/* Preview do Email Completo */}
+                      <div className="p-4 bg-white border rounded-lg">
+                        <div className="mb-2 text-xs text-gray-500">Preview do Email:</div>
                         
-                        {/* Preview do Email Completo */}
-                        <div className="bg-white border rounded-lg p-4 mb-4">
-                          <div className="text-xs text-gray-500 mb-2">Preview do Email:</div>
-                          
-                          {/* Header Image */}
-                          {headerImagePreview && (
-                            <div className="mb-4 text-center">
-                              <img 
-                                src={getImageUrl(headerImagePreview)} 
-                                alt="Header" 
-                                className="max-w-full h-auto max-h-20 mx-auto border rounded"
-                                onError={(e) => {
-                                  console.log('❌ Erro no preview do header:', getImageUrl(headerImagePreview));
-                                  e.currentTarget.style.display = 'none';
-                                }}
-                              />
-                            </div>
-                          )}
-                          
-                          {/* Conteúdo */}
-                          <div className="prose prose-sm max-w-none mb-4">
-                            <div 
-                              dangerouslySetInnerHTML={{ 
-                                __html: previewAtivo === 'dinamico' 
-                                  ? gerarPreviewDinamico(conteudoValue || '') 
-                                  : conteudoValue || 'Conteúdo do modelo'
-                              }} 
+                        {/* Header Image */}
+                        {headerImage.preview && (
+                          <div className="mb-4 text-center">
+                            <img 
+                              src={headerImage.preview} 
+                              alt="Header" 
+                              className="h-auto max-w-full mx-auto border rounded max-h-16"
                             />
                           </div>
-                          
-                          {/* Footer Image */}
-                          {footerImagePreview && (
-                            <div className="text-center">
-                              <img 
-                                src={getImageUrl(footerImagePreview)} 
-                                alt="Footer" 
-                                className="max-w-full h-auto max-h-16 mx-auto border rounded"
-                                onError={(e) => {
-                                  console.log('❌ Erro no preview do footer:', getImageUrl(footerImagePreview));
-                                  e.currentTarget.style.display = 'none';
-                                }}
-                              />
-                            </div>
-                          )}
-                        </div>
+                        )}
                         
-                        {/* Preview do Conteúdo Apenas */}
-                        <div className="prose prose-sm max-w-none">
-                          <div className="text-xs text-gray-500 mb-2">Conteúdo Apenas:</div>
+                        {/* Conteúdo */}
+                        <div className="mb-4 prose-sm prose max-w-none">
                           <div 
                             dangerouslySetInnerHTML={{ 
                               __html: previewAtivo === 'dinamico' 
@@ -663,6 +711,17 @@ export const ModeloEditor = ({ modelo, onSave, onDelete, isSaving }: Props) => {
                             }} 
                           />
                         </div>
+                        
+                        {/* Footer Image */}
+                        {footerImage.preview && (
+                          <div className="text-center">
+                            <img 
+                              src={footerImage.preview} 
+                              alt="Footer" 
+                              className="h-auto max-w-full mx-auto border rounded max-h-16"
+                            />
+                          </div>
+                        )}
                       </div>
                     </div>
                   ) : (
@@ -711,7 +770,7 @@ export const ModeloEditor = ({ modelo, onSave, onDelete, isSaving }: Props) => {
               <Button type="submit" disabled={isSaving}>
                 {isSaving ? (
                   <>
-                    <div className="w-4 h-4 mr-2 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                    <div className="w-4 h-4 mr-2 border-2 border-white rounded-full border-t-transparent animate-spin" />
                     Salvando...
                   </>
                 ) : (
