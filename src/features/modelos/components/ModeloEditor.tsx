@@ -78,9 +78,9 @@ export const ModeloEditor = ({ modelo, onSave, onDelete, isSaving }: Props) => {
       return imageUrl;
     }
     
-    // Se é uma URL relativa, adiciona o domínio
-    if (imageUrl.startsWith('/')) {
-      return `${window.location.origin}${imageUrl}`;
+    // Se é uma URL relativa que começa com /api, usa o proxy do Vite
+    if (imageUrl.startsWith('/api/')) {
+      return imageUrl; // O proxy do Vite vai redirecionar para o backend
     }
     
     // Se não tem barra, adiciona o domínio e barra
