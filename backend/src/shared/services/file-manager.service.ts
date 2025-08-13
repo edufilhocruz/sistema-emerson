@@ -10,7 +10,7 @@ import { v4 as uuidv4 } from 'uuid';
 @Injectable()
 export class FileManagerService {
   private readonly logger = new Logger(FileManagerService.name);
-  private readonly uploadsDir = path.join(process.cwd(), 'uploads', 'images');
+  private readonly uploadsDir = path.join(__dirname, '..', '..', 'uploads', 'images');
   private readonly maxFileSize = 5 * 1024 * 1024; // 5MB
   private readonly allowedMimeTypes = [
     'image/jpeg',
