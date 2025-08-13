@@ -19,6 +19,16 @@ export class AuthController {
     return { user };
   }
 
+  @Post('login-token')
+  async loginWithToken(@Body() body: { email: string; password: string }) {
+    const user = await this.authService.validateUser(body.email, body.password);
+    const { access_token } = await this.authService.login(user);
+    return { 
+      access_token,
+      user 
+    };
+  }
+
   @Post('logout')
   logout(@Res({ passthrough: true }) res: Response) {
     res.clearCookie('jwt', {

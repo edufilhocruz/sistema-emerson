@@ -42,24 +42,43 @@ export class EmailTemplateService {
     config?: TemplateConfig
   ): Promise<EmailTemplate> {
     try {
+      console.log('=== GERANDO TEMPLATE DE EMAIL ===');
+      console.log('Conteúdo recebido (primeiros 200 chars):', conteudo.substring(0, 200));
+      console.log('Header image URL:', headerImageUrl);
+      console.log('Footer image URL:', footerImageUrl);
+      console.log('Template data:', templateData);
+      console.log('Config:', config);
+
       this.logger.log('Gerando template de email com CID e Handlebars');
 
       const attachments: ImageWithCid[] = [];
 
       // Processa imagem do cabeçalho
       if (headerImageUrl) {
+        console.log('🔧 Processando imagem do cabeçalho...');
         const headerCid = await this.processImageForCid(headerImageUrl, 'header');
         if (headerCid) {
           attachments.push(headerCid);
+          console.log('✅ Imagem do cabeçalho processada:', headerCid.filename);
+        } else {
+          console.log('⚠️ Imagem do cabeçalho não foi processada');
         }
+      } else {
+        console.log('ℹ️ Nenhuma imagem de cabeçalho fornecida');
       }
 
       // Processa imagem do rodapé
       if (footerImageUrl) {
+        console.log('🔧 Processando imagem do rodapé...');
         const footerCid = await this.processImageForCid(footerImageUrl, 'footer');
         if (footerCid) {
           attachments.push(footerCid);
+          console.log('✅ Imagem do rodapé processada:', footerCid.filename);
+        } else {
+          console.log('⚠️ Imagem do rodapé não foi processada');
         }
+      } else {
+        console.log('ℹ️ Nenhuma imagem de rodapé fornecida');
       }
 
       // Configuração do template
@@ -69,13 +88,19 @@ export class EmailTemplateService {
         ...config
       };
 
+      console.log('🔧 Configuração do template:', templateConfig);
+
       // Gera o HTML usando o TemplateEngineService
+      console.log('🔧 Gerando HTML final...');
       const finalHtml = this.templateEngine.generateEmailTemplate(
         conteudo,
         templateData || {},
         templateConfig
       );
 
+      console.log('✅ HTML gerado com sucesso (primeiros 200 chars):', finalHtml.substring(0, 200));
+      console.log(`✅ Template gerado com ${attachments.length} anexos`);
+      
       this.logger.log(`Template gerado com ${attachments.length} anexos`);
       
       return {
@@ -84,6 +109,8 @@ export class EmailTemplateService {
       };
 
     } catch (error) {
+      console.error('❌ Erro ao gerar template:', error);
+      console.error('Stack trace:', error.stack);
       this.logger.error(`Erro ao gerar template: ${error.message}`);
       throw error;
     }

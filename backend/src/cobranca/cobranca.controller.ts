@@ -12,6 +12,7 @@ import {
   Query,
   HttpException,
   HttpStatus,
+  NotFoundException,
 } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { InjectQueue } from '@nestjs/bull';
@@ -167,8 +168,24 @@ export class CobrancaController {
   async enviarCobranca(@Param('id') id: string) {
     try {
       console.log(`=== INICIANDO ENVIO DE COBRANÇA ${id} ===`);
+      console.log('ID recebido:', id);
+      console.log('Tipo do ID:', typeof id);
+      
+      // Validação básica do ID
+      if (!id || id.trim() === '') {
+        console.log('❌ ID vazio ou inválido');
+        throw new HttpException({
+          statusCode: HttpStatus.BAD_REQUEST,
+          message: 'ID da cobrança é obrigatório',
+          error: 'Dados inválidos'
+        }, HttpStatus.BAD_REQUEST);
+      }
+
+      console.log('🔍 Chamando serviço de cobrança...');
       const result = await this.cobrancaService.enviarCobranca(id);
       console.log(`=== COBRANÇA ${id} ENVIADA COM SUCESSO ===`);
+      console.log('Resultado:', JSON.stringify(result, null, 2));
+      
       return {
         success: true,
         message: 'Cobrança enviada com sucesso',
@@ -176,8 +193,30 @@ export class CobrancaController {
       };
     } catch (error) {
       console.error(`=== ERRO AO ENVIAR COBRANÇA ${id} ===`);
-      console.error('Erro:', error);
+      console.error('Erro completo:', error);
+      console.error('Stack trace:', error.stack);
+      console.error('Tipo do erro:', error.constructor.name);
       
+      // Tratamento específico para diferentes tipos de erro
+      if (error instanceof NotFoundException) {
+        console.log('❌ Cobrança não encontrada');
+        throw new HttpException({
+          statusCode: HttpStatus.NOT_FOUND,
+          message: error.message,
+          error: 'Cobrança não encontrada'
+        }, HttpStatus.NOT_FOUND);
+      }
+      
+      if (error.message && error.message.includes('Configuração de email não encontrada')) {
+        console.log('❌ Configuração de email não encontrada');
+        throw new HttpException({
+          statusCode: HttpStatus.BAD_REQUEST,
+          message: 'Configuração de email não encontrada. Configure o email primeiro.',
+          error: 'Configuração ausente'
+        }, HttpStatus.BAD_REQUEST);
+      }
+      
+      // Erro genérico
       throw new HttpException({
         statusCode: HttpStatus.INTERNAL_SERVER_ERROR,
         message: 'Erro ao enviar cobrança',

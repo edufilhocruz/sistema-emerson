@@ -107,6 +107,7 @@ export class CobrancaService {
 
     try {
       // Busca a cobrança com dados relacionados
+      console.log('🔍 Buscando cobrança no banco de dados...');
       const cobranca = await this.prisma.cobranca.findUnique({
         where: { id },
         include: {
@@ -117,26 +118,57 @@ export class CobrancaService {
       });
 
       if (!cobranca) {
+        console.log('❌ Cobrança não encontrada no banco de dados');
         throw new NotFoundException(`Cobrança com ID ${id} não encontrada.`);
       }
 
+      console.log('✅ Cobrança encontrada:', {
+        id: cobranca.id,
+        morador: cobranca.morador?.nome,
+        email: cobranca.morador?.email,
+        condominio: cobranca.condominio?.nome,
+        modeloCarta: cobranca.modeloCarta?.titulo
+      });
+
+      // Verifica se tem configuração de email
+      console.log('🔍 Verificando configuração de email...');
+      const emailConfig = await this.emailConfigService.getConfig();
+      if (!emailConfig) {
+        console.log('❌ Configuração de email não encontrada');
+        throw new Error('Configuração de email não encontrada. Configure o email primeiro.');
+      }
+
+      console.log('✅ Configuração de email encontrada:', {
+        host: emailConfig.host,
+        port: emailConfig.port,
+        user: emailConfig.user,
+        from: emailConfig.from
+      });
+
       // Processa os dados para substituição de placeholders
+      console.log('🔧 Processando dados da cobrança...');
       const dadosProcessados = this.cobrancaProcessor.processarDadosCobranca(cobranca);
+      console.log('✅ Dados processados:', dadosProcessados);
       
       // Substitui placeholders no conteúdo
+      console.log('🔧 Substituindo placeholders no conteúdo...');
       const conteudoProcessado = this.emailTemplateService.substitutePlaceholders(
         cobranca.modeloCarta.conteudo,
         dadosProcessados
       );
+      console.log('✅ Conteúdo processado (primeiros 200 chars):', conteudoProcessado.substring(0, 200));
 
       // Gera template de email com CID
+      console.log('🔧 Gerando template de email...');
       const emailTemplate = await this.emailTemplateService.generateEmailTemplate(
         conteudoProcessado,
         cobranca.modeloCarta.headerImageUrl || undefined,
         cobranca.modeloCarta.footerImageUrl || undefined
       );
+      console.log('✅ Template gerado com sucesso');
 
       // Envia o email
+      console.log('📧 Enviando email...');
       await this.enviarEmailComCid(
         cobranca.morador.email,
         cobranca.modeloCarta.titulo,
@@ -144,6 +176,7 @@ export class CobrancaService {
       );
 
       // Atualiza status de envio
+      console.log('💾 Atualizando status de envio...');
       await this.prisma.cobranca.update({
         where: { id },
         data: { 
@@ -157,12 +190,18 @@ export class CobrancaService {
 
     } catch (error) {
       console.error('❌ Erro ao enviar cobrança:', error);
+      console.error('Stack trace:', error.stack);
       
       // Atualiza status para erro
-      await this.prisma.cobranca.update({
-        where: { id },
-        data: { statusEnvio: StatusEnvio.ERRO },
-      });
+      try {
+        await this.prisma.cobranca.update({
+          where: { id },
+          data: { statusEnvio: StatusEnvio.ERRO },
+        });
+        console.log('✅ Status atualizado para ERRO');
+      } catch (updateError) {
+        console.error('❌ Erro ao atualizar status:', updateError);
+      }
 
       throw error;
     }
@@ -176,40 +215,83 @@ export class CobrancaService {
     subject: string,
     emailTemplate: any
   ) {
-    const emailConfig = await this.emailConfigService.getConfig();
-    
-    if (!emailConfig) {
-      throw new Error('Configuração de email não encontrada');
-    }
+    console.log('=== ENVIANDO EMAIL COM CID ===');
+    console.log('Destinatário:', to);
+    console.log('Assunto:', subject);
+    console.log('Template recebido:', {
+      hasHtml: !!emailTemplate.html,
+      attachmentsCount: emailTemplate.attachments?.length || 0
+    });
 
-    const transporter = nodemailer.createTransporter({
-      host: emailConfig.host,
-      port: emailConfig.port,
-      secure: emailConfig.secure,
-      auth: {
+    try {
+      const emailConfig = await this.emailConfigService.getConfig();
+      
+      if (!emailConfig) {
+        console.log('❌ Configuração de email não encontrada');
+        throw new Error('Configuração de email não encontrada');
+      }
+
+      console.log('✅ Configuração de email carregada:', {
+        host: emailConfig.host,
+        port: emailConfig.port,
+        secure: emailConfig.secure,
         user: emailConfig.user,
-        pass: emailConfig.pass,
-      },
-    });
+        from: emailConfig.from
+      });
 
-    // Prepara anexos com CID
-    const attachments = emailTemplate.attachments.map((attachment: any) => ({
-      filename: attachment.filename,
-      path: attachment.path,
-      contentType: attachment.contentType,
-      cid: attachment.cid
-    }));
+      console.log('🔧 Criando transporter...');
+      const transporter = nodemailer.createTransporter({
+        host: emailConfig.host,
+        port: emailConfig.port,
+        secure: emailConfig.secure,
+        auth: {
+          user: emailConfig.user,
+          pass: emailConfig.pass,
+        },
+        tls: {
+          rejectUnauthorized: false
+        }
+      });
 
-    // Envia o email
-    await transporter.sendMail({
-      from: emailConfig.from,
-      to,
-      subject,
-      html: emailTemplate.html,
-      attachments
-    });
+      console.log('🔍 Verificando conexão com servidor de email...');
+      await transporter.verify();
+      console.log('✅ Conexão verificada com sucesso');
 
-    console.log(`✅ Email enviado para ${to} com ${attachments.length} anexos`);
+      // Prepara anexos com CID
+      console.log('🔧 Preparando anexos...');
+      const attachments = emailTemplate.attachments.map((attachment: any) => ({
+        filename: attachment.filename,
+        path: attachment.path,
+        contentType: attachment.contentType,
+        cid: attachment.cid
+      }));
+
+      console.log('📎 Anexos preparados:', attachments.length);
+
+      // Envia o email
+      console.log('📧 Enviando email...');
+      const result = await transporter.sendMail({
+        from: emailConfig.from,
+        to,
+        subject,
+        html: emailTemplate.html,
+        attachments
+      });
+
+      console.log('✅ Email enviado com sucesso!');
+      console.log('Message ID:', result.messageId);
+      console.log(`✅ Email enviado para ${to} com ${attachments.length} anexos`);
+      
+      return result;
+    } catch (error) {
+      console.error('❌ Erro ao enviar email:', error);
+      console.error('Detalhes do erro:', {
+        message: error.message,
+        code: error.code,
+        command: error.command
+      });
+      throw error;
+    }
   }
 
   /**
