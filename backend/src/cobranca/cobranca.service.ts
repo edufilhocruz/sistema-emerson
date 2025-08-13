@@ -6,6 +6,7 @@ import { PrismaService } from '../prisma/prisma.service';
 import { StatusEnvio } from '@prisma/client';
 import { EmailConfigService } from '../email-config.service';
 import { EmailTemplateService } from '../shared/services/email-template.service';
+import { TemplateEngineService } from '../shared/services/template-engine.service';
 import { CobrancaProcessor } from './cobranca.processor';
 import * as nodemailer from 'nodemailer';
 
@@ -20,6 +21,7 @@ export class CobrancaService {
     private readonly prisma: PrismaService,
     private readonly emailConfigService: EmailConfigService,
     private readonly emailTemplateService: EmailTemplateService,
+    private readonly templateEngineService: TemplateEngineService,
     private readonly cobrancaProcessor: CobrancaProcessor,
   ) {}
 
@@ -166,6 +168,16 @@ export class CobrancaService {
         cobranca.modeloCarta.footerImageUrl || undefined
       );
       console.log('✅ Template gerado com sucesso');
+
+      // Adiciona as URLs das imagens aos dados processados
+      const dadosComImagens = {
+        ...dadosProcessados,
+        headerImageUrl: cobranca.modeloCarta.headerImageUrl,
+        footerImageUrl: cobranca.modeloCarta.footerImageUrl
+      };
+
+      // Gera o HTML final com as imagens
+      const htmlFinal = this.templateEngineService.renderTemplate(emailTemplate.html, dadosComImagens);
 
       // Envia o email
       console.log('📧 Enviando email...');

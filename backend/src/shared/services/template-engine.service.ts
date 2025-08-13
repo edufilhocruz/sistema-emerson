@@ -468,6 +468,22 @@ export class TemplateEngineService {
             color: #0c5460;
         }
         
+        .header-image {
+            max-width: 100%;
+            height: auto;
+            display: block;
+            margin: 0 auto 20px auto;
+            border-radius: 8px;
+        }
+        
+        .footer-image {
+            max-width: 100%;
+            height: auto;
+            display: block;
+            margin: 20px auto 0 auto;
+            border-radius: 8px;
+        }
+        
         @media (max-width: 600px) {
             .content {
                 padding: 20px 15px;
@@ -497,6 +513,12 @@ export class TemplateEngineService {
         </div>
         
         <div class="content">
+            {{#if headerImageUrl}}
+            <div style="text-align: center; margin-bottom: 20px;">
+                <img src="{{headerImageUrl}}" alt="Cabeçalho" class="header-image" />
+            </div>
+            {{/if}}
+            
             <div class="info-card">
                 <h3>Informações do Morador</h3>
                 <div class="info-row">
@@ -526,6 +548,12 @@ export class TemplateEngineService {
                     {{{content}}}
                 </div>
             </div>
+            
+            {{#if footerImageUrl}}
+            <div style="text-align: center; margin: 20px 0;">
+                <img src="{{footerImageUrl}}" alt="Rodapé" class="footer-image" />
+            </div>
+            {{/if}}
             
             <div class="alert alert-info">
                 <strong>ℹ️ Informação:</strong> Esta é uma cobrança automática do sistema Raunaimer. 

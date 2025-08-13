@@ -31,19 +31,54 @@ export const EnvioEmMassaForm = () => {
   async function onSubmit(data: EnvioEmMassaFormData) {
     setStatusEnvio('loading');
     try {
-      // Envia uma cobrança para cada morador selecionado
-      await Promise.all(data.moradoresIds.map(moradorId =>
-        cobrancaService.criarCobranca({
-          vencimento: new Date().toISOString(),
-          status: 'PENDENTE',
-          condominioId: data.condominioId,
-          moradorId,
-          modeloCartaId: data.modeloId,
-        })
-      ));
+      console.log('=== INICIANDO ENVIO EM MASSA ===');
+      console.log('Dados recebidos:', data);
+      console.log('Moradores selecionados:', data.moradoresIds.length);
+      
+      // Cria e envia uma cobrança para cada morador selecionado
+      const resultados = await Promise.all(data.moradoresIds.map(async (moradorId) => {
+        try {
+          console.log(`🔧 Criando cobrança para morador ${moradorId}...`);
+          
+          // 1. Cria a cobrança
+          const cobrancaCriada = await cobrancaService.criarCobranca({
+            vencimento: new Date().toISOString(),
+            status: 'PENDENTE',
+            condominioId: data.condominioId,
+            moradorId,
+            modeloCartaId: data.modeloId,
+          });
+          
+          console.log(`✅ Cobrança criada:`, cobrancaCriada.id);
+          
+          // 2. Envia a cobrança
+          console.log(`📧 Enviando cobrança ${cobrancaCriada.id}...`);
+          await cobrancaService.enviarCobranca(cobrancaCriada.id);
+          
+          console.log(`✅ Cobrança ${cobrancaCriada.id} enviada com sucesso!`);
+          
+          return { success: true, id: cobrancaCriada.id, moradorId };
+        } catch (error) {
+          console.error(`❌ Erro ao processar morador ${moradorId}:`, error);
+          return { success: false, moradorId, error: error.message };
+        }
+      }));
+      
+      const sucessos = resultados.filter(r => r.success).length;
+      const erros = resultados.filter(r => !r.success).length;
+      
+      console.log(`=== ENVIO EM MASSA CONCLUÍDO ===`);
+      console.log(`✅ Sucessos: ${sucessos}`);
+      console.log(`❌ Erros: ${erros}`);
+      
+      if (erros > 0) {
+        console.warn('Alguns envios falharam:', resultados.filter(r => !r.success));
+      }
+      
       setStatusEnvio('success');
       setTimeout(() => setStatusEnvio('idle'), 2500);
     } catch (err) {
+      console.error('❌ Erro no envio em massa:', err);
       setStatusEnvio('error');
       setTimeout(() => setStatusEnvio('idle'), 3500);
     }
