@@ -57,6 +57,36 @@ export const ModeloEditor = ({ modelo, onSave, onDelete, isSaving }: Props) => {
     console.log('Window location origin:', window.location.origin);
   }, []);
 
+  // Atualizar preview quando o modelo mudar
+  useEffect(() => {
+    if (modelo.headerImageUrl) {
+      console.log('🔄 Atualizando preview do header:', modelo.headerImageUrl);
+      setHeaderImagePreview(modelo.headerImageUrl);
+    }
+    if (modelo.footerImageUrl) {
+      console.log('🔄 Atualizando preview do footer:', modelo.footerImageUrl);
+      setFooterImagePreview(modelo.footerImageUrl);
+    }
+  }, [modelo.headerImageUrl, modelo.footerImageUrl]);
+
+  // Função para construir URL completa da imagem
+  const getImageUrl = (imageUrl: string | null) => {
+    if (!imageUrl) return null;
+    
+    // Se já é uma URL completa, retorna como está
+    if (imageUrl.startsWith('http://') || imageUrl.startsWith('https://')) {
+      return imageUrl;
+    }
+    
+    // Se é uma URL relativa, adiciona o domínio
+    if (imageUrl.startsWith('/')) {
+      return `${window.location.origin}${imageUrl}`;
+    }
+    
+    // Se não tem barra, adiciona o domínio e barra
+    return `${window.location.origin}/${imageUrl}`;
+  };
+
   const form = useForm<ModeloFormData>({
     resolver: zodResolver(modeloSchema),
     defaultValues: { 
@@ -388,11 +418,11 @@ export const ModeloEditor = ({ modelo, onSave, onDelete, isSaving }: Props) => {
                             {headerImagePreview ? (
                               <div className="relative">
                                 <img 
-                                  src={headerImagePreview} 
+                                  src={getImageUrl(headerImagePreview)} 
                                   alt="Preview cabeçalho" 
                                   className="object-contain w-full bg-white border rounded-lg shadow-sm max-h-32"
-                                  onLoad={() => console.log('✅ Imagem do cabeçalho carregada:', headerImagePreview)}
-                                  onError={(e) => console.log('❌ Erro ao carregar imagem do cabeçalho:', headerImagePreview, e)}
+                                  onLoad={() => console.log('✅ Imagem do cabeçalho carregada:', getImageUrl(headerImagePreview))}
+                                  onError={(e) => console.log('❌ Erro ao carregar imagem do cabeçalho:', getImageUrl(headerImagePreview), e)}
                                 />
                                 <Button
                                   type="button"
@@ -449,11 +479,11 @@ export const ModeloEditor = ({ modelo, onSave, onDelete, isSaving }: Props) => {
                             {footerImagePreview ? (
                               <div className="relative">
                                 <img 
-                                  src={footerImagePreview} 
+                                  src={getImageUrl(footerImagePreview)} 
                                   alt="Preview rodapé" 
                                   className="object-contain w-full bg-white border rounded-lg shadow-sm max-h-32"
-                                  onLoad={() => console.log('✅ Imagem do rodapé carregada:', footerImagePreview)}
-                                  onError={(e) => console.log('❌ Erro ao carregar imagem do rodapé:', footerImagePreview, e)}
+                                  onLoad={() => console.log('✅ Imagem do rodapé carregada:', getImageUrl(footerImagePreview))}
+                                  onError={(e) => console.log('❌ Erro ao carregar imagem do rodapé:', getImageUrl(footerImagePreview), e)}
                                 />
                                 <Button
                                   type="button"
@@ -564,11 +594,60 @@ export const ModeloEditor = ({ modelo, onSave, onDelete, isSaving }: Props) => {
                         </Button>
                       </div>
                       
-                      <div className="p-4 text-sm border rounded-lg bg-gray-50 max-h-64 overflow-y-auto">
+                      <div className="p-4 text-sm border rounded-lg bg-gray-50 max-h-96 overflow-y-auto">
                         <div className="mb-4">
                           <strong>Assunto:</strong> {tituloValue || 'Título do modelo'}
                         </div>
+                        
+                        {/* Preview do Email Completo */}
+                        <div className="bg-white border rounded-lg p-4 mb-4">
+                          <div className="text-xs text-gray-500 mb-2">Preview do Email:</div>
+                          
+                          {/* Header Image */}
+                          {headerImagePreview && (
+                            <div className="mb-4 text-center">
+                              <img 
+                                src={getImageUrl(headerImagePreview)} 
+                                alt="Header" 
+                                className="max-w-full h-auto max-h-20 mx-auto border rounded"
+                                onError={(e) => {
+                                  console.log('❌ Erro no preview do header:', getImageUrl(headerImagePreview));
+                                  e.currentTarget.style.display = 'none';
+                                }}
+                              />
+                            </div>
+                          )}
+                          
+                          {/* Conteúdo */}
+                          <div className="prose prose-sm max-w-none mb-4">
+                            <div 
+                              dangerouslySetInnerHTML={{ 
+                                __html: previewAtivo === 'dinamico' 
+                                  ? gerarPreviewDinamico(conteudoValue || '') 
+                                  : conteudoValue || 'Conteúdo do modelo'
+                              }} 
+                            />
+                          </div>
+                          
+                          {/* Footer Image */}
+                          {footerImagePreview && (
+                            <div className="text-center">
+                              <img 
+                                src={getImageUrl(footerImagePreview)} 
+                                alt="Footer" 
+                                className="max-w-full h-auto max-h-16 mx-auto border rounded"
+                                onError={(e) => {
+                                  console.log('❌ Erro no preview do footer:', getImageUrl(footerImagePreview));
+                                  e.currentTarget.style.display = 'none';
+                                }}
+                              />
+                            </div>
+                          )}
+                        </div>
+                        
+                        {/* Preview do Conteúdo Apenas */}
                         <div className="prose prose-sm max-w-none">
+                          <div className="text-xs text-gray-500 mb-2">Conteúdo Apenas:</div>
                           <div 
                             dangerouslySetInnerHTML={{ 
                               __html: previewAtivo === 'dinamico' 
