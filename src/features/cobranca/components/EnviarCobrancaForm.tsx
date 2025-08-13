@@ -28,7 +28,10 @@ export const EnviarCobrancaForm = () => {
   async function onSubmit(data: EnviarCobrancaFormData) {
     setStatusEnvio('loading');
     try {
-      // Monta o payload conforme esperado pelo backend (sem valorAluguel)
+      console.log('=== INICIANDO CRIAÇÃO E ENVIO DE COBRANÇA ===');
+      console.log('Dados recebidos:', data);
+      
+      // Monta o payload conforme esperado pelo backend
       const payload = {
         vencimento: new Date().toISOString(),
         status: 'PENDENTE',
@@ -36,13 +39,25 @@ export const EnviarCobrancaForm = () => {
         moradorId: data.moradorId,
         modeloCartaId: data.modeloId,
       };
-      await cobrancaService.criarCobranca(payload);
+      
+      console.log('Payload para criação:', payload);
+      
+      // 1. Cria a cobrança
+      console.log('🔧 Criando cobrança...');
+      const cobrancaCriada = await cobrancaService.criarCobranca(payload);
+      console.log('✅ Cobrança criada:', cobrancaCriada);
+      
+      // 2. Envia a cobrança
+      console.log('📧 Enviando cobrança...');
+      await cobrancaService.enviarCobranca(cobrancaCriada.id);
+      console.log('✅ Cobrança enviada com sucesso!');
+      
       setStatusEnvio('success');
       setTimeout(() => setStatusEnvio('idle'), 2500);
     } catch (err) {
+      console.error('❌ Erro no processo:', err);
       setStatusEnvio('error');
       setTimeout(() => setStatusEnvio('idle'), 3500);
-      console.error(err);
     }
   }
 

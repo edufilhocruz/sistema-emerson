@@ -36,6 +36,10 @@ const cobrancaService = {
     const response = await apiClient.post('/cobranca', payload);
     return response.data;
   },
+  enviarCobranca: async (id: string) => {
+    const response = await apiClient.post(`/cobranca/${id}/enviar`);
+    return response.data;
+  },
   getHistoricoCobrancas: async (condominioId?: string) => {
     const params = condominioId ? { condominioId } : undefined;
     const response = await apiClient.get('/cobranca/historico', { params });

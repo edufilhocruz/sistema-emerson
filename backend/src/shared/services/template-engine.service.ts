@@ -287,154 +287,266 @@ export class TemplateEngineService {
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Cobrança - {{nome_condominio}}</title>
     <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
         body {
-            font-family: Arial, Helvetica, sans-serif;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             line-height: 1.6;
-            color: {{#if colors.text}}{{colors.text}}{{else}}#333{{/if}};
+            color: #333333;
+            background-color: #f5f5f5;
+            padding: 20px;
+        }
+        
+        .email-wrapper {
             max-width: 600px;
             margin: 0 auto;
-            padding: 20px;
-            background-color: {{#if colors.background}}{{colors.background}}{{else}}#f4f4f4{{/if}};
-        }
-        .email-container {
             background-color: #ffffff;
-            border-radius: 8px;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            border-radius: 12px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.1);
             overflow: hidden;
         }
-        .content {
-            padding: 30px;
-        }
-        .info-section {
-            background-color: #f8f9fa;
-            padding: 15px;
-            border-radius: 8px;
-            margin-bottom: 20px;
-        }
-        .info-section h3 {
-            margin: 0 0 10px 0;
-            color: #333;
-            font-size: 16px;
-        }
-        .info-section p {
-            margin: 5px 0;
-            font-size: 14px;
-        }
-        .highlight {
-            background-color: #fff3cd;
-            border: 1px solid #ffeaa7;
-            padding: 15px;
-            border-radius: 8px;
-            margin: 20px 0;
-        }
-        .warning {
-            background-color: #f8d7da;
-            border: 1px solid #f5c6cb;
-            color: #721c24;
-            padding: 15px;
-            border-radius: 8px;
-            margin: 20px 0;
-        }
-        .success {
-            background-color: #d4edda;
-            border: 1px solid #c3e6cb;
-            color: #155724;
-            padding: 15px;
-            border-radius: 8px;
-            margin: 20px 0;
-        }
-        img {
-            max-width: 100%;
-            height: auto;
-            display: block;
-            margin: 0 auto;
-        }
-        .btn {
-            display: inline-block;
-            padding: 12px 24px;
-            background-color: {{#if colors.primary}}{{colors.primary}}{{else}}#2563eb{{/if}};
+        
+        .header {
+            background: linear-gradient(135deg, #CDA434 0%, #B8942A 100%);
             color: white;
-            text-decoration: none;
-            border-radius: 6px;
-            font-weight: bold;
-            margin: 10px 5px;
-        }
-        .btn:hover {
-            opacity: 0.9;
-        }
-        .text-center {
+            padding: 30px;
             text-align: center;
         }
-        .text-right {
+        
+        .header h1 {
+            font-size: 28px;
+            font-weight: 600;
+            margin-bottom: 10px;
+        }
+        
+        .header p {
+            font-size: 16px;
+            opacity: 0.9;
+        }
+        
+        .content {
+            padding: 40px 30px;
+        }
+        
+        .info-card {
+            background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+            border-radius: 10px;
+            padding: 25px;
+            margin-bottom: 25px;
+            border-left: 4px solid #CDA434;
+        }
+        
+        .info-card h3 {
+            color: #CDA434;
+            font-size: 18px;
+            font-weight: 600;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+        }
+        
+        .info-card h3::before {
+            content: "📋";
+            margin-right: 8px;
+        }
+        
+        .info-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 8px 0;
+            border-bottom: 1px solid #e9ecef;
+        }
+        
+        .info-row:last-child {
+            border-bottom: none;
+        }
+        
+        .info-label {
+            font-weight: 600;
+            color: #495057;
+            min-width: 120px;
+        }
+        
+        .info-value {
+            color: #212529;
             text-align: right;
+            flex: 1;
         }
-        .text-left {
-            text-align: left;
+        
+        .cobranca-destaque {
+            background: linear-gradient(135deg, #fff3cd 0%, #ffeaa7 100%);
+            border: 2px solid #CDA434;
+            border-radius: 10px;
+            padding: 25px;
+            margin: 25px 0;
+            text-align: center;
         }
-        .mb-20 {
-            margin-bottom: 20px;
+        
+        .valor-cobranca {
+            font-size: 32px;
+            font-weight: 700;
+            color: #CDA434;
+            margin: 10px 0;
         }
-        .mt-20 {
-            margin-top: 20px;
+        
+        .vencimento {
+            font-size: 18px;
+            color: #495057;
+            font-weight: 500;
+        }
+        
+        .mensagem-principal {
+            background-color: #ffffff;
+            border-radius: 10px;
+            padding: 25px;
+            margin: 25px 0;
+            border: 1px solid #e9ecef;
+        }
+        
+        .mensagem-principal h2 {
+            color: #CDA434;
+            font-size: 20px;
+            margin-bottom: 15px;
+        }
+        
+        .footer {
+            background-color: #343a40;
+            color: white;
+            padding: 25px;
+            text-align: center;
+        }
+        
+        .footer p {
+            margin: 5px 0;
+            font-size: 14px;
+            opacity: 0.8;
+        }
+        
+        .logo {
+            max-width: 200px;
+            height: auto;
+            margin-bottom: 15px;
+        }
+        
+        .btn-primary {
+            display: inline-block;
+            background: linear-gradient(135deg, #CDA434 0%, #B8942A 100%);
+            color: white;
+            padding: 12px 30px;
+            text-decoration: none;
+            border-radius: 25px;
+            font-weight: 600;
+            margin: 15px 5px;
+            transition: all 0.3s ease;
+        }
+        
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 15px rgba(205, 164, 52, 0.3);
+        }
+        
+        .alert {
+            padding: 15px;
+            border-radius: 8px;
+            margin: 15px 0;
+        }
+        
+        .alert-warning {
+            background-color: #fff3cd;
+            border: 1px solid #ffeaa7;
+            color: #856404;
+        }
+        
+        .alert-info {
+            background-color: #d1ecf1;
+            border: 1px solid #bee5eb;
+            color: #0c5460;
+        }
+        
+        @media (max-width: 600px) {
+            .content {
+                padding: 20px 15px;
+            }
+            
+            .header {
+                padding: 20px 15px;
+            }
+            
+            .info-row {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+            
+            .info-value {
+                text-align: left;
+                margin-top: 5px;
+            }
         }
     </style>
 </head>
 <body>
-    <div class="email-container">
-        {{> header}}
-        
-        <div class="content">
-            {{#if showMoradorInfo}}
-            {{> moradorInfo}}
-            {{/if}}
-            
-            {{#if showCondominioInfo}}
-            {{> condominioInfo}}
-            {{/if}}
-            
-            {{#if showCobrancaInfo}}
-            {{> cobrancaInfo}}
-            {{/if}}
-            
-            <div class="mb-20">
-                {{{content}}}
-            </div>
-            
-            {{#if diasAtraso}}
-            <div class="warning">
-                <h4 style="margin: 0 0 10px 0;">⚠️ Cobrança em Atraso</h4>
-                <p style="margin: 5px 0;">Esta cobrança está em atraso há <strong>{{daysLate data_vencimento}} dias</strong>.</p>
-                <p style="margin: 5px 0;">Valor com multa: <strong>{{valueWithPenalty valor (daysLate data_vencimento)}}</strong></p>
-            </div>
-            {{/if}}
-            
-            {{#if valor}}
-            <div class="highlight text-center">
-                <h3 style="margin: 0 0 10px 0;">💰 Valor da Cobrança</h3>
-                <p style="font-size: 24px; font-weight: bold; margin: 0; color: #2563eb;">
-                    {{currency valor}}
-                </p>
-                <p style="margin: 10px 0 0 0; font-size: 14px; color: #666;">
-                    Vencimento: {{dateFull data_vencimento}}
-                </p>
-            </div>
-            {{/if}}
+    <div class="email-wrapper">
+        <div class="header">
+            <h1>🏢 {{nome_condominio}}</h1>
+            <p>Cobrança de Condomínio</p>
         </div>
         
-        {{> footer}}
+        <div class="content">
+            <div class="info-card">
+                <h3>Informações do Morador</h3>
+                <div class="info-row">
+                    <span class="info-label">Nome:</span>
+                    <span class="info-value">{{nome_morador}}</span>
+                </div>
+                <div class="info-row">
+                    <span class="info-label">Unidade:</span>
+                    <span class="info-value">{{unidade}}</span>
+                </div>
+                <div class="info-row">
+                    <span class="info-label">Telefone:</span>
+                    <span class="info-value">{{telefone}}</span>
+                </div>
+            </div>
+            
+            <div class="cobranca-destaque">
+                <h2>💰 Valor da Cobrança</h2>
+                <div class="valor-cobranca">{{valor}}</div>
+                <div class="vencimento">Vencimento: {{data_vencimento}}</div>
+                <div class="vencimento">Mês/Ano: {{mes_referencia}}</div>
+            </div>
+            
+            <div class="mensagem-principal">
+                <h2>📝 Mensagem</h2>
+                <div style="line-height: 1.8; color: #495057;">
+                    {{{content}}}
+                </div>
+            </div>
+            
+            <div class="alert alert-info">
+                <strong>ℹ️ Informação:</strong> Esta é uma cobrança automática do sistema Raunaimer. 
+                Para dúvidas, entre em contato conosco.
+            </div>
+        </div>
+        
+        <div class="footer">
+            <p><strong>Raunaimer - Sistema de Gestão de Condomínios</strong></p>
+            <p>📧 suporte@raunaimer.adv.br | 📞 (11) 99999-9999</p>
+            <p>© 2024 Raunaimer. Todos os direitos reservados.</p>
+        </div>
     </div>
 </body>
 </html>`;
 
       // Renderiza o template com os dados
-      return this.renderTemplate(emailTemplate, {
-        ...data,
-        content,
-        showMoradorInfo: true,
-        showCondominioInfo: true,
-        showCobrancaInfo: true,
-        ...config
-      });
+      const renderedTemplate = this.renderTemplate(emailTemplate, data);
+      
+      this.logger.log('✅ Template de email gerado com sucesso');
+      return renderedTemplate;
 
     } catch (error) {
       this.logger.error(`Erro ao gerar template de email: ${error.message}`);
