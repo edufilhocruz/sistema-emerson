@@ -73,18 +73,25 @@ export const ModeloEditor = ({ modelo, onSave, onDelete, isSaving }: Props) => {
   const getImageUrl = (imageUrl: string | null) => {
     if (!imageUrl) return null;
     
+    console.log('🔗 Construindo URL para:', imageUrl);
+    
     // Se já é uma URL completa, retorna como está
     if (imageUrl.startsWith('http://') || imageUrl.startsWith('https://')) {
+      console.log('✅ URL já é completa:', imageUrl);
       return imageUrl;
     }
     
-    // Se é uma URL relativa que começa com /api, usa o proxy do Vite
+    // Se é uma URL relativa que começa com /api, constrói URL completa
     if (imageUrl.startsWith('/api/')) {
-      return imageUrl; // O proxy do Vite vai redirecionar para o backend
+      const fullUrl = `${window.location.origin}${imageUrl}`;
+      console.log('🔗 URL relativa convertida para:', fullUrl);
+      return fullUrl;
     }
     
     // Se não tem barra, adiciona o domínio e barra
-    return `${window.location.origin}/${imageUrl}`;
+    const fullUrl = `${window.location.origin}/${imageUrl}`;
+    console.log('🔗 URL construída:', fullUrl);
+    return fullUrl;
   };
 
   const form = useForm<ModeloFormData>({
