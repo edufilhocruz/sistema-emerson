@@ -240,7 +240,7 @@ export class CobrancaService {
       });
 
       console.log('🔧 Criando transporter...');
-      const transporter = nodemailer.createTransporter({
+      const transporter = nodemailer.createTransport({
         host: emailConfig.host,
         port: emailConfig.port,
         secure: emailConfig.secure,
