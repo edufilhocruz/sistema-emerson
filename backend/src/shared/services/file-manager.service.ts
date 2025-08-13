@@ -28,9 +28,28 @@ export class FileManagerService {
    * Garante que o diretório de uploads existe
    */
   private ensureUploadsDirectory(): void {
-    if (!fs.existsSync(this.uploadsDir)) {
-      fs.mkdirSync(this.uploadsDir, { recursive: true });
-      this.logger.log(`Diretório de uploads criado: ${this.uploadsDir}`);
+    try {
+      // Cria o diretório principal de uploads
+      if (!fs.existsSync(this.uploadsDir)) {
+        fs.mkdirSync(this.uploadsDir, { recursive: true });
+        this.logger.log(`✅ Diretório de uploads criado: ${this.uploadsDir}`);
+      }
+      
+      // Verifica se o diretório existe e é acessível
+      if (fs.existsSync(this.uploadsDir)) {
+        this.logger.log(`✅ Diretório de uploads existe e é acessível: ${this.uploadsDir}`);
+        
+        // Lista arquivos no diretório para debug
+        const files = fs.readdirSync(this.uploadsDir);
+        this.logger.log(`📁 Arquivos no diretório uploads: ${files.length} arquivos`);
+        if (files.length > 0) {
+          this.logger.log(`📄 Primeiros 5 arquivos: ${files.slice(0, 5).join(', ')}`);
+        }
+      } else {
+        this.logger.error(`❌ Falha ao criar diretório de uploads: ${this.uploadsDir}`);
+      }
+    } catch (error) {
+      this.logger.error(`❌ Erro ao verificar/criar diretório de uploads: ${error.message}`);
     }
   }
 
@@ -64,26 +83,46 @@ export class FileManagerService {
    */
   async saveImage(file: Express.Multer.File): Promise<string> {
     try {
-      this.logger.log(`Iniciando upload de imagem: ${file.originalname}`);
+      this.logger.log(`=== INICIANDO UPLOAD DE IMAGEM ===`);
+      this.logger.log(`📁 Nome original: ${file.originalname}`);
+      this.logger.log(`📏 Tamanho: ${file.size} bytes`);
+      this.logger.log(`🎨 Tipo MIME: ${file.mimetype}`);
+      this.logger.log(`📂 Diretório de destino: ${this.uploadsDir}`);
 
       // Valida o arquivo
       this.validateImageFile(file.buffer, file.mimetype);
+      this.logger.log(`✅ Validação do arquivo passou`);
 
       // Gera nome único
       const fileName = this.generateUniqueFileName(file.originalname);
       const filePath = path.join(this.uploadsDir, fileName);
+      
+      this.logger.log(`📝 Nome do arquivo gerado: ${fileName}`);
+      this.logger.log(`📂 Caminho completo: ${filePath}`);
 
       // Salva o arquivo
       fs.writeFileSync(filePath, file.buffer);
+      this.logger.log(`✅ Arquivo salvo no sistema de arquivos`);
+
+      // Verifica se o arquivo foi realmente salvo
+      if (fs.existsSync(filePath)) {
+        const stats = fs.statSync(filePath);
+        this.logger.log(`✅ Arquivo existe e tem ${stats.size} bytes`);
+      } else {
+        throw new Error('Arquivo não foi salvo corretamente');
+      }
 
       // Retorna URL relativa para o banco
       const relativeUrl = `/api/static/uploads/images/${fileName}`;
       
-      this.logger.log(`Imagem salva com sucesso: ${relativeUrl}`);
+      this.logger.log(`🔗 URL relativa gerada: ${relativeUrl}`);
+      this.logger.log(`✅ Upload concluído com sucesso!`);
+      
       return relativeUrl;
 
     } catch (error) {
-      this.logger.error(`Erro ao salvar imagem: ${error.message}`);
+      this.logger.error(`❌ Erro ao salvar imagem: ${error.message}`);
+      this.logger.error(`Stack trace: ${error.stack}`);
       throw error;
     }
   }

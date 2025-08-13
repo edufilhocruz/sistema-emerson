@@ -22,7 +22,7 @@ export default defineConfig(async ({ mode }) => {
       port: 8080,
       proxy: {
         '/api': {
-          target: 'https://localhost:3000',
+          target: 'http://localhost:3001', // Corrigido para porta 3001
           changeOrigin: true,
           secure: false,
         },

@@ -44,9 +44,26 @@ async function bootstrap() {
   app.setGlobalPrefix('api');
 
   // Configurar arquivos estáticos para uploads
-  app.useStaticAssets(join(__dirname, '..', 'uploads'), {
+  const uploadsPath = join(__dirname, '..', 'uploads');
+  console.log('=== CONFIGURAÇÃO DE ARQUIVOS ESTÁTICOS ===');
+  console.log('📂 Caminho dos uploads:', uploadsPath);
+  console.log('🔗 Prefixo da URL:', '/api/static/uploads/');
+  
+  // Verifica se o diretório existe
+  const fs = require('fs');
+  if (fs.existsSync(uploadsPath)) {
+    console.log('✅ Diretório de uploads existe');
+    const files = fs.readdirSync(uploadsPath);
+    console.log(`📁 Arquivos encontrados: ${files.length}`);
+  } else {
+    console.log('❌ Diretório de uploads não existe, será criado automaticamente');
+  }
+  
+  app.useStaticAssets(uploadsPath, {
     prefix: '/api/static/uploads/',
   });
+  
+  console.log('✅ Servidor de arquivos estáticos configurado');
 
   await app.listen(3001);
   console.log(`Application is running on: ${await app.getUrl()}`);
