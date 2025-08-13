@@ -8,28 +8,41 @@ export class AuthGuard implements CanActivate {
 
   canActivate(context: ExecutionContext): boolean {
     const request = context.switchToHttp().getRequest<Request>();
+    const token = request.cookies?.jwt;
     
-    // Tenta obter token do cookie primeiro
-    let token = request.cookies?.jwt;
-    
-    // Se não encontrar no cookie, tenta no header Authorization
-    if (!token) {
-      const authHeader = request.headers.authorization;
-      if (authHeader && authHeader.startsWith('Bearer ')) {
-        token = authHeader.substring(7);
-      }
-    }
+    console.log('=== AUTH GUARD VERIFICATION ===');
+    console.log('URL:', request.url);
+    console.log('Method:', request.method);
+    console.log('Token presente:', !!token);
+    console.log('Cookies:', request.cookies);
     
     if (!token) {
-      throw new UnauthorizedException('Token JWT não encontrado.');
+      console.log('❌ Token JWT não encontrado');
+      throw new UnauthorizedException('Token JWT não encontrado. Faça login novamente.');
     }
     
     try {
       const payload = this.jwtService.verify(token);
+      console.log('✅ Token verificado com sucesso');
+      console.log('Payload:', { 
+        sub: payload.sub, 
+        email: payload.email, 
+        role: payload.role,
+        exp: new Date(payload.exp * 1000).toISOString()
+      });
+      
       request.user = payload;
       return true;
     } catch (e) {
-      throw new UnauthorizedException('Token JWT inválido.');
+      console.log('❌ Erro na verificação do token:', e.message);
+      
+      if (e.name === 'TokenExpiredError') {
+        throw new UnauthorizedException('Token expirado. Faça login novamente.');
+      } else if (e.name === 'JsonWebTokenError') {
+        throw new UnauthorizedException('Token inválido. Faça login novamente.');
+      } else {
+        throw new UnauthorizedException('Erro na autenticação. Faça login novamente.');
+      }
     }
   }
 } 

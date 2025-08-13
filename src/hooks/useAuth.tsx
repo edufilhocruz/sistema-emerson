@@ -138,12 +138,6 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         throw new Error(errorMsg);
       }
       const data = await response.json();
-      
-      // Salva o token no localStorage para compatibilidade com interceptor
-      if (data.access_token) {
-        localStorage.setItem('access_token', data.access_token);
-      }
-      
       saveUser(data.user);
       navigate('/dashboard');
     } finally {
@@ -156,10 +150,6 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       method: 'POST',
       credentials: 'include',
     });
-    
-    // Limpa o token do localStorage
-    localStorage.removeItem('access_token');
-    
     saveUser(null);
     navigate('/login');
   };
