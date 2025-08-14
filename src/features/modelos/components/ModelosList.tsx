@@ -1,199 +1,204 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { ModeloCarta } from '@/entities/modelos/types';
-import { useModelos } from '../hooks/useModelos';
-import { ModeloEditor } from './ModeloEditor';
+import { modeloCartaService } from '../services/modeloCartaService';
+import { AdvancedModeloEditor } from './AdvancedModeloEditor';
+import { EmailPreview } from './EmailPreview';
 import { Button } from '@/components/ui/button';
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Badge } from '@/components/ui/badge';
-import { Plus, Edit, Trash2, FileText, Calendar, User } from 'lucide-react';
-import { toast } from '@/components/ui/use-toast';
-import { LoadingSpinner } from '@/shared/ui/LoadingSpinner';
+import { 
+  Plus, Edit, Trash2, Eye, Copy, Download, 
+  FileText, Calendar, User, Building, Mail
+} from 'lucide-react';
+import { useToast } from '@/hooks/use-toast';
 
-export const ModelosList = () => {
-  const { modelos, loading, error, saving, createModelo, updateModelo, deleteModelo } = useModelos();
-  const [isDialogOpen, setIsDialogOpen] = useState(false);
-  const [editingModelo, setEditingModelo] = useState<Partial<ModeloCarta> | null>(null);
+export const ModelosList: React.FC = () => {
+  const { toast } = useToast();
+  const [modelos, setModelos] = useState<ModeloCarta[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [selectedModelo, setSelectedModelo] = useState<ModeloCarta | null>(null);
+  const [isEditorOpen, setIsEditorOpen] = useState(false);
+  const [isPreviewOpen, setIsPreviewOpen] = useState(false);
+  const [isSaving, setIsSaving] = useState(false);
 
-  const handleSave = async (data: { titulo: string; conteudo: string }) => {
+  // Carregar modelos
+  useEffect(() => {
+    loadModelos();
+  }, []);
+
+  const loadModelos = async () => {
     try {
-      if (editingModelo?.id) {
-        // Atualizando modelo existente
-        const result = await updateModelo(editingModelo.id, data);
-        if (result) {
-          toast({
-            title: '✅ Modelo atualizado com sucesso!',
-            description: 'O modelo foi atualizado e está pronto para uso.',
-          });
-          setIsDialogOpen(false);
-          setEditingModelo(null);
-        }
-      } else {
-        // Criando novo modelo
-        const result = await createModelo(data);
-        if (result) {
-          toast({
-            title: '✅ Modelo criado com sucesso!',
-            description: 'O novo modelo foi criado e está pronto para uso.',
-          });
-          setIsDialogOpen(false);
-          setEditingModelo(null);
-        }
-      }
-    } catch (err) {
+      setLoading(true);
+      const data = await modeloCartaService.getAll();
+      setModelos(data);
+    } catch (error) {
+      console.error('Erro ao carregar modelos:', error);
       toast({
-        variant: 'destructive',
-        title: '❌ Erro ao salvar modelo',
-        description: err instanceof Error ? err.message : 'Ocorreu um erro inesperado.',
+        title: "Erro",
+        description: "Falha ao carregar modelos de carta",
+        variant: "destructive"
       });
+    } finally {
+      setLoading(false);
     }
+  };
+
+  // Handlers
+  const handleCreate = () => {
+    setSelectedModelo({} as ModeloCarta);
+    setIsEditorOpen(true);
+  };
+
+  const handleEdit = (modelo: ModeloCarta) => {
+    setSelectedModelo(modelo);
+    setIsEditorOpen(true);
+  };
+
+  const handlePreview = (modelo: ModeloCarta) => {
+    setSelectedModelo(modelo);
+    setIsPreviewOpen(true);
   };
 
   const handleDelete = async (id: string) => {
-    if (!confirm('Tem certeza que deseja excluir este modelo? Esta ação não pode ser desfeita.')) {
-      return;
-    }
+    if (!confirm('Tem certeza que deseja excluir este modelo?')) return;
 
     try {
-      const success = await deleteModelo(id);
-      if (success) {
-        toast({
-          title: '✅ Modelo excluído com sucesso!',
-          description: 'O modelo foi removido permanentemente.',
-        });
-      }
-    } catch (err) {
+      await modeloCartaService.delete(id);
+      await loadModelos();
       toast({
-        variant: 'destructive',
-        title: '❌ Erro ao excluir modelo',
-        description: err instanceof Error ? err.message : 'Ocorreu um erro inesperado.',
+        title: "Sucesso",
+        description: "Modelo excluído com sucesso",
+        variant: "default"
+      });
+    } catch (error) {
+      console.error('Erro ao excluir modelo:', error);
+      toast({
+        title: "Erro",
+        description: "Falha ao excluir modelo",
+        variant: "destructive"
       });
     }
   };
 
-  const openCreateDialog = () => {
-    setEditingModelo({});
-    setIsDialogOpen(true);
+  const handleSave = async (data: any) => {
+    try {
+      setIsSaving(true);
+      
+      if (selectedModelo?.id) {
+        await modeloCartaService.update(selectedModelo.id, data);
+        toast({
+          title: "Sucesso",
+          description: "Modelo atualizado com sucesso",
+          variant: "default"
+        });
+      } else {
+        await modeloCartaService.create(data);
+        toast({
+          title: "Sucesso",
+          description: "Modelo criado com sucesso",
+          variant: "default"
+        });
+      }
+      
+      await loadModelos();
+      setIsEditorOpen(false);
+      setSelectedModelo(null);
+    } catch (error) {
+      console.error('Erro ao salvar modelo:', error);
+      toast({
+        title: "Erro",
+        description: "Falha ao salvar modelo",
+        variant: "destructive"
+      });
+    } finally {
+      setIsSaving(false);
+    }
   };
 
-  const openEditDialog = (modelo: ModeloCarta) => {
-    setEditingModelo(modelo);
-    setIsDialogOpen(true);
+  const handleCopy = async (modelo: ModeloCarta) => {
+    try {
+      await navigator.clipboard.writeText(modelo.conteudo || '');
+      toast({
+        title: "Copiado!",
+        description: "Conteúdo copiado para a área de transferência",
+        variant: "default"
+      });
+    } catch (error) {
+      toast({
+        title: "Erro",
+        description: "Falha ao copiar conteúdo",
+        variant: "destructive"
+      });
+    }
   };
 
-  const closeDialog = () => {
-    setIsDialogOpen(false);
-    setEditingModelo(null);
-  };
-
-  // Conta campos dinâmicos no conteúdo
-  const countDynamicFields = (conteudo: string) => {
-    const matches = conteudo.match(/\{\{[^}]+\}\}/g);
-    return matches ? matches.length : 0;
-  };
-
-  // Formata data
-  const formatDate = (dateString: string) => {
-    return new Date(dateString).toLocaleDateString('pt-BR', {
-      day: '2-digit',
-      month: '2-digit',
-      year: 'numeric',
-      hour: '2-digit',
-      minute: '2-digit',
-    });
+  const handleDownload = (modelo: ModeloCarta) => {
+    try {
+      const blob = new Blob([modelo.conteudo || ''], { type: 'text/html' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `${modelo.titulo || 'modelo'}.html`;
+      a.click();
+      URL.revokeObjectURL(url);
+      
+      toast({
+        title: "Download",
+        description: "Arquivo HTML baixado com sucesso",
+        variant: "default"
+      });
+    } catch (error) {
+      toast({
+        title: "Erro",
+        description: "Falha ao baixar arquivo",
+        variant: "destructive"
+      });
+    }
   };
 
   if (loading) {
     return (
-      <div className="flex items-center justify-center min-h-[400px]">
-        <LoadingSpinner size="lg" />
-      </div>
-    );
-  }
-
-  if (error) {
-    return (
-      <div className="text-center py-8">
-        <div className="text-red-500 mb-4">
-          <FileText className="h-12 w-12 mx-auto mb-2" />
-          <h3 className="text-lg font-semibold">Erro ao carregar modelos</h3>
-          <p className="text-sm">{error}</p>
-        </div>
-        <Button onClick={() => window.location.reload()}>
-          Tentar Novamente
-        </Button>
+      <div className="flex items-center justify-center p-8">
+        <div className="w-8 h-8 border-2 border-gray-300 rounded-full border-t-blue-600 animate-spin mr-2" />
+        <span>Carregando modelos...</span>
       </div>
     );
   }
 
   return (
-    <div className="space-y-6">
-      {/* Header */}
-      <div className="flex justify-between items-center">
+    <div className="p-6 space-y-6">
+      {/* Cabeçalho */}
+      <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-3xl font-bold">Modelos de Cobrança</h1>
-          <p className="text-muted-foreground mt-2">
-            Gerencie seus modelos de cobrança personalizados com campos dinâmicos
+          <h1 className="text-3xl font-bold text-foreground flex items-center gap-2">
+            <FileText className="w-8 h-8" />
+            Modelos de Carta
+          </h1>
+          <p className="text-muted-foreground">
+            Gerencie seus templates de email para cobranças
           </p>
         </div>
-        <Button onClick={openCreateDialog} className="bg-gold hover:bg-gold-hover">
-          <Plus className="mr-2 h-4 w-4" />
+        
+        <Button onClick={handleCreate} className="flex items-center gap-2">
+          <Plus className="w-4 h-4" />
           Novo Modelo
         </Button>
-      </div>
-
-      {/* Estatísticas */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-        <Card>
-          <CardContent className="p-4">
-            <div className="flex items-center space-x-2">
-              <FileText className="h-5 w-5 text-blue-500" />
-              <div>
-                <p className="text-sm font-medium">Total de Modelos</p>
-                <p className="text-2xl font-bold">{modelos.length}</p>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-        <Card>
-          <CardContent className="p-4">
-            <div className="flex items-center space-x-2">
-              <User className="h-5 w-5 text-green-500" />
-              <div>
-                <p className="text-sm font-medium">Modelos Ativos</p>
-                <p className="text-2xl font-bold">{modelos.length}</p>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-        <Card>
-          <CardContent className="p-4">
-            <div className="flex items-center space-x-2">
-              <Calendar className="h-5 w-5 text-purple-500" />
-              <div>
-                <p className="text-sm font-medium">Última Atualização</p>
-                <p className="text-sm font-bold">
-                  {modelos.length > 0 ? formatDate(modelos[0].updatedAt) : 'N/A'}
-                </p>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
       </div>
 
       {/* Lista de Modelos */}
       {modelos.length === 0 ? (
         <Card>
           <CardContent className="text-center py-12">
-            <FileText className="h-12 w-12 mx-auto mb-4 text-muted-foreground" />
-            <h3 className="text-lg font-semibold mb-2">Nenhum modelo encontrado</h3>
+            <FileText className="w-12 h-12 mx-auto mb-4 text-gray-400" />
+            <h3 className="text-lg font-medium mb-2">Nenhum modelo encontrado</h3>
             <p className="text-muted-foreground mb-4">
-              Crie seu primeiro modelo de cobrança para começar
+              Crie seu primeiro modelo de carta para começar
             </p>
-            <Button onClick={openCreateDialog} className="bg-gold hover:bg-gold-hover">
-              <Plus className="mr-2 h-4 w-4" />
+            <Button onClick={handleCreate}>
+              <Plus className="w-4 h-4 mr-2" />
               Criar Primeiro Modelo
             </Button>
           </CardContent>
@@ -203,38 +208,94 @@ export const ModelosList = () => {
           {modelos.map((modelo) => (
             <Card key={modelo.id} className="hover:shadow-lg transition-shadow">
               <CardHeader>
-                <div className="flex justify-between items-start">
+                <div className="flex items-start justify-between">
                   <div className="flex-1">
-                    <CardTitle className="text-lg line-clamp-2">{modelo.titulo}</CardTitle>
+                    <CardTitle className="text-lg line-clamp-2">
+                      {modelo.titulo || 'Modelo sem título'}
+                    </CardTitle>
                     <CardDescription className="mt-2">
-                      Criado em {formatDate(modelo.createdAt)}
+                      Criado em {new Date(modelo.createdAt).toLocaleDateString('pt-BR')}
                     </CardDescription>
                   </div>
-                  <Badge variant="secondary" className="ml-2">
-                    {countDynamicFields(modelo.conteudo)} campos
-                  </Badge>
+                  
+                  <div className="flex gap-1">
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={() => handlePreview(modelo)}
+                      title="Visualizar"
+                    >
+                      <Eye className="w-4 h-4" />
+                    </Button>
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={() => handleEdit(modelo)}
+                      title="Editar"
+                    >
+                      <Edit className="w-4 h-4" />
+                    </Button>
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={() => handleDelete(modelo.id)}
+                      title="Excluir"
+                      className="text-red-600 hover:text-red-700"
+                    >
+                      <Trash2 className="w-4 h-4" />
+                    </Button>
+                  </div>
                 </div>
               </CardHeader>
-              <CardContent>
-                <p className="text-sm text-muted-foreground line-clamp-3 mb-4">
-                  {modelo.conteudo.substring(0, 150)}...
-                </p>
-                <div className="flex gap-2">
+              
+              <CardContent className="space-y-4">
+                {/* Informações do Modelo */}
+                <div className="space-y-2">
+                  <div className="flex items-center gap-2 text-sm text-gray-600">
+                    <Calendar className="w-4 h-4" />
+                    <span>Atualizado: {new Date(modelo.updatedAt).toLocaleDateString('pt-BR')}</span>
+                  </div>
+                  
+                  {modelo.headerImageUrl && (
+                    <div className="flex items-center gap-2 text-sm text-gray-600">
+                      <Mail className="w-4 h-4" />
+                      <span>Com imagem de cabeçalho</span>
+                    </div>
+                  )}
+                  
+                  {modelo.footerImageUrl && (
+                    <div className="flex items-center gap-2 text-sm text-gray-600">
+                      <Mail className="w-4 h-4" />
+                      <span>Com imagem de rodapé</span>
+                    </div>
+                  )}
+                </div>
+
+                {/* Preview do Conteúdo */}
+                <div className="text-sm text-gray-600 line-clamp-3">
+                  {modelo.conteudo?.replace(/<[^>]*>/g, '').substring(0, 150) || 'Sem conteúdo'}
+                  {(modelo.conteudo?.length || 0) > 150 && '...'}
+                </div>
+
+                {/* Ações */}
+                <div className="flex gap-2 pt-2 border-t">
                   <Button
                     variant="outline"
                     size="sm"
-                    onClick={() => openEditDialog(modelo)}
+                    onClick={() => handleCopy(modelo)}
                     className="flex-1"
                   >
-                    <Edit className="mr-2 h-4 w-4" />
-                    Editar
+                    <Copy className="w-3 h-3 mr-1" />
+                    Copiar
                   </Button>
                   <Button
-                    variant="destructive"
+                    variant="outline"
                     size="sm"
-                    onClick={() => handleDelete(modelo.id)}
+                    onClick={() => handleDownload(modelo)}
+                    className="flex-1"
                   >
-                    <Trash2 className="h-4 w-4" />
+                    <Download className="w-3 h-3 mr-1" />
+                    Baixar
                   </Button>
                 </div>
               </CardContent>
@@ -244,19 +305,40 @@ export const ModelosList = () => {
       )}
 
       {/* Dialog do Editor */}
-      <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
-        <DialogContent className="max-w-6xl max-h-[90vh] overflow-y-auto">
+      <Dialog open={isEditorOpen} onOpenChange={setIsEditorOpen}>
+        <DialogContent className="max-w-7xl max-h-[90vh] overflow-y-auto">
           <DialogHeader>
             <DialogTitle>
-              {editingModelo?.id ? 'Editar Modelo' : 'Criar Novo Modelo'}
+              {selectedModelo?.id ? 'Editar Modelo' : 'Novo Modelo'}
             </DialogTitle>
           </DialogHeader>
-          <ModeloEditor
-            modelo={editingModelo || {}}
-            onSave={handleSave}
-            onDelete={handleDelete}
-            isSaving={saving}
-          />
+          
+          {selectedModelo && (
+            <AdvancedModeloEditor
+              modelo={selectedModelo}
+              onSave={handleSave}
+              onDelete={selectedModelo.id ? () => handleDelete(selectedModelo.id) : () => {}}
+              isSaving={isSaving}
+            />
+          )}
+        </DialogContent>
+      </Dialog>
+
+      {/* Dialog do Preview */}
+      <Dialog open={isPreviewOpen} onOpenChange={setIsPreviewOpen}>
+        <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle>Preview do Modelo</DialogTitle>
+          </DialogHeader>
+          
+          {selectedModelo && (
+            <EmailPreview
+              htmlContent={selectedModelo.conteudo || ''}
+              headerImageUrl={selectedModelo.headerImageUrl}
+              footerImageUrl={selectedModelo.footerImageUrl}
+              showPreview={true}
+            />
+          )}
         </DialogContent>
       </Dialog>
     </div>

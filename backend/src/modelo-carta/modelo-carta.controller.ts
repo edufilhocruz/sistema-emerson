@@ -9,6 +9,7 @@ import {
   UseInterceptors,
   UploadedFile,
   BadRequestException,
+  Query,
 } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { ModeloCartaService } from './modelo-carta.service';
@@ -16,6 +17,7 @@ import { CreateModeloCartaDto } from './dto/create-modelo-carta.dto';
 import { UpdateModeloCartaDto } from './dto/update-modelo-carta.dto';
 import { FileManagerService } from '../shared/services/file-manager.service';
 import { ImagePreviewService } from '../shared/services/image-preview.service';
+import { EmailTemplateService } from '../shared/services/email-template.service';
 
 /**
  * Controller responsável por gerenciar modelos de carta
@@ -26,7 +28,8 @@ export class ModeloCartaController {
   constructor(
     private readonly modeloCartaService: ModeloCartaService,
     private readonly fileManager: FileManagerService,
-    private readonly imagePreviewService: ImagePreviewService
+    private readonly imagePreviewService: ImagePreviewService,
+    private readonly emailTemplateService: EmailTemplateService
   ) {
     console.log('=== MODELO CARTA CONTROLLER INSTANCIADO ===');
   }
@@ -85,6 +88,94 @@ export class ModeloCartaController {
     } catch (error) {
       console.error('❌ Erro ao processar imagem:', error);
       throw new BadRequestException(`Erro ao processar a imagem: ${error.message}`);
+    }
+  }
+
+  /**
+   * Processa um template de email substituindo URLs por CID
+   */
+  @Post('process-email-template')
+  async processEmailTemplate(@Body() data: {
+    htmlContent: string;
+    headerImageUrl?: string;
+    footerImageUrl?: string;
+  }) {
+    try {
+      console.log('=== PROCESSANDO TEMPLATE DE EMAIL ===');
+      console.log('📧 Conteúdo HTML recebido:', data.htmlContent.substring(0, 200) + '...');
+      console.log('🖼️ Header image URL:', data.headerImageUrl);
+      console.log('🖼️ Footer image URL:', data.footerImageUrl);
+
+      const result = await this.emailTemplateService.processEmailTemplate(
+        data.htmlContent,
+        data.headerImageUrl,
+        data.footerImageUrl
+      );
+
+      console.log('✅ Template processado com sucesso!');
+      console.log(`📎 ${result.attachments.length} anexos processados`);
+      console.log('📧 HTML final (primeiros 200 chars):', result.html.substring(0, 200) + '...');
+
+      return {
+        success: true,
+        html: result.html,
+        attachments: result.attachments.map(att => ({
+          filename: att.filename,
+          cid: att.cid,
+          size: att.path ? require('fs').statSync(att.path).size : 0
+        })),
+        message: 'Template processado com sucesso'
+      };
+
+    } catch (error) {
+      console.error('❌ Erro ao processar template:', error);
+      throw new BadRequestException(`Erro ao processar template: ${error.message}`);
+    }
+  }
+
+  /**
+   * Valida imagens de um modelo
+   */
+  @Get('validate-images')
+  async validateImages(@Query('headerImageUrl') headerImageUrl?: string, @Query('footerImageUrl') footerImageUrl?: string) {
+    try {
+      console.log('=== VALIDANDO IMAGENS ===');
+      
+      const results = {
+        header: headerImageUrl ? await this.emailTemplateService.validateImage(headerImageUrl) : null,
+        footer: footerImageUrl ? await this.emailTemplateService.validateImage(footerImageUrl) : null
+      };
+
+      console.log('✅ Validação concluída:', results);
+      return results;
+
+    } catch (error) {
+      console.error('❌ Erro na validação:', error);
+      throw new BadRequestException(`Erro na validação: ${error.message}`);
+    }
+  }
+
+  /**
+   * Obtém informações de uma imagem
+   */
+  @Get('image-info')
+  async getImageInfo(@Query('imageUrl') imageUrl: string) {
+    if (!imageUrl) {
+      throw new BadRequestException('URL da imagem é obrigatória.');
+    }
+
+    try {
+      console.log('=== OBTENDO INFORMAÇÕES DA IMAGEM ===');
+      console.log('🖼️ URL:', imageUrl);
+
+      const info = await this.emailTemplateService.getImageInfo(imageUrl);
+      
+      console.log('✅ Informações obtidas:', info);
+      return info;
+
+    } catch (error) {
+      console.error('❌ Erro ao obter informações:', error);
+      throw new BadRequestException(`Erro ao obter informações: ${error.message}`);
     }
   }
 

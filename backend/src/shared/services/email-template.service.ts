@@ -1,297 +1,275 @@
-import { Injectable, Logger } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import * as fs from 'fs';
 import * as path from 'path';
-import { TemplateEngineService, TemplateData, TemplateConfig } from './template-engine.service';
 
-/**
- * Interface para dados de imagem com CID
- */
-export interface ImageWithCid {
-  cid: string;
-  filename: string;
-  path: string;
-  contentType: string;
-}
-
-/**
- * Interface para template de email
- */
-export interface EmailTemplate {
-  html: string;
-  attachments: ImageWithCid[];
-}
-
-/**
- * Serviço responsável por gerar templates de email com CID
- * Implementa arquitetura limpa para manipulação de templates
- */
 @Injectable()
 export class EmailTemplateService {
-  private readonly logger = new Logger(EmailTemplateService.name);
+  private uploadDir = path.join(__dirname, '../../uploads/images');
 
-  constructor(private readonly templateEngine: TemplateEngineService) {}
-
-  /**
-   * Gera um template de email com imagens usando CID
-   */
-  async generateEmailTemplate(
-    conteudo: string,
-    headerImageUrl?: string,
-    footerImageUrl?: string,
-    templateData?: TemplateData,
-    config?: TemplateConfig
-  ): Promise<EmailTemplate> {
-    try {
-      console.log('=== GERANDO TEMPLATE DE EMAIL ===');
-      console.log('Conteúdo recebido (primeiros 200 chars):', conteudo.substring(0, 200));
-      console.log('Header image URL:', headerImageUrl);
-      console.log('Footer image URL:', footerImageUrl);
-      console.log('Template data:', templateData);
-      console.log('Config:', config);
-
-      this.logger.log('Gerando template de email com CID e Handlebars');
-
-      const attachments: ImageWithCid[] = [];
-
-      // Processa imagem do cabeçalho
-      let headerCid: ImageWithCid | null = null;
-      if (headerImageUrl) {
-        console.log('🔧 Processando imagem do cabeçalho...');
-        headerCid = await this.processImageForCid(headerImageUrl, 'header');
-        if (headerCid) {
-          attachments.push(headerCid);
-          console.log('✅ Imagem do cabeçalho processada:', headerCid.filename);
-        } else {
-          console.log('⚠️ Imagem do cabeçalho não foi processada');
-        }
-      } else {
-        console.log('ℹ️ Nenhuma imagem de cabeçalho fornecida');
-      }
-
-      // Processa imagem do rodapé
-      let footerCid: ImageWithCid | null = null;
-      if (footerImageUrl) {
-        console.log('🔧 Processando imagem do rodapé...');
-        footerCid = await this.processImageForCid(footerImageUrl, 'footer');
-        if (footerCid) {
-          attachments.push(footerCid);
-          console.log('✅ Imagem do rodapé processada:', footerCid.filename);
-        } else {
-          console.log('⚠️ Imagem do rodapé não foi processada');
-        }
-      } else {
-        console.log('ℹ️ Nenhuma imagem de rodapé fornecida');
-      }
-
-      // Configuração do template com CIDs reais
-      const templateConfig: TemplateConfig = {
-        headerImageUrl: headerCid ? `cid:${headerCid.cid}` : undefined,
-        footerImageUrl: footerCid ? `cid:${footerCid.cid}` : undefined,
-        ...config
-      };
-
-      console.log('🔧 Configuração do template:', templateConfig);
-
-      // Gera o HTML usando o TemplateEngineService
-      console.log('🔧 Gerando HTML final...');
-      const finalHtml = this.templateEngine.generateEmailTemplate(
-        conteudo,
-        templateData || {},
-        templateConfig
-      );
-
-      console.log('✅ HTML gerado com sucesso (primeiros 200 chars):', finalHtml.substring(0, 200));
-      console.log(`✅ Template gerado com ${attachments.length} anexos`);
-      
-      this.logger.log(`Template gerado com ${attachments.length} anexos`);
-      
-      return {
-        html: finalHtml,
-        attachments
-      };
-
-    } catch (error) {
-      console.error('❌ Erro ao gerar template:', error);
-      console.error('Stack trace:', error.stack);
-      this.logger.error(`Erro ao gerar template: ${error.message}`);
-      throw error;
+  constructor() {
+    // Garantir que o diretório existe
+    if (!fs.existsSync(this.uploadDir)) {
+      fs.mkdirSync(this.uploadDir, { recursive: true });
     }
   }
 
   /**
-   * Processa uma imagem para uso com CID
+   * Processa um template de email substituindo URLs por CID
+   * @param htmlContent - Conteúdo HTML do template
+   * @param headerImageUrl - URL da imagem do header
+   * @param footerImageUrl - URL da imagem do footer
+   * @returns HTML processado com CID
    */
-  private async processImageForCid(imageUrl: string, type: 'header' | 'footer'): Promise<ImageWithCid | null> {
+  async processEmailTemplate(
+    htmlContent: string,
+    headerImageUrl?: string,
+    footerImageUrl?: string
+  ): Promise<{ html: string; attachments: Array<{ filename: string; path: string; cid: string }> }> {
+    const attachments: Array<{ filename: string; path: string; cid: string }> = [];
+    let processedHtml = htmlContent;
+
+    // Processar imagem do header
+    if (headerImageUrl) {
+      const headerCid = await this.processImageForEmail(headerImageUrl, 'header');
+      if (headerCid) {
+        processedHtml = this.replaceImageUrlsWithCid(processedHtml, headerImageUrl, headerCid.cid);
+        attachments.push(headerCid);
+      }
+    }
+
+    // Processar imagem do footer
+    if (footerImageUrl) {
+      const footerCid = await this.processImageForEmail(footerImageUrl, 'footer');
+      if (footerCid) {
+        processedHtml = this.replaceImageUrlsWithCid(processedHtml, footerImageUrl, footerCid.cid);
+        attachments.push(footerCid);
+      }
+    }
+
+    return {
+      html: processedHtml,
+      attachments
+    };
+  }
+
+  /**
+   * Processa uma imagem para uso em email
+   * @param imageUrl - URL da imagem
+   * @param type - Tipo da imagem (header/footer)
+   * @returns Informações da imagem processada
+   */
+  private async processImageForEmail(
+    imageUrl: string,
+    type: 'header' | 'footer'
+  ): Promise<{ filename: string; path: string; cid: string } | null> {
     try {
-      if (!imageUrl) return null;
-
-      console.log(`🔧 Processando imagem para CID: ${imageUrl}`);
-
-      // Extrai o nome do arquivo da URL
-      const fileName = path.basename(imageUrl);
-      console.log(`📝 Nome do arquivo extraído: ${fileName}`);
-
-      // Constrói o caminho completo do arquivo
-      const filePath = path.join(process.cwd(), 'uploads', 'images', fileName);
-      console.log(`📂 Caminho completo do arquivo: ${filePath}`);
-
-      // Verifica se o arquivo existe
-      if (!fs.existsSync(filePath)) {
-        this.logger.warn(`Arquivo não encontrado: ${filePath}`);
-        console.log(`❌ Arquivo não encontrado no caminho: ${filePath}`);
-        
-        // Lista arquivos no diretório para debug
-        const uploadsDir = path.join(process.cwd(), 'uploads', 'images');
-        if (fs.existsSync(uploadsDir)) {
-          const files = fs.readdirSync(uploadsDir);
-          console.log(`📁 Arquivos no diretório uploads/images: ${files.join(', ')}`);
-        } else {
-          console.log(`❌ Diretório uploads/images não existe`);
-        }
-        
+      // Extrair nome do arquivo da URL
+      const fileName = this.extractFileNameFromUrl(imageUrl);
+      if (!fileName) {
+        console.warn(`❌ Não foi possível extrair nome do arquivo de: ${imageUrl}`);
         return null;
       }
 
-      console.log(`✅ Arquivo encontrado: ${filePath}`);
+      // Verificar se o arquivo existe
+      const filePath = path.join(this.uploadDir, fileName);
+      if (!fs.existsSync(filePath)) {
+        console.warn(`❌ Arquivo não encontrado: ${filePath}`);
+        return null;
+      }
 
-      // Determina o tipo MIME baseado na extensão
-      const contentType = this.getMimeType(fileName);
+      // Gerar CID único
+      const cid = `${type}_${fileName.replace(/\.[^/.]+$/, '')}@raunaimer.app`;
 
-      // Gera CID único
-      const cid = `${type}_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
-
-      this.logger.log(`Imagem processada para CID: ${cid} (${fileName})`);
-      console.log(`✅ Imagem processada com sucesso - CID: ${cid}`);
+      console.log(`✅ Imagem ${type} processada para email:`);
+      console.log(`   📁 Arquivo: ${fileName}`);
+      console.log(`   📂 Caminho: ${filePath}`);
+      console.log(`   📧 CID: ${cid}`);
 
       return {
-        cid,
         filename: fileName,
         path: filePath,
-        contentType
+        cid: cid
       };
 
     } catch (error) {
-      this.logger.error(`Erro ao processar imagem para CID: ${error.message}`);
-      console.error(`❌ Erro ao processar imagem para CID:`, error);
+      console.error(`❌ Erro ao processar imagem ${type} para email:`, error);
       return null;
     }
   }
 
   /**
+   * Substitui URLs de imagem por CID no HTML
+   * @param html - Conteúdo HTML
+   * @param imageUrl - URL original da imagem
+   * @param cid - CID da imagem
+   * @returns HTML com URLs substituídas por CID
+   */
+  private replaceImageUrlsWithCid(html: string, imageUrl: string, cid: string): string {
+    // Substituir URLs absolutas
+    let processedHtml = html.replace(
+      new RegExp(`src=["']${this.escapeRegExp(imageUrl)}["']`, 'gi'),
+      `src="cid:${cid}"`
+    );
+
+    // Substituir URLs relativas
+    const relativeUrl = imageUrl.replace(/^.*\/uploads\//, '/uploads/');
+    processedHtml = processedHtml.replace(
+      new RegExp(`src=["']${this.escapeRegExp(relativeUrl)}["']`, 'gi'),
+      `src="cid:${cid}"`
+    );
+
+    // Substituir URLs com diferentes prefixos
+    const apiUrl = imageUrl.replace('/uploads/', '/api/static/uploads/');
+    processedHtml = processedHtml.replace(
+      new RegExp(`src=["']${this.escapeRegExp(apiUrl)}["']`, 'gi'),
+      `src="cid:${cid}"`
+    );
+
+    console.log(`🔄 URLs substituídas por CID ${cid} no HTML`);
+
+    return processedHtml;
+  }
+
+  /**
+   * Extrai nome do arquivo de uma URL
+   * @param url - URL da imagem
+   * @returns Nome do arquivo
+   */
+  private extractFileNameFromUrl(url: string): string | null {
+    try {
+      // Remover query parameters
+      const cleanUrl = url.split('?')[0];
+      
+      // Extrair nome do arquivo do final da URL
+      const fileName = path.basename(cleanUrl);
+      
+      // Validar se é um arquivo de imagem
+      const validExtensions = ['.jpg', '.jpeg', '.png', '.gif', '.webp', '.svg'];
+      const ext = path.extname(fileName).toLowerCase();
+      
+      if (!validExtensions.includes(ext)) {
+        console.warn(`⚠️ Extensão inválida: ${ext} para arquivo ${fileName}`);
+        return null;
+      }
+
+      return fileName;
+    } catch (error) {
+      console.error('❌ Erro ao extrair nome do arquivo:', error);
+      return null;
+    }
+  }
+
+  /**
+   * Escapa caracteres especiais para regex
+   * @param string - String para escapar
+   * @returns String escapada
+   */
+  private escapeRegExp(string: string): string {
+    return string.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+  }
+
+  /**
+   * Valida se uma imagem existe e é válida
+   * @param imageUrl - URL da imagem
+   * @returns true se a imagem é válida
+   */
+  async validateImage(imageUrl: string): Promise<boolean> {
+    try {
+      const fileName = this.extractFileNameFromUrl(imageUrl);
+      if (!fileName) return false;
+
+      const filePath = path.join(this.uploadDir, fileName);
+      return fs.existsSync(filePath);
+    } catch (error) {
+      console.error('❌ Erro ao validar imagem:', error);
+      return false;
+    }
+  }
+
+  /**
+   * Obtém informações de uma imagem
+   * @param imageUrl - URL da imagem
+   * @returns Informações da imagem
+   */
+  async getImageInfo(imageUrl: string): Promise<{
+    exists: boolean;
+    size?: number;
+    mimeType?: string;
+    cid?: string;
+  }> {
+    try {
+      const fileName = this.extractFileNameFromUrl(imageUrl);
+      if (!fileName) {
+        return { exists: false };
+      }
+
+      const filePath = path.join(this.uploadDir, fileName);
+      
+      if (!fs.existsSync(filePath)) {
+        return { exists: false };
+      }
+
+      const stats = fs.statSync(filePath);
+      const cid = `${fileName.replace(/\.[^/.]+$/, '')}@raunaimer.app`;
+
+      return {
+        exists: true,
+        size: stats.size,
+        mimeType: this.getMimeType(fileName),
+        cid: cid
+      };
+    } catch (error) {
+      console.error('❌ Erro ao obter informações da imagem:', error);
+      return { exists: false };
+    }
+  }
+
+  /**
    * Determina o tipo MIME baseado na extensão do arquivo
+   * @param fileName - Nome do arquivo
+   * @returns Tipo MIME
    */
   private getMimeType(fileName: string): string {
-    const extension = path.extname(fileName).toLowerCase();
-    
+    const ext = path.extname(fileName).toLowerCase();
     const mimeTypes: { [key: string]: string } = {
       '.jpg': 'image/jpeg',
       '.jpeg': 'image/jpeg',
       '.png': 'image/png',
       '.gif': 'image/gif',
-      '.webp': 'image/webp'
+      '.webp': 'image/webp',
+      '.svg': 'image/svg+xml'
     };
-
-    return mimeTypes[extension] || 'image/jpeg';
-  }
-
-  /**
-   * Substitui placeholders no conteúdo usando Handlebars
-   */
-  substitutePlaceholders(content: string, data: Record<string, any>): string {
-    try {
-      // Usa o TemplateEngineService para renderizar o conteúdo
-      return this.templateEngine.renderTemplate(content, data);
-    } catch (error) {
-      this.logger.error(`Erro ao substituir placeholders: ${error.message}`);
-      // Fallback para substituição simples se Handlebars falhar
-      return this.simplePlaceholderSubstitution(content, data);
-    }
-  }
-
-  /**
-   * Substituição simples de placeholders (fallback)
-   */
-  private simplePlaceholderSubstitution(content: string, data: Record<string, any>): string {
-    let processedContent = content;
-
-    // Substitui cada placeholder pelos dados correspondentes
-    Object.entries(data).forEach(([key, value]) => {
-      const placeholder = `{{${key}}}`;
-      const regex = new RegExp(placeholder, 'g');
-      processedContent = processedContent.replace(regex, value || '');
-    });
-
-    return processedContent;
-  }
-
-  /**
-   * Valida um template Handlebars
-   */
-  validateTemplate(template: string): boolean {
-    return this.templateEngine.validateTemplate(template);
-  }
-
-  /**
-   * Lista todos os helpers disponíveis
-   */
-  getAvailableHelpers(): string[] {
-    return this.templateEngine.getAvailableHelpers();
-  }
-
-  /**
-   * Lista todos os partials disponíveis
-   */
-  getAvailablePartials(): string[] {
-    return this.templateEngine.getAvailablePartials();
-  }
-
-  /**
-   * Gera um exemplo de template com dados de teste
-   */
-  generateExampleTemplate(): { template: string; data: TemplateData } {
-    const template = `
-{{> header}}
-
-<div class="content">
-    {{> moradorInfo}}
-    {{> condominioInfo}}
-    {{> cobrancaInfo}}
     
-    <div class="mb-20">
-        <h2>Olá {{nome_morador}}!</h2>
-        <p>Esta é uma cobrança referente ao mês de {{monthYear data_vencimento}}.</p>
-        <p>Valor: {{currency valor}}</p>
-        <p>Vencimento: {{dateFull data_vencimento}}</p>
+    return mimeTypes[ext] || 'application/octet-stream';
+  }
+
+  /**
+   * Limpa imagens não utilizadas (opcional)
+   * @param usedImageUrls - Array de URLs de imagens em uso
+   * @returns Número de imagens removidas
+   */
+  async cleanUnusedImages(usedImageUrls: string[]): Promise<number> {
+    try {
+      const files = fs.readdirSync(this.uploadDir);
+      let removedCount = 0;
+
+      for (const file of files) {
+        const fileUrl = `/uploads/images/${file}`;
+        const isUsed = usedImageUrls.some(url => url.includes(file));
         
-        {{#if diasAtraso}}
-        <div class="warning">
-            <p>⚠️ Esta cobrança está em atraso há {{daysLate data_vencimento}} dias.</p>
-            <p>Valor com multa: {{valueWithPenalty valor (daysLate data_vencimento)}}</p>
-        </div>
-        {{/if}}
-    </div>
-</div>
+        if (!isUsed) {
+          const filePath = path.join(this.uploadDir, file);
+          fs.unlinkSync(filePath);
+          removedCount++;
+          console.log(`🗑️ Imagem não utilizada removida: ${file}`);
+        }
+      }
 
-{{> footer}}`;
-
-    const data: TemplateData = {
-      nome_morador: 'João Silva',
-      email: 'joao@email.com',
-      telefone: '11999887766',
-      bloco: 'A',
-      apartamento: '101',
-      nome_condominio: 'Residencial Exemplo',
-      cnpj: '12345678000190',
-      logradouro: 'Rua das Flores',
-      numero: '123',
-      bairro: 'Centro',
-      cidade: 'São Paulo',
-      estado: 'SP',
-      valor: 500.00,
-      data_vencimento: new Date('2024-02-15'),
-      diasAtraso: 5
-    };
-
-    return { template, data };
+      console.log(`✅ ${removedCount} imagens não utilizadas removidas`);
+      return removedCount;
+    } catch (error) {
+      console.error('❌ Erro ao limpar imagens não utilizadas:', error);
+      return 0;
+    }
   }
 }
