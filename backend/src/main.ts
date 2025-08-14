@@ -5,9 +5,9 @@ import { SwaggerModule, DocumentBuilder } from '@nestjs/swagger';
 import { json, urlencoded } from 'express';
 import { join } from 'path';
 import { NestExpressApplication } from '@nestjs/platform-express';
+import * as fs from 'fs';
 
 async function bootstrap() {
-  // Removido HTTPS para produção, pois o proxy (Traefik/Nginx) já faz o HTTPS
   const app = await NestFactory.create<NestExpressApplication>(AppModule);
 
   // Configurações básicas
@@ -35,9 +35,10 @@ async function bootstrap() {
       'https://app.raunaimer.adv.br',
       'http://raunaimer.adv.br',
       'https://raunaimer.adv.br'
-    ], // Permite requisições do frontend e landing page
-    methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
+    ],
+    methods: 'GET,HEAD,PUT,PATCH,POST,DELETE,OPTIONS',
     credentials: true,
+    allowedHeaders: ['Content-Type', 'Authorization'],
   });
 
   // Define um prefixo global para todas as rotas da API
@@ -45,27 +46,56 @@ async function bootstrap() {
 
   // Configurar arquivos estáticos para uploads
   const uploadsPath = join(__dirname, '..', 'uploads');
+  const imagesPath = join(uploadsPath, 'images');
+  
   console.log('=== CONFIGURAÇÃO DE ARQUIVOS ESTÁTICOS ===');
   console.log('📂 Caminho dos uploads:', uploadsPath);
-  console.log('🔗 Prefixo da URL:', '/api/static/uploads/');
+  console.log('📂 Caminho das imagens:', imagesPath);
   
-  // Verifica se o diretório existe
-  const fs = require('fs');
-  if (fs.existsSync(uploadsPath)) {
-    console.log('✅ Diretório de uploads existe');
-    const files = fs.readdirSync(uploadsPath);
-    console.log(`📁 Arquivos encontrados: ${files.length}`);
-  } else {
-    console.log('❌ Diretório de uploads não existe, será criado automaticamente');
+  // Criar diretórios se não existirem
+  if (!fs.existsSync(uploadsPath)) {
+    fs.mkdirSync(uploadsPath, { recursive: true });
+    console.log('✅ Diretório de uploads criado');
   }
   
+  if (!fs.existsSync(imagesPath)) {
+    fs.mkdirSync(imagesPath, { recursive: true });
+    console.log('✅ Diretório de imagens criado');
+  }
+  
+  // IMPORTANTE: Configurar para servir arquivos estáticos
+  // O frontend espera acessar as imagens em /uploads/images/
   app.useStaticAssets(uploadsPath, {
-    prefix: '/api/static/uploads/',
+    prefix: '/uploads/',
+    index: false,
+    setHeaders: (res, path) => {
+      // Headers para melhor cache e segurança
+      res.setHeader('Cache-Control', 'public, max-age=3600');
+      res.setHeader('X-Content-Type-Options', 'nosniff');
+    },
   });
   
   console.log('✅ Servidor de arquivos estáticos configurado');
+  console.log('📍 Imagens acessíveis em: /uploads/images/[arquivo]');
+  
+  // Log de arquivos existentes
+  try {
+    const files = fs.readdirSync(imagesPath);
+    if (files.length > 0) {
+      console.log(`📁 ${files.length} imagens encontradas`);
+      console.log('📄 Exemplos:', files.slice(0, 3).join(', '));
+    } else {
+      console.log('📁 Nenhuma imagem encontrada ainda');
+    }
+  } catch (error) {
+    console.log('⚠️ Erro ao listar imagens:', error.message);
+  }
 
-  await app.listen(3001);
-  console.log(`Application is running on: ${await app.getUrl()}`);
+  const PORT = process.env.PORT || 3001;
+  await app.listen(PORT);
+  
+  console.log(`🚀 Application is running on: ${await app.getUrl()}`);
+  console.log(`📷 Teste de imagem: ${await app.getUrl()}/uploads/images/teste.png`);
+  console.log(`📚 API Docs: ${await app.getUrl()}/api-docs`);
 }
 bootstrap();
