@@ -5,9 +5,17 @@ import * as fs from 'fs';
 
 @Injectable()
 export class ImagePreviewService {
-  private uploadDir = path.join(__dirname, '../../../uploads/images');
+  private uploadDir: string;
 
   constructor() {
+    // Usa o diretório raiz do projeto como base
+    // Em produção: /var/www/sistema_raunaimer/uploads/images
+    const projectRoot = process.cwd();
+    this.uploadDir = path.join(projectRoot, 'uploads', 'images');
+    
+    console.log('📍 Diretório raiz do projeto:', projectRoot);
+    console.log('📁 Diretório de uploads configurado:', this.uploadDir);
+    
     // Cria o diretório de uploads se não existir
     if (!fs.existsSync(this.uploadDir)) {
       fs.mkdirSync(this.uploadDir, { recursive: true });
