@@ -160,6 +160,14 @@ export class CobrancaService {
       );
       console.log('✅ Conteúdo processado (primeiros 200 chars):', conteudoProcessado.substring(0, 200));
 
+      // Processa o título com campos dinâmicos
+      console.log('🔧 Processando título com campos dinâmicos...');
+      const tituloProcessado = this.emailTemplateService.substitutePlaceholders(
+        cobranca.modeloCarta.titulo,
+        dadosProcessados
+      );
+      console.log('✅ Título processado:', tituloProcessado);
+
       // Gera template de email com CID
       console.log('🔧 Gerando template de email...');
       const emailTemplate = await this.emailTemplateService.generateEmailTemplate(
@@ -176,7 +184,7 @@ export class CobrancaService {
       console.log('📧 Enviando email...');
       await this.enviarEmailComCid(
         cobranca.morador.email,
-        cobranca.modeloCarta.titulo,
+        tituloProcessado,
         emailTemplate
       );
 

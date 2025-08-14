@@ -632,6 +632,16 @@ export const AdvancedModeloEditor = ({ modelo, onSave, onDelete, isSaving }: Pro
     return baseContent;
   }, [previewMode, conteudoValue, gerarPreviewDinamico, headerImage, footerImage]);
 
+  /**
+   * Gera o título processado para preview
+   */
+  const getPreviewTitle = useCallback(() => {
+    if (previewMode.showVariables) {
+      return gerarPreviewDinamico(tituloValue || '');
+    }
+    return tituloValue || 'Título do modelo';
+  }, [previewMode.showVariables, tituloValue, gerarPreviewDinamico]);
+
   // Estado para o conteúdo do preview
   const [previewContent, setPreviewContent] = useState<string>('');
 
@@ -957,6 +967,14 @@ export const AdvancedModeloEditor = ({ modelo, onSave, onDelete, isSaving }: Pro
                             <div className="font-mono text-xs text-blue-600">
                               [Header: cid:{headerImage.cid}]
                             </div>
+                          </div>
+                        )}
+                        
+                        {/* Título do Email */}
+                        {previewMode.showVariables && (
+                          <div className="mb-4 p-3 bg-gray-50 border rounded">
+                            <div className="text-sm font-medium text-gray-700 mb-1">Assunto do Email:</div>
+                            <div className="text-sm text-gray-900">{getPreviewTitle()}</div>
                           </div>
                         )}
                         

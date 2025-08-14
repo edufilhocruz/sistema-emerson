@@ -162,7 +162,7 @@ export const ModelosList: React.FC = () => {
   if (loading) {
     return (
       <div className="flex items-center justify-center p-8">
-        <div className="w-8 h-8 border-2 border-gray-300 rounded-full border-t-blue-600 animate-spin mr-2" />
+        <div className="w-8 h-8 mr-2 border-2 border-gray-300 rounded-full border-t-blue-600 animate-spin" />
         <span>Carregando modelos...</span>
       </div>
     );
@@ -173,7 +173,7 @@ export const ModelosList: React.FC = () => {
       {/* Cabeçalho */}
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-3xl font-bold text-foreground flex items-center gap-2">
+          <h1 className="flex items-center gap-2 text-3xl font-bold text-foreground">
             <FileText className="w-8 h-8" />
             Modelos de Carta
           </h1>
@@ -191,10 +191,10 @@ export const ModelosList: React.FC = () => {
       {/* Lista de Modelos */}
       {modelos.length === 0 ? (
         <Card>
-          <CardContent className="text-center py-12">
+          <CardContent className="py-12 text-center">
             <FileText className="w-12 h-12 mx-auto mb-4 text-gray-400" />
-            <h3 className="text-lg font-medium mb-2">Nenhum modelo encontrado</h3>
-            <p className="text-muted-foreground mb-4">
+            <h3 className="mb-2 text-lg font-medium">Nenhum modelo encontrado</h3>
+            <p className="mb-4 text-muted-foreground">
               Crie seu primeiro modelo de carta para começar
             </p>
             <Button onClick={handleCreate}>
@@ -204,9 +204,9 @@ export const ModelosList: React.FC = () => {
           </CardContent>
         </Card>
       ) : (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
           {modelos.map((modelo) => (
-            <Card key={modelo.id} className="hover:shadow-lg transition-shadow">
+            <Card key={modelo.id} className="transition-shadow hover:shadow-lg">
               <CardHeader>
                 <div className="flex items-start justify-between">
                   <div className="flex-1">
