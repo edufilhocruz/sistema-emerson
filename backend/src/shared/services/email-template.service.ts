@@ -14,7 +14,7 @@ export class EmailTemplateService {
   }
 
   /**
-   * Processa um template de email substituindo URLs por CID
+   * Processa um template de email substituindo URLs por CID e adicionando imagens
    * @param htmlContent - Conteúdo HTML do template
    * @param headerImageUrl - URL da imagem do header
    * @param footerImageUrl - URL da imagem do footer
@@ -32,7 +32,14 @@ export class EmailTemplateService {
     if (headerImageUrl) {
       const headerCid = await this.processImageForEmail(headerImageUrl, 'header');
       if (headerCid) {
-        processedHtml = this.replaceImageUrlsWithCid(processedHtml, headerImageUrl, headerCid.cid);
+        // Adicionar imagem do header no início do HTML se não existir
+        if (!processedHtml.includes('src="' + headerImageUrl) && !processedHtml.includes('cid:' + headerCid.cid)) {
+          const headerImg = `<img src="cid:${headerCid.cid}" alt="Header" style="max-width: 100%; height: auto; display: block; margin: 0 auto;" />`;
+          processedHtml = headerImg + '\n' + processedHtml;
+        } else {
+          // Substituir URL existente por CID
+          processedHtml = this.replaceImageUrlsWithCid(processedHtml, headerImageUrl, headerCid.cid);
+        }
         attachments.push(headerCid);
       }
     }
@@ -41,7 +48,14 @@ export class EmailTemplateService {
     if (footerImageUrl) {
       const footerCid = await this.processImageForEmail(footerImageUrl, 'footer');
       if (footerCid) {
-        processedHtml = this.replaceImageUrlsWithCid(processedHtml, footerImageUrl, footerCid.cid);
+        // Adicionar imagem do footer no final do HTML se não existir
+        if (!processedHtml.includes('src="' + footerImageUrl) && !processedHtml.includes('cid:' + footerCid.cid)) {
+          const footerImg = `<img src="cid:${footerCid.cid}" alt="Footer" style="max-width: 100%; height: auto; display: block; margin: 0 auto;" />`;
+          processedHtml = processedHtml + '\n' + footerImg;
+        } else {
+          // Substituir URL existente por CID
+          processedHtml = this.replaceImageUrlsWithCid(processedHtml, footerImageUrl, footerCid.cid);
+        }
         attachments.push(footerCid);
       }
     }
