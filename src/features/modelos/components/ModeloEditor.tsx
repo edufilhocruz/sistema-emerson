@@ -106,21 +106,14 @@ export const ModeloEditor = ({ modelo, onSave, onDelete, isSaving }: Props) => {
       return imageUrl;
     }
     
-    // Se é uma URL relativa (começa com /uploads/), adiciona o domínio correto
+    // Se é uma URL relativa (começa com /uploads/), converte para o caminho do nginx
     if (imageUrl.startsWith('/uploads/')) {
-      // Em produção, usa o mesmo domínio (proxy reverso)
-      // Em desenvolvimento, usa a URL do backend
-      if (window.location.hostname === 'app.raunaimer.adv.br') {
-        // Produção: mesmo domínio (nginx faz o proxy)
-        return imageUrl;
-      } else {
-        // Desenvolvimento: backend em porta diferente
-        return `http://localhost:3001${imageUrl}`;
-      }
+      // Converte /uploads/images/ para /api/static/uploads/images/
+      return imageUrl.replace('/uploads/', '/api/static/uploads/');
     }
     
-    // Se não tem o caminho completo, adiciona /uploads/images/
-    return `/uploads/images/${imageUrl}`;
+    // Se não tem o caminho completo, adiciona o prefixo correto
+    return `/api/static/uploads/images/${imageUrl}`;
   }, []);
 
   /**
