@@ -74,7 +74,8 @@ interface PreviewMode {
  */
 export const AdvancedModeloEditor = ({ modelo, onSave, onDelete, isSaving }: Props) => {
   const { toast } = useToast();
-  const fileInputRef = useRef<HTMLInputElement>(null);
+  const headerFileInputRef = useRef<HTMLInputElement>(null);
+  const footerFileInputRef = useRef<HTMLInputElement>(null);
   const dropZoneRef = useRef<HTMLDivElement>(null);
 
   // Estados principais
@@ -457,7 +458,7 @@ export const AdvancedModeloEditor = ({ modelo, onSave, onDelete, isSaving }: Pro
                   type="button"
                   variant="secondary"
                   size="sm"
-                  onClick={() => fileInputRef.current?.click()}
+                  onClick={() => isHeader ? headerFileInputRef.current?.click() : footerFileInputRef.current?.click()}
                 >
                   <Upload className="w-3 h-3 mr-1" />
                   Trocar
@@ -498,7 +499,7 @@ export const AdvancedModeloEditor = ({ modelo, onSave, onDelete, isSaving }: Pro
               type="button" 
               variant="outline" 
               size="sm"
-              onClick={() => fileInputRef.current?.click()}
+              onClick={() => isHeader ? headerFileInputRef.current?.click() : footerFileInputRef.current?.click()}
             >
               Tentar Novamente
             </Button>
@@ -514,7 +515,7 @@ export const AdvancedModeloEditor = ({ modelo, onSave, onDelete, isSaving }: Pro
             onDragOver={handleDragOver}
             onDragLeave={handleDragLeave}
             onDrop={(e) => handleDrop(e, type)}
-            onClick={() => fileInputRef.current?.click()}
+            onClick={() => isHeader ? headerFileInputRef.current?.click() : footerFileInputRef.current?.click()}
           >
             <Upload className="w-8 h-8 mx-auto mb-2 text-gray-400" />
             <p className="mb-2 text-sm font-medium text-gray-600">
@@ -535,7 +536,7 @@ export const AdvancedModeloEditor = ({ modelo, onSave, onDelete, isSaving }: Pro
           type="file"
           accept="image/*"
           className="hidden"
-          ref={fileInputRef}
+          ref={isHeader ? headerFileInputRef : footerFileInputRef}
           onChange={(e) => {
             const file = e.target.files?.[0];
             if (file) onUpload(file);
@@ -696,10 +697,52 @@ export const AdvancedModeloEditor = ({ modelo, onSave, onDelete, isSaving }: Pro
                       <FormItem>
                         <FormLabel>Título do Modelo</FormLabel>
                         <FormControl>
-                          <Input 
-                            placeholder="Ex: Cobrança de Condomínio - Janeiro 2024" 
-                            {...field} 
-                          />
+                          <div className="space-y-2">
+                            <Input 
+                              placeholder="Ex: Cobrança de Condomínio - Janeiro 2024" 
+                              {...field} 
+                            />
+                            <div className="flex flex-wrap gap-1">
+                              <span className="text-xs text-gray-500 mr-2">Campos dinâmicos:</span>
+                              {camposDinamicos && (
+                                <>
+                                  <Badge
+                                    variant="outline"
+                                    className="transition-colors cursor-pointer hover:bg-gray-100 text-xs"
+                                    onClick={() => {
+                                      const currentValue = field.value || '';
+                                      const newValue = currentValue ? `${currentValue} {{nome_condominio}}` : '{{nome_condominio}}';
+                                      field.onChange(newValue);
+                                    }}
+                                  >
+                                    nome_condominio
+                                  </Badge>
+                                  <Badge
+                                    variant="outline"
+                                    className="transition-colors cursor-pointer hover:bg-gray-100 text-xs"
+                                    onClick={() => {
+                                      const currentValue = field.value || '';
+                                      const newValue = currentValue ? `${currentValue} {{mes_referencia}}` : '{{mes_referencia}}';
+                                      field.onChange(newValue);
+                                    }}
+                                  >
+                                    mes_referencia
+                                  </Badge>
+                                  <Badge
+                                    variant="outline"
+                                    className="transition-colors cursor-pointer hover:bg-gray-100 text-xs"
+                                    onClick={() => {
+                                      const currentValue = field.value || '';
+                                      const newValue = currentValue ? `${currentValue} {{data_atual}}` : '{{data_atual}}';
+                                      field.onChange(newValue);
+                                    }}
+                                  >
+                                    data_atual
+                                  </Badge>
+                                </>
+                              )}
+                            </div>
+                          </div>
                         </FormControl>
                         <FormMessage />
                       </FormItem>
