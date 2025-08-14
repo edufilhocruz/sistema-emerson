@@ -475,13 +475,13 @@ export const AdvancedModeloEditor = ({ modelo, onSave, onDelete, isSaving }: Pro
               </div>
             </div>
 
-            {/* Info técnica */}
-            <div className="mt-2 text-xs text-gray-500">
+            {/* Info técnica - REMOVIDA para interface mais limpa */}
+            {/* <div className="mt-2 text-xs text-gray-500">
               <div className="flex items-center justify-between">
                 <span>CID: {imageState.cid}</span>
                 <span>URL: {imageState.url}</span>
               </div>
-            </div>
+            </div> */}
           </div>
         ) : imageState.loading ? (
           <div className="p-6 text-center border-2 border-gray-300 border-dashed rounded-lg">
