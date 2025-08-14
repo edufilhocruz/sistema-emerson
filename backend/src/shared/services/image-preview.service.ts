@@ -5,7 +5,7 @@ import * as fs from 'fs';
 
 @Injectable()
 export class ImagePreviewService {
-  private uploadDir = path.join(__dirname, '../../uploads/images');
+  private uploadDir = path.join(__dirname, '../../../uploads/images');
 
   constructor() {
     // Cria o diretório de uploads se não existir
