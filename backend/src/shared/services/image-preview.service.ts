@@ -38,7 +38,7 @@ export class ImagePreviewService {
 
       // URL para preview no frontend
       // Esta URL será servida pelo NestJS através do serviço de arquivos estáticos
-      const previewUrl = `/uploads/images/${fileName}`;
+      const previewUrl = `/api/static/uploads/images/${fileName}`;
 
       console.log('=== IMAGEM PROCESSADA COM SUCESSO ===');
       console.log('📁 Arquivo salvo como:', fileName);
