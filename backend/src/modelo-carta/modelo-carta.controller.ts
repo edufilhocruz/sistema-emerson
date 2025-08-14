@@ -15,6 +15,7 @@ import { ModeloCartaService } from './modelo-carta.service';
 import { CreateModeloCartaDto } from './dto/create-modelo-carta.dto';
 import { UpdateModeloCartaDto } from './dto/update-modelo-carta.dto';
 import { FileManagerService } from '../shared/services/file-manager.service';
+import { ImagePreviewService } from '../shared/services/image-preview.service';
 
 /**
  * Controller responsável por gerenciar modelos de carta
@@ -24,7 +25,8 @@ import { FileManagerService } from '../shared/services/file-manager.service';
 export class ModeloCartaController {
   constructor(
     private readonly modeloCartaService: ModeloCartaService,
-    private readonly fileManager: FileManagerService
+    private readonly fileManager: FileManagerService,
+    private readonly imagePreviewService: ImagePreviewService
   ) {
     console.log('=== MODELO CARTA CONTROLLER INSTANCIADO ===');
   }
@@ -53,28 +55,33 @@ export class ModeloCartaController {
     return { message: 'Teste funcionando!' };
   }
 
+  /**
+   * Upload de imagem com geração de URL temporária e CID
+   */
   @Post('upload-image')
-  @UseInterceptors(FileInterceptor('image'))
+  @UseInterceptors(FileInterceptor('file'))
   async uploadImage(@UploadedFile() file: Express.Multer.File) {
     if (!file) {
       throw new BadRequestException('Nenhuma imagem enviada.');
     }
 
     try {
-      console.log(`=== UPLOAD DE IMAGEM: ${file.originalname} ===`);
+      console.log(`=== UPLOAD DE IMAGEM ===`);
+      console.log(`📁 Nome: ${file.originalname}`);
+      console.log(`📏 Tamanho: ${file.size} bytes`);
       
-      // Usa o FileManagerService para salvar a imagem
-      const imageUrl = await this.fileManager.saveImage(file);
+      // Usa o ImagePreviewService para gerar URL temporária e CID
+      const result = await this.imagePreviewService.saveAndGeneratePreview(file);
       
-      console.log(`✅ Imagem salva com sucesso: ${imageUrl}`);
+      console.log(`✅ Imagem processada com sucesso!`);
+      console.log(`🔗 URL temporária: ${result.previewUrl}`);
+      console.log(`📧 CID: ${result.cid}`);
 
       return {
-        success: true,
-        imageUrl: imageUrl,
-        mimeType: file.mimetype,
-        size: file.size,
-        filename: file.originalname
+        cid: result.cid,
+        previewUrl: result.previewUrl
       };
+
     } catch (error) {
       console.error('❌ Erro ao processar imagem:', error);
       throw new BadRequestException(`Erro ao processar a imagem: ${error.message}`);
