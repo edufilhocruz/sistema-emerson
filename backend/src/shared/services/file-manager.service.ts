@@ -24,4 +24,24 @@ export class FileManagerService {
       cid: `cid:${fileName}@app`
     };
   }
+
+  /**
+   * Remove uma imagem do sistema
+   */
+  async deleteImage(imageUrl: string): Promise<void> {
+    try {
+      if (!imageUrl) return;
+
+      const fileName = path.basename(imageUrl);
+      const filePath = path.join(this.uploadDir, fileName);
+
+      if (fs.existsSync(filePath)) {
+        fs.unlinkSync(filePath);
+        console.log(`✅ Imagem removida: ${fileName}`);
+      }
+
+    } catch (error) {
+      console.error(`❌ Erro ao remover imagem: ${error.message}`);
+    }
+  }
 }
