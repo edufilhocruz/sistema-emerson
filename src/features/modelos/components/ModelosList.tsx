@@ -306,11 +306,14 @@ export const ModelosList: React.FC = () => {
 
       {/* Dialog do Editor */}
       <Dialog open={isEditorOpen} onOpenChange={setIsEditorOpen}>
-        <DialogContent className="max-w-7xl max-h-[90vh] overflow-y-auto">
+        <DialogContent className="max-w-7xl max-h-[90vh] overflow-y-auto" aria-describedby="editor-description">
           <DialogHeader>
             <DialogTitle>
               {selectedModelo?.id ? 'Editar Modelo' : 'Novo Modelo'}
             </DialogTitle>
+            <div id="editor-description" className="sr-only">
+              Editor avançado para criação e edição de modelos de carta com preview em tempo real
+            </div>
           </DialogHeader>
           
           {selectedModelo && (
@@ -326,9 +329,12 @@ export const ModelosList: React.FC = () => {
 
       {/* Dialog do Preview */}
       <Dialog open={isPreviewOpen} onOpenChange={setIsPreviewOpen}>
-        <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
+        <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto" aria-describedby="preview-description">
           <DialogHeader>
             <DialogTitle>Preview do Modelo</DialogTitle>
+            <div id="preview-description" className="sr-only">
+              Visualização do modelo de carta em diferentes modos
+            </div>
           </DialogHeader>
           
           {selectedModelo && (

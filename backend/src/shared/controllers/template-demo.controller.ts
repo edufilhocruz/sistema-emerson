@@ -1,39 +1,16 @@
-import { Controller, Get, Post, Body } from '@nestjs/common';
-import { TemplateEngineService, TemplateData, TemplateConfig } from '../services/template-engine.service';
+import { Controller, Get, Post, Body, Query } from '@nestjs/common';
 import { EmailTemplateService } from '../services/email-template.service';
+import { TemplateEngineService, TemplateData, TemplateConfig } from '../services/template-engine.service';
 
 /**
- * Controller para demonstrar o sistema de templates
- * Implementa endpoints de teste e documentação
+ * Controller para demonstração e teste de templates
  */
 @Controller('template-demo')
 export class TemplateDemoController {
   constructor(
-    private readonly templateEngine: TemplateEngineService,
-    private readonly emailTemplateService: EmailTemplateService
+    private readonly emailTemplateService: EmailTemplateService,
+    private readonly templateEngine: TemplateEngineService
   ) {}
-
-  /**
-   * Lista todos os helpers disponíveis
-   */
-  @Get('helpers')
-  getAvailableHelpers() {
-    return {
-      helpers: this.templateEngine.getAvailableHelpers(),
-      description: 'Lista de todos os helpers customizados disponíveis para formatação'
-    };
-  }
-
-  /**
-   * Lista todos os partials disponíveis
-   */
-  @Get('partials')
-  getAvailablePartials() {
-    return {
-      partials: this.templateEngine.getAvailablePartials(),
-      description: 'Lista de todos os partials (componentes) disponíveis para reutilização'
-    };
-  }
 
   /**
    * Gera um exemplo de template com dados de teste
@@ -111,7 +88,7 @@ export class TemplateDemoController {
         attachments: emailTemplate.attachments.map(att => ({
           cid: att.cid,
           filename: att.filename,
-          contentType: att.contentType
+          path: att.path
         })),
         data,
         config
@@ -192,10 +169,11 @@ export class TemplateDemoController {
       unit: 'Formata unidade (bloco-apartamento)',
       monthYear: 'Formata mês/ano',
       daysLate: 'Calcula dias em atraso',
-      valueWithPenalty: 'Calcula valor com multa'
+      valueWithPenalty: 'Calcula valor com multa',
+      default: 'Helper padrão'
     };
     
-    return descriptions[helper] || 'Helper customizado';
+    return descriptions[helper] || descriptions.default;
   }
 
   /**
@@ -203,13 +181,59 @@ export class TemplateDemoController {
    */
   private getPartialDescription(partial: string): string {
     const descriptions: { [key: string]: string } = {
-      header: 'Cabeçalho padrão com logo e título',
-      footer: 'Rodapé padrão com informações do sistema',
-      moradorInfo: 'Seção com informações do morador',
-      condominioInfo: 'Seção com informações do condomínio',
-      cobrancaInfo: 'Seção com informações da cobrança'
+      header: 'Cabeçalho do email com logo e informações',
+      footer: 'Rodapé do email com contatos e links',
+      moradorInfo: 'Informações do morador (nome, email, telefone)',
+      condominioInfo: 'Informações do condomínio (nome, endereço, CNPJ)',
+      cobrancaInfo: 'Informações da cobrança (valor, vencimento, multa)',
+      default: 'Partial padrão'
     };
     
-    return descriptions[partial] || 'Componente reutilizável';
+    return descriptions[partial] || descriptions.default;
+  }
+
+  /**
+   * Testa a validação de imagens
+   */
+  @Get('validate-images')
+  async validateImages(@Query('headerImageUrl') headerImageUrl?: string, @Query('footerImageUrl') footerImageUrl?: string) {
+    try {
+      const results = {
+        header: headerImageUrl ? await this.emailTemplateService.validateImage(headerImageUrl) : null,
+        footer: footerImageUrl ? await this.emailTemplateService.validateImage(footerImageUrl) : null
+      };
+
+      return {
+        success: true,
+        results,
+        message: 'Validação de imagens concluída'
+      };
+    } catch (error) {
+      return {
+        success: false,
+        error: error.message
+      };
+    }
+  }
+
+  /**
+   * Obtém informações de uma imagem
+   */
+  @Get('image-info')
+  async getImageInfo(@Query('imageUrl') imageUrl: string) {
+    try {
+      const info = await this.emailTemplateService.getImageInfo(imageUrl);
+      
+      return {
+        success: true,
+        info,
+        message: 'Informações da imagem obtidas'
+      };
+    } catch (error) {
+      return {
+        success: false,
+        error: error.message
+      };
+    }
   }
 }

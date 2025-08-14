@@ -53,6 +53,86 @@ export class EmailTemplateService {
   }
 
   /**
+   * Método de compatibilidade - gera template de email (mantido para compatibilidade)
+   */
+  async generateEmailTemplate(
+    conteudo: string,
+    headerImageUrl?: string,
+    footerImageUrl?: string,
+    templateData?: any,
+    config?: any
+  ): Promise<{ html: string; attachments: Array<{ filename: string; path: string; cid: string }> }> {
+    // Processa o conteúdo primeiro se houver dados de template
+    let processedContent = conteudo;
+    if (templateData) {
+      processedContent = this.substitutePlaceholders(conteudo, templateData);
+    }
+
+    return this.processEmailTemplate(processedContent, headerImageUrl, footerImageUrl);
+  }
+
+  /**
+   * Método de compatibilidade - substitui placeholders (mantido para compatibilidade)
+   */
+  substitutePlaceholders(content: string, data: Record<string, any>): string {
+    let processedContent = content;
+
+    // Substitui cada placeholder pelos dados correspondentes
+    Object.entries(data).forEach(([key, value]) => {
+      const placeholder = `{{${key}}}`;
+      const regex = new RegExp(placeholder, 'g');
+      processedContent = processedContent.replace(regex, value || '');
+    });
+
+    return processedContent;
+  }
+
+  /**
+   * Método de compatibilidade - gera exemplo de template (mantido para compatibilidade)
+   */
+  generateExampleTemplate(): { template: string; data: any } {
+    const template = `
+{{> header}}
+
+<div class="content">
+    {{> moradorInfo}}
+    {{> condominioInfo}}
+    {{> cobrancaInfo}}
+    
+    <div class="mb-20">
+        <h2>Olá {{nome_morador}}!</h2>
+        <p>Esta é uma cobrança referente ao mês de {{mes_referencia}}.</p>
+        <p>Valor: {{valor_formatado}}</p>
+        <p>Vencimento: {{data_vencimento}}</p>
+    </div>
+</div>
+
+{{> footer}}`;
+
+    const data = {
+      nome_morador: 'João Silva',
+      email: 'joao@email.com',
+      telefone: '11999887766',
+      bloco: 'A',
+      apartamento: '101',
+      nome_condominio: 'Residencial Exemplo',
+      cnpj: '12345678000190',
+      logradouro: 'Rua das Flores',
+      numero: '123',
+      bairro: 'Centro',
+      cidade: 'São Paulo',
+      estado: 'SP',
+      valor: 500.00,
+      valor_formatado: 'R$ 500,00',
+      mes_referencia: 'Janeiro/2024',
+      data_vencimento: '15/01/2024',
+      data_atual: '10/01/2024'
+    };
+
+    return { template, data };
+  }
+
+  /**
    * Processa uma imagem para uso em email
    * @param imageUrl - URL da imagem
    * @param type - Tipo da imagem (header/footer)

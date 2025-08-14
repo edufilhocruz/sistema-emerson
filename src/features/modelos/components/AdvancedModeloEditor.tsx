@@ -132,10 +132,22 @@ export const AdvancedModeloEditor = ({ modelo, onSave, onDelete, isSaving }: Pro
       return imageUrl;
     }
     
+    // Se já tem o prefixo completo, retorna como está
+    if (imageUrl.startsWith('/api/static/uploads/')) {
+      return imageUrl;
+    }
+    
+    // Se tem apenas o nome do arquivo, adiciona o caminho completo
+    if (!imageUrl.includes('/')) {
+      return `/api/static/uploads/images/${imageUrl}`;
+    }
+    
+    // Se tem caminho relativo, converte para o formato correto
     if (imageUrl.startsWith('/uploads/')) {
       return imageUrl.replace('/uploads/', '/api/static/uploads/');
     }
     
+    // Fallback: assume que é apenas o nome do arquivo
     return `/api/static/uploads/images/${imageUrl}`;
   }, []);
 

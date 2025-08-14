@@ -64,9 +64,9 @@ async function bootstrap() {
   }
   
   // IMPORTANTE: Configurar para servir arquivos estáticos
-  // O frontend espera acessar as imagens em /uploads/images/
+  // O frontend espera acessar as imagens em /api/static/uploads/
   app.useStaticAssets(uploadsPath, {
-    prefix: '/uploads/',
+    prefix: '/static/uploads/',
     index: false,
     setHeaders: (res, path) => {
       // Headers para melhor cache e segurança
@@ -76,7 +76,7 @@ async function bootstrap() {
   });
   
   console.log('✅ Servidor de arquivos estáticos configurado');
-  console.log('📍 Imagens acessíveis em: /uploads/images/[arquivo]');
+  console.log('📍 Imagens acessíveis em: /api/static/uploads/images/[arquivo]');
   
   // Log de arquivos existentes
   try {
@@ -95,7 +95,7 @@ async function bootstrap() {
   await app.listen(PORT);
   
   console.log(`🚀 Application is running on: ${await app.getUrl()}`);
-  console.log(`📷 Teste de imagem: ${await app.getUrl()}/uploads/images/teste.png`);
+  console.log(`📷 Teste de imagem: ${await app.getUrl()}/api/static/uploads/images/teste.png`);
   console.log(`📚 API Docs: ${await app.getUrl()}/api-docs`);
 }
 bootstrap();
