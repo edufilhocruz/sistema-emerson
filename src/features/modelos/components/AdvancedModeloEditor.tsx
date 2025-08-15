@@ -713,12 +713,12 @@ export const AdvancedModeloEditor = ({ modelo, onSave, onDelete, isSaving }: Pro
                               {...field} 
                             />
                             <div className="flex flex-wrap gap-1">
-                              <span className="text-xs text-gray-500 mr-2">Campos dinâmicos:</span>
+                              <span className="mr-2 text-xs text-gray-500">Campos dinâmicos:</span>
                               {camposDinamicos && (
                                 <>
                                   <Badge
                                     variant="outline"
-                                    className="transition-colors cursor-pointer hover:bg-gray-100 text-xs"
+                                    className="text-xs transition-colors cursor-pointer hover:bg-gray-100"
                                     onClick={() => {
                                       const currentValue = field.value || '';
                                       const newValue = currentValue ? `${currentValue} {{nome_condominio}}` : '{{nome_condominio}}';
@@ -729,7 +729,7 @@ export const AdvancedModeloEditor = ({ modelo, onSave, onDelete, isSaving }: Pro
                                   </Badge>
                                   <Badge
                                     variant="outline"
-                                    className="transition-colors cursor-pointer hover:bg-gray-100 text-xs"
+                                    className="text-xs transition-colors cursor-pointer hover:bg-gray-100"
                                     onClick={() => {
                                       const currentValue = field.value || '';
                                       const newValue = currentValue ? `${currentValue} {{mes_referencia}}` : '{{mes_referencia}}';
@@ -740,7 +740,7 @@ export const AdvancedModeloEditor = ({ modelo, onSave, onDelete, isSaving }: Pro
                                   </Badge>
                                   <Badge
                                     variant="outline"
-                                    className="transition-colors cursor-pointer hover:bg-gray-100 text-xs"
+                                    className="text-xs transition-colors cursor-pointer hover:bg-gray-100"
                                     onClick={() => {
                                       const currentValue = field.value || '';
                                       const newValue = currentValue ? `${currentValue} {{data_atual}}` : '{{data_atual}}';
@@ -972,8 +972,8 @@ export const AdvancedModeloEditor = ({ modelo, onSave, onDelete, isSaving }: Pro
                         
                         {/* Título do Email */}
                         {previewMode.showVariables && (
-                          <div className="mb-4 p-3 bg-gray-50 border rounded">
-                            <div className="text-sm font-medium text-gray-700 mb-1">Assunto do Email:</div>
+                          <div className="p-3 mb-4 border rounded bg-gray-50">
+                            <div className="mb-1 text-sm font-medium text-gray-700">Assunto do Email:</div>
                             <div className="text-sm text-gray-900">{getPreviewTitle()}</div>
                           </div>
                         )}

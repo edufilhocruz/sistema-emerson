@@ -7,7 +7,13 @@
 
 // Tipos Genéricos e de Filtro
 export type ChargeStatus = 'sent' | 'paid' | 'overdue';
-export type DateRangeFilter = 'hoje' | '3d' | '7d' | '14d' | '30d';
+export type DateRangeFilter = 'hoje' | '3d' | '7d' | '14d' | '30d' | 'mes_atual' | 'mes_anterior';
+
+export interface PeriodFilter {
+  mes?: number;
+  ano?: number;
+  tipo: 'periodo' | 'mes_especifico';
+}
 
 // Tipos para Componentes Específicos do Dashboard
 
@@ -18,10 +24,14 @@ export interface DashboardMetrics {
 }
 
 export interface SituacaoFinanceira {
-  pagas: number;
-  acordos: number;
-  devedores: number;
+  cobrancasEnviadasPorCondominio: number;
   errosEnvio: number;
+}
+
+export interface CobrancaEnviadaPorCondominio {
+  id: string;
+  nome: string;
+  quantidadeEmailsEnviados: number;
 }
 
 export interface CondominioPendente {

@@ -7,7 +7,7 @@ import { useDashboardData } from "@/features/dashboard/hooks/useDashboardData";
 import { ErrorBoundary } from "@/shared/ui/ErrorBoundary";
 import { DashboardFilters } from "@/features/dashboard/components/DashboardFilters";
 import { MOCK_DASHBOARD_DATA } from '@/entities/dashboard/constants';
-import { DateRangeFilter } from '@/entities/dashboard/types';
+import { DateRangeFilter, PeriodFilter } from '@/entities/dashboard/types';
 
 // Componentes do novo layout do Dashboard
 import { MetricsSection } from '@/features/dashboard/components/MetricsSection';
@@ -18,8 +18,14 @@ import { RecentChargesTable } from '@/features/dashboard/components/RecentCharge
 
 export const DashboardPage = () => {
   const [selectedCondominioId, setSelectedCondominioId] = useState('todos');
-  const [dateRange, setDateRange] = useState<DateRangeFilter>('30d');
-  const { data, loading, error } = useDashboardData(selectedCondominioId, dateRange);
+  const [dateRange, setDateRange] = useState<DateRangeFilter>('mes_atual');
+  const [periodFilter, setPeriodFilter] = useState<PeriodFilter | undefined>({
+    mes: new Date().getMonth() + 1,
+    ano: new Date().getFullYear(),
+    tipo: 'mes_especifico'
+  });
+  
+  const { data, loading, error } = useDashboardData(selectedCondominioId, dateRange, periodFilter);
 
   // A lista de condomínios para o dropdown de filtros é sempre a lista completa.
   const allCondominios = (data?.condominios || []).map(c => ({ id: c.id, name: c.nome }));
@@ -49,6 +55,7 @@ export const DashboardPage = () => {
               condominios={allCondominios}
               onCondominioChange={setSelectedCondominioId} 
               onDateRangeChange={setDateRange}
+              onPeriodChange={setPeriodFilter}
             />
           </ErrorBoundary>
 
