@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { useLocation, Link } from "react-router-dom";
-import { Home, Building2, Users, DollarSign, Settings, BarChart2, ChevronDown, UploadCloud, FileText, Send } from "lucide-react";
+import { Home, Building2, Users, DollarSign, Settings, BarChart2, ChevronDown, UploadCloud, FileText, Send, FileCheck } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 
@@ -16,6 +16,7 @@ export function Sidebar({ className }: SidebarProps) {
     { name: "Visão Geral", href: "/", icon: Home, subPath: "/" },
     { name: "Condomínios", href: "/condominios", icon: Building2, subPath: "/condominios" },
     { name: "Moradores", href: "/moradores", icon: Users, subPath: "/moradores" },
+    { name: "Contratos", href: "/contratos", icon: FileCheck, subPath: "/contratos" },
     { 
       name: "Cobranças", 
       icon: DollarSign,

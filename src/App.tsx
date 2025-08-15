@@ -16,6 +16,7 @@ import { AuthProvider, useAuth } from './hooks/useAuth';
 const IndexPage = React.lazy(() => import("./pages/Index"));
 const CondominiosPage = React.lazy(() => import("./pages/Condominio"));
 const MoradoresPage = React.lazy(() => import("./pages/Moradores"));
+const ContratosPage = React.lazy(() => import("./pages/Contratos"));
 const ConfiguracaoPage = React.lazy(() => import("./pages/Configuracao"));
 const NotFoundPage = React.lazy(() => import("./pages/NotFound"));
 const EnviarCobrancaPage = React.lazy(() => import("./pages/cobrancas/Enviar"));
@@ -34,7 +35,7 @@ function PrivateRoute({ children }: { children: JSX.Element }) {
   
   if (loading) {
     return (
-      <div className="flex h-screen w-full items-center justify-center">
+      <div className="flex items-center justify-center w-full h-screen">
         <LoadingSpinner size="lg" />
       </div>
     );
@@ -48,7 +49,7 @@ const App = () => {
   console.log('App renderizando, URL atual:', window.location.pathname);
   
   const suspenseFallback = (
-    <div className="flex h-screen w-full items-center justify-center">
+    <div className="flex items-center justify-center w-full h-screen">
       <LoadingSpinner size="lg" />
     </div>
   );
@@ -69,6 +70,7 @@ const App = () => {
                 <Route path="/dashboard" element={<PrivateRoute><IndexPage /></PrivateRoute>} />
                 <Route path="/condominios" element={<PrivateRoute><CondominiosPage /></PrivateRoute>} />
                 <Route path="/moradores" element={<PrivateRoute><MoradoresPage /></PrivateRoute>} />
+                <Route path="/contratos" element={<PrivateRoute><ContratosPage /></PrivateRoute>} />
                 <Route path="/configuracoes" element={<PrivateRoute><ConfiguracaoPage /></PrivateRoute>} />
                 
                 <Route path="/cobranca/nova" element={<PrivateRoute><EnviarCobrancaPage /></PrivateRoute>} />
