@@ -34,7 +34,7 @@ model Condominio {
 model Morador {
   id              String          @id @default(uuid())
   nome            String
-  email           String          @unique
+  email           String
   bloco           String
   apartamento     String
   telefone        String?

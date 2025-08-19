@@ -21,13 +21,7 @@ export class MoradorService {
         throw new NotFoundException(`Condomínio com ID ${createMoradorDto.condominioId} não encontrado.`);
       }
 
-      // Regra de negócio: Verificar se o e-mail já está em uso
-      const emailExists = await this.prisma.morador.findUnique({
-          where: { email: createMoradorDto.email },
-      });
-      if (emailExists) {
-          throw new ConflictException(`O e-mail ${createMoradorDto.email} já está em uso.`);
-      }
+      // Removida validação de email único para permitir múltiplas unidades por morador
 
       return this.repository.create(createMoradorDto);
     } catch (error) {
@@ -68,19 +62,7 @@ export class MoradorService {
   }
 
   async update(id: string, updateMoradorDto: UpdateMoradorDto) {
-    // Busca o morador atual para verificar se o email está sendo alterado
-    const moradorAtual = await this.findOne(id);
-    
-    // Se o email está sendo alterado, verifica se o novo email já existe
-    if (updateMoradorDto.email && updateMoradorDto.email !== moradorAtual.email) {
-      const emailExists = await this.prisma.morador.findUnique({
-        where: { email: updateMoradorDto.email },
-      });
-      if (emailExists) {
-        throw new ConflictException(`O e-mail ${updateMoradorDto.email} já está em uso.`);
-      }
-    }
-    
+    // Removida validação de email único para permitir múltiplas unidades por morador
     return this.repository.update(id, updateMoradorDto);
   }
 
@@ -124,12 +106,7 @@ export class MoradorService {
           },
         });
       }
-      // Verifica duplicidade de e-mail
-      const existe = await this.prisma.morador.findUnique({ where: { email: m.email } });
-      if (existe) {
-        duplicados.push(m.email);
-        continue;
-      }
+      // Removida verificação de duplicidade de email para permitir múltiplas unidades por morador
       try {
         const novo = await this.prisma.morador.create({
           data: {
