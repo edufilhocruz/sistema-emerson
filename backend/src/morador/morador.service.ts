@@ -110,6 +110,7 @@ export class MoradorService {
             estado = match[2].trim();
           }
         }
+        console.log('Criando condomínio:', m.condominio);
         condominio = await this.prisma.condominio.create({
           data: {
             nome: m.condominio,
@@ -122,9 +123,18 @@ export class MoradorService {
             estado,
           },
         });
+        console.log('Condomínio criado com sucesso:', condominio.id);
       }
       
       try {
+        console.log('Tentando criar morador:', {
+          nome: m.nome,
+          email: m.email,
+          bloco: m.bloco?.toString() || '',
+          apartamento: m.apto?.toString() || '',
+          condominioId: condominio.id,
+        });
+        
         const novo = await this.prisma.morador.create({
           data: {
             nome: m.nome,
@@ -136,8 +146,10 @@ export class MoradorService {
           },
         });
         criados.push(novo);
+        console.log('Morador criado com sucesso:', novo.id);
       } catch (error) {
-        naoImportados.push({ morador: m, motivo: 'Erro ao criar morador no banco de dados' });
+        console.error('Erro ao criar morador:', error);
+        naoImportados.push({ morador: m, motivo: `Erro ao criar morador: ${error.message}` });
       }
     }
     
