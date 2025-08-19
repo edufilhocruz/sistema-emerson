@@ -10,6 +10,7 @@ import { useCondominios } from '@/features/condominio/hooks/useCondominios';
 import { useModelos } from '@/features/modelos/hooks/useModelos';
 import * as XLSX from 'xlsx';
 import apiClient from '@/services/apiClient';
+import { ImportacaoResumo } from '@/features/moradores/components/ImportacaoResumo';
 
 type MoradorImportado = {
   condominio: string;
@@ -27,6 +28,8 @@ export const ImportacaoForm = () => {
   const [isProcessing, setIsProcessing] = useState(false);
   const [importedData, setImportedData] = useState<MoradorImportado[]>([]);
   const [isSaving, setIsSaving] = useState(false);
+  const [showResumo, setShowResumo] = useState(false);
+  const [resumoData, setResumoData] = useState<any>(null);
 
   const { condominioOptions, loading: loadingCondominios } = useCondominios();
   const { modelos } = useModelos();
@@ -92,15 +95,18 @@ export const ImportacaoForm = () => {
     setIsSaving(true);
     try {
       const response = await apiClient.post('/morador/importar', importedData);
-      const { duplicados, total } = response.data;
-      toast({ title: `Moradores salvos com sucesso! (${total})` });
-      if (duplicados && duplicados.length > 0) {
-        toast({
-          variant: 'destructive',
-          title: 'Alguns contatos não foram importados',
-          description: `Já existem no sistema: ${duplicados.join(', ')}`,
-        });
-      }
+      const { resumo, naoImportados } = response.data;
+      
+      // Mostrar resumo detalhado
+      setResumoData({ resumo, naoImportados });
+      setShowResumo(true);
+      
+      // Toast de sucesso
+      toast({ 
+        title: `Importação concluída!`, 
+        description: `${resumo.importados} moradores importados com sucesso.`
+      });
+      
       setImportedData([]);
     } catch (error) {
       toast({ variant: 'destructive', title: 'Erro', description: 'Não foi possível salvar os moradores.' });
@@ -160,6 +166,15 @@ export const ImportacaoForm = () => {
           </>
         )}
       </div>
+      
+      {/* Modal de Resumo */}
+      {showResumo && resumoData && (
+        <ImportacaoResumo
+          resumo={resumoData.resumo}
+          naoImportados={resumoData.naoImportados}
+          onClose={() => setShowResumo(false)}
+        />
+      )}
     </div>
   );
 };

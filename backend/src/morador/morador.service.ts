@@ -75,10 +75,27 @@ export class MoradorService {
     if (!Array.isArray(moradores)) {
       throw new Error('O payload deve ser um array de moradores.');
     }
+    
     const criados: any[] = [];
-    const duplicados: string[] = [];
+    const naoImportados: Array<{ morador: any; motivo: string }> = [];
+    
     for (const m of moradores) {
-      if (!m.nome || !m.condominio) continue; // Removida validação de email obrigatório para permitir emails vazios
+      // Validações com motivos específicos
+      if (!m.nome) {
+        naoImportados.push({ morador: m, motivo: 'Nome não informado' });
+        continue;
+      }
+      
+      if (!m.email) {
+        naoImportados.push({ morador: m, motivo: 'Email não informado' });
+        continue;
+      }
+      
+      if (!m.condominio) {
+        naoImportados.push({ morador: m, motivo: 'Condomínio não informado' });
+        continue;
+      }
+      
       // Busca ou cria o condomínio pelo nome
       let condominio = await this.prisma.condominio.findFirst({ where: { nome: m.condominio } });
       if (!condominio) {
@@ -106,12 +123,12 @@ export class MoradorService {
           },
         });
       }
-      // Removida verificação de duplicidade de email para permitir múltiplas unidades por morador
+      
       try {
         const novo = await this.prisma.morador.create({
           data: {
             nome: m.nome,
-            email: m.email || `${m.nome.toLowerCase().replace(/\s+/g, '.')}@sem-email.com`,
+            email: m.email,
             bloco: m.bloco?.toString() || '',
             apartamento: m.apto?.toString() || '',
             telefone: '',
@@ -119,10 +136,22 @@ export class MoradorService {
           },
         });
         criados.push(novo);
-      } catch {
-        // Ignora outros erros
+      } catch (error) {
+        naoImportados.push({ morador: m, motivo: 'Erro ao criar morador no banco de dados' });
       }
     }
-    return { total: criados.length, moradores: criados, duplicados };
+    
+    return { 
+      total: criados.length, 
+      moradores: criados, 
+      naoImportados,
+      totalProcessados: moradores.length,
+      resumo: {
+        importados: criados.length,
+        naoImportados: naoImportados.length,
+        total: moradores.length
+      }
+    };
   }
 }
+
