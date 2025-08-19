@@ -35,6 +35,7 @@ model Morador {
   id              String          @id @default(uuid())
   nome            String
   email           String
+  emailsAdicionais String?        // Emails adicionais separados por vírgula
   bloco           String
   apartamento     String
   telefone        String?

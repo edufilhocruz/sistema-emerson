@@ -19,6 +19,7 @@ export interface Morador {
   id: string;
   nome: string;
   email: string;
+  emailsAdicionais?: string | null;
   bloco: string;
   apartamento: string;
   telefone: string | null;
@@ -54,6 +55,25 @@ const baseFields = {
     .max(100, { message: "E-mail deve ter no máximo 100 caracteres." })
     .toLowerCase()
     .trim(),
+  
+  emailsAdicionais: z
+    .string()
+    .optional()
+    .or(z.literal(''))
+    .or(z.literal(null))
+    .or(z.literal(undefined))
+    .transform((val) => {
+      if (!val || val === '' || val === null || val === undefined) {
+        return null;
+      }
+      // Valida se todos os emails são válidos
+      const emails = val.split(',').map(email => email.trim());
+      const emailsInvalidos = emails.filter(email => email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email));
+      if (emailsInvalidos.length > 0) {
+        throw new Error(`Emails inválidos: ${emailsInvalidos.join(', ')}`);
+      }
+      return val.trim();
+    }),
   
   telefone: z
     .string()

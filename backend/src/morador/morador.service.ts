@@ -139,6 +139,7 @@ export class MoradorService {
           data: {
             nome: m.nome,
             email: m.email,
+            emailsAdicionais: m.emailsAdicionais || null,
             bloco: m.bloco?.toString() || '',
             apartamento: m.apto?.toString() || '',
             telefone: '',

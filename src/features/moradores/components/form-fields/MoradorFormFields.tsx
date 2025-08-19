@@ -81,6 +81,37 @@ const EmailField = memo(({ control }: { control: Control<MoradorFormData> }) => 
 EmailField.displayName = 'EmailField';
 
 // ============================================================================
+// COMPONENTE DE CAMPO DE EMAILS ADICIONAIS
+// ============================================================================
+
+const EmailsAdicionaisField = memo(({ control }: { control: Control<MoradorFormData> }) => (
+  <FormField
+    control={control}
+    name="emailsAdicionais"
+    render={({ field }) => (
+      <FormItem>
+        <FormLabel>E-mails Adicionais</FormLabel>
+        <FormControl>
+          <Input 
+            type="text" 
+            placeholder="email1@exemplo.com, email2@exemplo.com" 
+            {...field} 
+            autoComplete="off"
+            maxLength={500}
+          />
+        </FormControl>
+        <FormMessage />
+        <p className="text-xs text-muted-foreground">
+          Separe múltiplos e-mails por vírgula. As cobranças serão enviadas para todos os e-mails.
+        </p>
+      </FormItem>
+    )}
+  />
+));
+
+EmailsAdicionaisField.displayName = 'EmailsAdicionaisField';
+
+// ============================================================================
 // COMPONENTE DE CAMPO DE CONDOMÍNIO
 // ============================================================================
 
@@ -275,6 +306,7 @@ export const MoradorFormFields = memo(({
     <div className="space-y-4">
       <NomeField control={control} />
       <EmailField control={control} />
+      <EmailsAdicionaisField control={control} />
       <CondominioField 
         control={control} 
         condominioOptions={condominioOptions} 

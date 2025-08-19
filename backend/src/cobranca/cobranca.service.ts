@@ -180,13 +180,33 @@ export class CobrancaService {
       // Gera o HTML final com os dados processados
       const htmlFinal = this.templateEngineService.renderTemplate(emailTemplate.html, dadosProcessados);
 
-      // Envia o email
-      console.log('📧 Enviando email...');
-      await this.enviarEmailComCid(
-        cobranca.morador.email,
-        tituloProcessado,
-        emailTemplate
-      );
+      // Prepara lista de emails para envio
+      const emailsParaEnviar = [cobranca.morador.email];
+      
+      // Adiciona emails adicionais se existirem
+      if (cobranca.morador.emailsAdicionais) {
+        const emailsAdicionais = cobranca.morador.emailsAdicionais
+          .split(',')
+          .map(email => email.trim())
+          .filter(email => email && email.includes('@'));
+        emailsParaEnviar.push(...emailsAdicionais);
+      }
+      
+      console.log('📧 Enviando email para:', emailsParaEnviar);
+      
+      // Envia para todos os emails
+      for (const email of emailsParaEnviar) {
+        try {
+          await this.enviarEmailComCid(
+            email,
+            tituloProcessado,
+            emailTemplate
+          );
+          console.log(`✅ Email enviado com sucesso para: ${email}`);
+        } catch (error) {
+          console.error(`❌ Erro ao enviar email para ${email}:`, error);
+        }
+      }
 
       // Atualiza status de envio
       console.log('💾 Atualizando status de envio...');

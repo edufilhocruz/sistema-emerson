@@ -28,4 +28,8 @@ export class CreateMoradorDto {
   @IsOptional()
   @IsNumber()
   valorAluguel?: number | null;
+
+  @IsOptional()
+  @IsString()
+  emailsAdicionais?: string;
 }
