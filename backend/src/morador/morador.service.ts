@@ -78,7 +78,7 @@ export class MoradorService {
     const criados: any[] = [];
     const duplicados: string[] = [];
     for (const m of moradores) {
-      if (!m.nome || !m.email || !m.condominio) continue; // Campos essenciais
+      if (!m.nome || !m.condominio) continue; // Removida validação de email obrigatório para permitir emails vazios
       // Busca ou cria o condomínio pelo nome
       let condominio = await this.prisma.condominio.findFirst({ where: { nome: m.condominio } });
       if (!condominio) {
@@ -111,7 +111,7 @@ export class MoradorService {
         const novo = await this.prisma.morador.create({
           data: {
             nome: m.nome,
-            email: m.email,
+            email: m.email || `${m.nome.toLowerCase().replace(/\s+/g, '.')}@sem-email.com`,
             bloco: m.bloco?.toString() || '',
             apartamento: m.apto?.toString() || '',
             telefone: '',
