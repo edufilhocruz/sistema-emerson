@@ -157,6 +157,7 @@ export class DashboardService {
         condominioId: true,
         statusEnvio: true,
         dataEnvio: true,
+        createdAt: true,
         condominio: {
           select: {
             nome: true,
@@ -165,17 +166,55 @@ export class DashboardService {
       },
     });
     
-    console.log('Todas as cobranças no período:', todasCobrancas.length);
-    console.log('Cobranças por status:', {
+    // Debug: Verificar também por createdAt para comparar
+    const todasCobrancasPorCriacao = await this.prisma.cobranca.findMany({
+      where: {
+        createdAt: { gte: monthStart, lte: monthEnd },
+      },
+      select: {
+        id: true,
+        condominioId: true,
+        statusEnvio: true,
+        dataEnvio: true,
+        createdAt: true,
+        condominio: {
+          select: {
+            nome: true,
+          },
+        },
+      },
+    });
+    
+    console.log('=== COMPARAÇÃO DE MÉTODOS ===');
+    console.log('Cobranças por dataEnvio:', todasCobrancas.length);
+    console.log('Cobranças por createdAt:', todasCobrancasPorCriacao.length);
+    
+    console.log('Cobranças por status (dataEnvio):', {
       ENVIADO: todasCobrancas.filter(c => c.statusEnvio === 'ENVIADO').length,
       ERRO: todasCobrancas.filter(c => c.statusEnvio === 'ERRO').length,
       NAO_ENVIADO: todasCobrancas.filter(c => c.statusEnvio === 'NAO_ENVIADO').length,
     });
-    console.log('Detalhes das cobranças:', todasCobrancas.map(c => ({
+    
+    console.log('Cobranças por status (createdAt):', {
+      ENVIADO: todasCobrancasPorCriacao.filter(c => c.statusEnvio === 'ENVIADO').length,
+      ERRO: todasCobrancasPorCriacao.filter(c => c.statusEnvio === 'ERRO').length,
+      NAO_ENVIADO: todasCobrancasPorCriacao.filter(c => c.statusEnvio === 'NAO_ENVIADO').length,
+    });
+    
+    console.log('Detalhes das cobranças (dataEnvio):', todasCobrancas.map(c => ({
       id: c.id,
       condominio: c.condominio.nome,
       statusEnvio: c.statusEnvio,
       dataEnvio: c.dataEnvio,
+      createdAt: c.createdAt,
+    })));
+    
+    console.log('Detalhes das cobranças (createdAt):', todasCobrancasPorCriacao.map(c => ({
+      id: c.id,
+      condominio: c.condominio.nome,
+      statusEnvio: c.statusEnvio,
+      dataEnvio: c.dataEnvio,
+      createdAt: c.createdAt,
     })));
 
     // Lista de IDs dos condomínios já cobrados
