@@ -65,6 +65,14 @@ export class DashboardService {
       },
     });
     
+    console.log('Total de condomínios cadastrados:', condominios.length);
+    console.log('Lista de condomínios:', condominios.map(c => ({
+      id: c.id,
+      nome: c.nome,
+      totalMoradores: c.moradores.length,
+      totalCobrancas: c.cobrancas.length,
+    })));
+    
     // Busca as 10 cobranças mais recentes do período, incluindo dados do condomínio e morador
     const recentCharges = await this.prisma.cobranca.findMany({
       where: {
