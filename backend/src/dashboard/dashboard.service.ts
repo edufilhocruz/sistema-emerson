@@ -10,14 +10,53 @@ function getMonthStartDate() {
 export class DashboardService {
   constructor(private prisma: PrismaService) {}
 
-  async getDashboardData(mes?: string, ano?: string) {
+  async getDashboardData(mes?: string, ano?: string, periodo?: string) {
+    console.log('=== DASHBOARD SERVICE ===');
+    console.log('Parâmetros recebidos:', { mes, ano, periodo });
+    
     // Se não especificado, usa o mês/ano atual
     const dataAtual = new Date();
-    const mesAtual = mes ? parseInt(mes) - 1 : dataAtual.getMonth(); // getMonth() retorna 0-11
-    const anoAtual = ano ? parseInt(ano) : dataAtual.getFullYear();
+    let monthStart: Date;
+    let monthEnd: Date;
     
-    const monthStart = new Date(anoAtual, mesAtual, 1);
-    const monthEnd = new Date(anoAtual, mesAtual + 1, 0, 23, 59, 59, 999);
+    if (periodo) {
+      // Aplicar filtro de período
+      switch (periodo) {
+        case 'hoje':
+          monthStart = new Date(dataAtual.getFullYear(), dataAtual.getMonth(), dataAtual.getDate(), 0, 0, 0, 0);
+          monthEnd = new Date(dataAtual.getFullYear(), dataAtual.getMonth(), dataAtual.getDate(), 23, 59, 59, 999);
+          break;
+        case '7d':
+          monthStart = new Date(dataAtual.getTime() - 7 * 24 * 60 * 60 * 1000);
+          monthEnd = new Date(dataAtual.getTime());
+          break;
+        case '30d':
+          monthStart = new Date(dataAtual.getTime() - 30 * 24 * 60 * 60 * 1000);
+          monthEnd = new Date(dataAtual.getTime());
+          break;
+        case 'mes_atual':
+        default:
+          const mesAtual = mes ? parseInt(mes) - 1 : dataAtual.getMonth();
+          const anoAtual = ano ? parseInt(ano) : dataAtual.getFullYear();
+          monthStart = new Date(anoAtual, mesAtual, 1);
+          monthEnd = new Date(anoAtual, mesAtual + 1, 0, 23, 59, 59, 999);
+          break;
+        case 'mes_anterior':
+          const mesAnterior = mes ? parseInt(mes) - 1 : (dataAtual.getMonth() === 0 ? 11 : dataAtual.getMonth() - 1);
+          const anoAnterior = ano ? parseInt(ano) : (dataAtual.getMonth() === 0 ? dataAtual.getFullYear() - 1 : dataAtual.getFullYear());
+          monthStart = new Date(anoAnterior, mesAnterior, 1);
+          monthEnd = new Date(anoAnterior, mesAnterior + 1, 0, 23, 59, 59, 999);
+          break;
+      }
+    } else {
+      // Lógica original para mês/ano específico
+      const mesAtual = mes ? parseInt(mes) - 1 : dataAtual.getMonth();
+      const anoAtual = ano ? parseInt(ano) : dataAtual.getFullYear();
+      monthStart = new Date(anoAtual, mesAtual, 1);
+      monthEnd = new Date(anoAtual, mesAtual + 1, 0, 23, 59, 59, 999);
+    }
+    
+    console.log('Período calculado:', { monthStart, monthEnd, periodo });
     // Busca todos os condomínios cadastrados
     const condominios = await this.prisma.condominio.findMany({
       include: {

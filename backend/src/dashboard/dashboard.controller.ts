@@ -6,8 +6,8 @@ export class DashboardController {
   constructor(private readonly dashboardService: DashboardService) {}
 
   @Get()
-  async getDashboardData(@Query('mes') mes?: string, @Query('ano') ano?: string) {
-    return this.dashboardService.getDashboardData(mes, ano);
+  async getDashboardData(@Query('mes') mes?: string, @Query('ano') ano?: string, @Query('periodo') periodo?: string) {
+    return this.dashboardService.getDashboardData(mes, ano, periodo);
   }
 
   @Get('condominios-pendentes')

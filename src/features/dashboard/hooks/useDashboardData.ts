@@ -24,8 +24,12 @@ export const useDashboardData = (
           );
           setData(dashboardData);
         } else {
-          // Caso contrário, usa o método padrão
-          const dashboardData = await dashboardService.getDashboardData();
+          // Caso contrário, usa o método padrão com o período selecionado
+          const dashboardData = await dashboardService.getDashboardDataByPeriod(
+            undefined,
+            undefined,
+            dateRange
+          );
           setData(dashboardData);
         }
       } catch (err) {

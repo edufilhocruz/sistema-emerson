@@ -22,11 +22,12 @@ const dashboardService: IDashboardService = {
     }
   },
 
-  getDashboardDataByPeriod: async (mes?: number, ano?: number): Promise<DashboardData> => {
+  getDashboardDataByPeriod: async (mes?: number, ano?: number, periodo?: string): Promise<DashboardData> => {
     try {
       const params = new URLSearchParams();
       if (mes) params.append('mes', mes.toString());
       if (ano) params.append('ano', ano.toString());
+      if (periodo) params.append('periodo', periodo);
       
       const response = await apiClient.get<DashboardData>(`/dashboard?${params.toString()}`);
       return response.data;
