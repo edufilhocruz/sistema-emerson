@@ -10,9 +10,9 @@ interface Props {
 
 const getStatusVariant = (status: CobrancaStatus): "default" | "destructive" | "secondary" => {
     const statusMap: Record<CobrancaStatus, "default" | "destructive" | "secondary"> = {
-        'Pago': 'default',
-        'Atrasado': 'destructive',
-        'Em Aberto': 'secondary',
+        'ENVIADO': 'default',
+        'ERRO': 'destructive',
+        'NAO_ENVIADO': 'secondary',
     };
     return statusMap[status];
 }

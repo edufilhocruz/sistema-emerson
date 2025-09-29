@@ -26,9 +26,9 @@ const mockCobrancas: HistoricoCobranca[] = [
 // Função utilitária para mapear o status para a variante visual do Badge
 const getStatusVariant = (status: CobrancaStatus): "default" | "destructive" | "secondary" => {
     const statusMap = {
-        'Pago': 'default' as const,
-        'Atrasado': 'destructive' as const,
-        'Em Aberto': 'secondary' as const,
+        'ENVIADO': 'default' as const,
+        'ERRO': 'destructive' as const,
+        'NAO_ENVIADO': 'secondary' as const,
     };
     return statusMap[status] || 'secondary';
 }

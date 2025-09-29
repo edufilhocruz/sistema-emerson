@@ -439,7 +439,7 @@ export class CobrancaService {
       condominio: c.condominio?.nome || '',
       valor: c.valor,
       dataEnvio: c.dataEnvio,
-      status: c.status,
+      status: c.statusEnvio, // Usar statusEnvio como status principal
       statusEnvio: c.statusEnvio,
       vencimento: c.vencimento,
     }));

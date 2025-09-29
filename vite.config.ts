@@ -19,10 +19,10 @@ export default defineConfig(async ({ mode }) => {
   return {
     server: {
       host: "::",
-      port: 8080,
+      port: 5173,
       proxy: {
         '/api': {
-          target: 'http://localhost:3001', // Corrigido para porta 3001
+          target: 'http://localhost:8080', // Backend está na porta 8080
           changeOrigin: true,
           secure: false,
         },

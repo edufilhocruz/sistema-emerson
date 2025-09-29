@@ -64,12 +64,17 @@ export const useCobrancasReport = (condominioId?: string) => {
     if (dataToCalculate.length === 0 && !loading) return { totalArrecadado: 0, totalPendente: 0, taxaSucesso: 0 };
     if (dataToCalculate.length === 0) return null;
     
-    const totalArrecadado = dataToCalculate.filter(c => c.status === 'Pago').reduce((acc, item) => acc + item.valor, 0);
-    const totalPendente = dataToCalculate.filter(c => c.status !== 'Pago').reduce((acc, item) => acc + item.valor, 0);
-    const totalCobrancas = totalArrecadado + totalPendente;
-    const taxaSucesso = totalCobrancas > 0 ? (totalArrecadado / totalCobrancas) * 100 : 0;
+    const totalEnviadas = dataToCalculate.filter(c => c.status === 'ENVIADO').length;
+    const totalErros = dataToCalculate.filter(c => c.status === 'ERRO').length;
+    const totalNaoEnviadas = dataToCalculate.filter(c => c.status === 'NAO_ENVIADO').length;
+    const totalCobrancas = dataToCalculate.length;
+    const taxaSucesso = totalCobrancas > 0 ? (totalEnviadas / totalCobrancas) * 100 : 0;
 
-    return { totalArrecadado, totalPendente, taxaSucesso };
+    return { 
+      totalArrecadado: totalEnviadas, 
+      totalPendente: totalErros + totalNaoEnviadas, 
+      taxaSucesso 
+    };
   }, [filteredData, loading]);
 
   return {

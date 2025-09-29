@@ -33,7 +33,7 @@ export interface CobrancaImportada {
   status: 'Válido' | 'Inválido' | 'Aviso';
   mensagem?: string;
 }
-export type CobrancaStatus = 'Pago' | 'Atrasado' | 'Em Aberto';
+export type CobrancaStatus = 'ENVIADO' | 'ERRO' | 'NAO_ENVIADO';
 export interface HistoricoCobranca {
   id: string;
   morador: string;
