@@ -84,6 +84,9 @@ export class DashboardService {
     });
 
     // LÓGICA PARA STATUS DE COBRANÇA MENSAL
+    console.log('=== DEBUG DASHBOARD ===');
+    console.log('Período:', { monthStart, monthEnd });
+    
     // Busca condomínios que já têm cobranças enviadas no período
     const condominiosComCobranca = await this.prisma.cobranca.findMany({
       where: {
@@ -101,6 +104,40 @@ export class DashboardService {
       },
       distinct: ['condominioId'],
     });
+    
+    console.log('Condomínios com cobrança encontrados:', condominiosComCobranca.length);
+    console.log('Detalhes:', condominiosComCobranca.map(c => ({ id: c.condominioId, nome: c.condominio.nome })));
+    
+    // Debug: Verificar todas as cobranças no período
+    const todasCobrancas = await this.prisma.cobranca.findMany({
+      where: {
+        dataEnvio: { gte: monthStart, lte: monthEnd },
+      },
+      select: {
+        id: true,
+        condominioId: true,
+        statusEnvio: true,
+        dataEnvio: true,
+        condominio: {
+          select: {
+            nome: true,
+          },
+        },
+      },
+    });
+    
+    console.log('Todas as cobranças no período:', todasCobrancas.length);
+    console.log('Cobranças por status:', {
+      ENVIADO: todasCobrancas.filter(c => c.statusEnvio === 'ENVIADO').length,
+      ERRO: todasCobrancas.filter(c => c.statusEnvio === 'ERRO').length,
+      NAO_ENVIADO: todasCobrancas.filter(c => c.statusEnvio === 'NAO_ENVIADO').length,
+    });
+    console.log('Detalhes das cobranças:', todasCobrancas.map(c => ({
+      id: c.id,
+      condominio: c.condominio.nome,
+      statusEnvio: c.statusEnvio,
+      dataEnvio: c.dataEnvio,
+    })));
 
     // Lista de IDs dos condomínios já cobrados
     const condominiosCobradosIds = condominiosComCobranca.map(c => c.condominioId);
