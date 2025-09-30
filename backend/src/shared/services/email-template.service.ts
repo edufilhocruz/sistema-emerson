@@ -106,6 +106,9 @@ export class EmailTemplateService {
       const regex = new RegExp(placeholder, 'g');
       processedContent = processedContent.replace(regex, value || '');
     });
+    
+    // Remove placeholders vazios que possam ter sobrado
+    processedContent = processedContent.replace(/\{\{\s*\}\}/g, '');
 
     return processedContent;
   }

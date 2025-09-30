@@ -259,7 +259,10 @@ export class TemplateEngineService {
    */
   renderTemplate(template: string, data: TemplateData): string {
     try {
-      const compiledTemplate = this.compileTemplate(template);
+      // Remove placeholders vazios antes de renderizar
+      const templateLimpo = template.replace(/\{\{\s*\}\}/g, '');
+      
+      const compiledTemplate = this.compileTemplate(templateLimpo);
       return compiledTemplate(data);
     } catch (error) {
       this.logger.error(`Erro ao renderizar template: ${error.message}`);

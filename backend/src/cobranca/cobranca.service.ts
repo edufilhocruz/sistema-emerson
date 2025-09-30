@@ -195,6 +195,9 @@ export class CobrancaService {
       console.log('📧 Enviando email para:', emailsParaEnviar);
       
       // Envia para todos os emails
+      let enviosComSucesso = 0;
+      let enviosComErro = 0;
+      
       for (const email of emailsParaEnviar) {
         try {
           await this.enviarEmailComCid(
@@ -203,20 +206,29 @@ export class CobrancaService {
             emailTemplate
           );
           console.log(`✅ Email enviado com sucesso para: ${email}`);
+          enviosComSucesso++;
         } catch (error) {
           console.error(`❌ Erro ao enviar email para ${email}:`, error);
+          enviosComErro++;
         }
       }
+      
+      console.log(`📊 Resumo de envios: ${enviosComSucesso} sucesso(s), ${enviosComErro} erro(s)`);
 
       // Atualiza status de envio
+      // Se pelo menos um email foi enviado com sucesso, marca como ENVIADO
       console.log('💾 Atualizando status de envio...');
+      const statusFinal = enviosComSucesso > 0 ? StatusEnvio.ENVIADO : StatusEnvio.ERRO;
+      
       await this.prisma.cobranca.update({
         where: { id },
         data: { 
-          statusEnvio: StatusEnvio.ENVIADO,
+          statusEnvio: statusFinal,
           dataEnvio: new Date()
         },
       });
+      
+      console.log(`✅ Status atualizado para: ${statusFinal}`);
 
       console.log('✅ Cobrança enviada com sucesso');
       return { success: true, message: 'Cobrança enviada com sucesso' };
