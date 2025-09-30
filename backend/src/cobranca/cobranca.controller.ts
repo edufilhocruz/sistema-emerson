@@ -297,24 +297,34 @@ export class CobrancaController {
   @Post('corrigir-status')
   async corrigirStatus() {
     try {
-      // Busca cobranças com status ERRO que têm dataEnvio preenchido
+      // Busca cobranças com status ERRO
       const cobrancasComErro = await this.cobrancaService['prisma'].cobranca.findMany({
         where: {
           statusEnvio: 'ERRO',
-          dataEnvio: {
-            not: null,
+        },
+        select: {
+          id: true,
+          dataEnvio: true,
+          morador: {
+            select: {
+              nome: true,
+            },
           },
         },
       });
 
-      console.log(`Encontradas ${cobrancasComErro.length} cobranças com status ERRO mas com dataEnvio`);
+      console.log(`Encontradas ${cobrancasComErro.length} cobranças com status ERRO`);
+      
+      // Filtrar apenas as que têm dataEnvio preenchido (foram realmente enviadas)
+      const cobrancasParaCorrigir = cobrancasComErro.filter(c => c.dataEnvio !== null);
+      
+      console.log(`${cobrancasParaCorrigir.length} cobranças têm dataEnvio preenchido e serão corrigidas`);
 
-      // Atualiza o status para ENVIADO
+      // Atualiza o status para ENVIADO apenas das que foram realmente enviadas
       const resultado = await this.cobrancaService['prisma'].cobranca.updateMany({
         where: {
-          statusEnvio: 'ERRO',
-          dataEnvio: {
-            not: null,
+          id: {
+            in: cobrancasParaCorrigir.map(c => c.id),
           },
         },
         data: {
