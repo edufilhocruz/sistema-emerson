@@ -76,9 +76,9 @@ export class DashboardService {
     // Busca as 10 cobranças mais recentes do período, incluindo dados do condomínio e morador
     const recentCharges = await this.prisma.cobranca.findMany({
       where: {
-        dataEnvio: { gte: monthStart, lte: monthEnd },
+        createdAt: { gte: monthStart, lte: monthEnd },
       },
-      orderBy: { dataEnvio: 'desc' },
+      orderBy: { createdAt: 'desc' },
       take: 10,
       include: {
         condominio: true,
@@ -89,8 +89,9 @@ export class DashboardService {
     // Calcula o status de cobrança por condomínio no período
     const condominiumStatus = condominios.map(condo => {
       const chargesSent = condo.cobrancas.filter(c => {
-        const dataEnvio = new Date(c.dataEnvio);
-        return dataEnvio >= monthStart && dataEnvio <= monthEnd;
+        const dataCriacao = new Date(c.createdAt);
+        const foiEnviada = c.statusEnvio === 'ENVIADO' || c.statusEnvio === 'ERRO';
+        return dataCriacao >= monthStart && dataCriacao <= monthEnd && foiEnviada;
       }).length;
       return {
         id: condo.id,
@@ -103,12 +104,17 @@ export class DashboardService {
     // Total de inadimplentes (moradores com statusPagamento ATRASADO)
     const totalDefaulters = await this.prisma.morador.count({ where: { statusPagamento: 'ATRASADO' } });
     
-    // Total de cobranças enviadas no período
+    // Total de cobranças enviadas no período (ENVIADO + ERRO)
     const monthlyCharges = await this.prisma.cobranca.count({ 
       where: { 
-        dataEnvio: { gte: monthStart, lte: monthEnd } 
+        createdAt: { gte: monthStart, lte: monthEnd },
+        statusEnvio: {
+          in: ['ENVIADO', 'ERRO'], // Conta tentativas de envio
+        },
       } 
     });
+    
+    console.log('Total de cobranças no período:', monthlyCharges);
     
     // Calcular início e fim do dia de hoje
     const hoje = new Date();
@@ -123,22 +129,30 @@ export class DashboardService {
       },
     });
     
-    // Cobranças já enviadas hoje: dataEnvio hoje
+    // Cobranças já enviadas hoje: createdAt hoje e statusEnvio ENVIADO ou ERRO
     const enviadasHoje = await this.prisma.cobranca.count({
       where: {
-        dataEnvio: { gte: startOfDay, lte: endOfDay },
+        createdAt: { gte: startOfDay, lte: endOfDay },
+        statusEnvio: {
+          in: ['ENVIADO', 'ERRO'],
+        },
       },
     });
+    
+    console.log('Cobranças enviadas hoje:', enviadasHoje);
 
     // LÓGICA PARA STATUS DE COBRANÇA MENSAL
     console.log('=== DEBUG DASHBOARD ===');
     console.log('Período:', { monthStart, monthEnd });
     
-    // Busca condomínios que já têm cobranças enviadas no período
+    // Busca condomínios que já têm cobranças enviadas no período (ENVIADO ou ERRO)
+    // Considera como "cobrado" qualquer condomínio que teve tentativa de envio
     const condominiosComCobranca = await this.prisma.cobranca.findMany({
       where: {
-        dataEnvio: { gte: monthStart, lte: monthEnd },
-        statusEnvio: 'ENVIADO',
+        createdAt: { gte: monthStart, lte: monthEnd },
+        statusEnvio: {
+          in: ['ENVIADO', 'ERRO'], // Considera tanto envios bem-sucedidos quanto com erro
+        },
       },
       select: {
         condominioId: true,
@@ -241,12 +255,14 @@ export class DashboardService {
     const cobrados = condominiosCobradosIds.length;
     const pendentes = totalCondominios - cobrados;
 
-    // Calcula cobranças enviadas por condomínio no período
+    // Calcula cobranças enviadas por condomínio no período (inclui ENVIADO e ERRO)
     const cobrancasEnviadasPorCondominio = await this.prisma.cobranca.groupBy({
       by: ['condominioId'],
       where: {
-        dataEnvio: { gte: monthStart, lte: monthEnd },
-        statusEnvio: 'ENVIADO',
+        createdAt: { gte: monthStart, lte: monthEnd },
+        statusEnvio: {
+          in: ['ENVIADO', 'ERRO'], // Inclui tanto envios bem-sucedidos quanto com erro
+        },
       },
       _count: {
         id: true,
