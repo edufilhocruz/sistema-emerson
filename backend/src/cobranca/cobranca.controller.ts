@@ -290,4 +290,49 @@ export class CobrancaController {
   remove(@Param('id') id: string) {
     return this.cobrancaService.remove(id);
   }
+
+  /**
+   * Corrige status de cobranças marcadas como ERRO mas que foram enviadas
+   */
+  @Post('corrigir-status')
+  async corrigirStatus() {
+    try {
+      // Busca cobranças com status ERRO que têm dataEnvio preenchido
+      const cobrancasComErro = await this.cobrancaService['prisma'].cobranca.findMany({
+        where: {
+          statusEnvio: 'ERRO',
+          dataEnvio: {
+            not: null,
+          },
+        },
+      });
+
+      console.log(`Encontradas ${cobrancasComErro.length} cobranças com status ERRO mas com dataEnvio`);
+
+      // Atualiza o status para ENVIADO
+      const resultado = await this.cobrancaService['prisma'].cobranca.updateMany({
+        where: {
+          statusEnvio: 'ERRO',
+          dataEnvio: {
+            not: null,
+          },
+        },
+        data: {
+          statusEnvio: 'ENVIADO',
+        },
+      });
+
+      return {
+        success: true,
+        message: `${resultado.count} cobranças corrigidas de ERRO para ENVIADO`,
+        detalhes: {
+          total: cobrancasComErro.length,
+          corrigidos: resultado.count,
+        },
+      };
+    } catch (error) {
+      console.error('Erro ao corrigir status:', error);
+      throw new Error('Erro ao corrigir status das cobranças');
+    }
+  }
 }
