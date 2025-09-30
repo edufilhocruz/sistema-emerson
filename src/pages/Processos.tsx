@@ -4,17 +4,17 @@ import { Sidebar } from "@/components/layout/Sidebar";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Construction, FileText } from 'lucide-react';
 
-const ContratosPage = () => {
+const ProcessosPage = () => {
   return (
     <div className="flex h-screen bg-bg-secondary">
       <Sidebar />
       <main className="flex-1 flex flex-col overflow-hidden">
-        <Header title="Gestão de Contratos" />
+        <Header title="Gestão de Processos" />
         <div className="flex-1 overflow-y-auto p-6 lg:p-8 space-y-6">
           <Card className="rounded-2xl shadow-sm border">
             <CardHeader>
-              <CardTitle>Módulo de Contratos</CardTitle>
-              <CardDescription>Gerenciamento de contratos e documentos</CardDescription>
+              <CardTitle>Módulo de Processos</CardTitle>
+              <CardDescription>Gerenciamento de processos jurídicos</CardDescription>
             </CardHeader>
             <CardContent>
               <div className="flex flex-col items-center justify-center py-16">
@@ -27,8 +27,8 @@ const ContratosPage = () => {
                   Módulo em Construção
                 </h2>
                 <p className="text-gray-600 mb-6 text-center max-w-md">
-                  O módulo de contratos está sendo desenvolvido e estará disponível em breve.
-                  Aqui você poderá gerenciar todos os contratos e documentos relacionados aos condomínios.
+                  O módulo de processos está sendo desenvolvido e estará disponível em breve.
+                  Aqui você poderá gerenciar todos os processos jurídicos relacionados aos condomínios.
                 </p>
                 <div className="flex items-center gap-2 text-sm text-gray-500">
                   <FileText className="h-4 w-4" />
@@ -43,4 +43,4 @@ const ContratosPage = () => {
   );
 };
 
-export default ContratosPage;
+export default ProcessosPage;

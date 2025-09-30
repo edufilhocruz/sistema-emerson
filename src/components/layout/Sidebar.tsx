@@ -16,7 +16,7 @@ export function Sidebar({ className }: SidebarProps) {
     { name: "Visão Geral", href: "/", icon: Home, subPath: "/" },
     { name: "Condomínios", href: "/condominios", icon: Building2, subPath: "/condominios" },
     { name: "Moradores", href: "/moradores", icon: Users, subPath: "/moradores" },
-    { name: "Contratos", href: "/contratos", icon: FileCheck, subPath: "/contratos" },
+    { name: "Processos", href: "/processos", icon: FileCheck, subPath: "/processos" },
     { 
       name: "Cobranças", 
       icon: DollarSign,

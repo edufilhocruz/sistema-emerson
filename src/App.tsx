@@ -16,7 +16,7 @@ import { AuthProvider, useAuth } from './hooks/useAuth';
 const IndexPage = React.lazy(() => import("./pages/Index"));
 const CondominiosPage = React.lazy(() => import("./pages/Condominio"));
 const MoradoresPage = React.lazy(() => import("./pages/Moradores"));
-const ContratosPage = React.lazy(() => import("./pages/Contratos"));
+const ProcessosPage = React.lazy(() => import("./pages/Processos"));
 const ConfiguracaoPage = React.lazy(() => import("./pages/Configuracao"));
 const NotFoundPage = React.lazy(() => import("./pages/NotFound"));
 const EnviarCobrancaPage = React.lazy(() => import("./pages/cobrancas/Enviar"));
@@ -70,7 +70,7 @@ const App = () => {
                 <Route path="/dashboard" element={<PrivateRoute><IndexPage /></PrivateRoute>} />
                 <Route path="/condominios" element={<PrivateRoute><CondominiosPage /></PrivateRoute>} />
                 <Route path="/moradores" element={<PrivateRoute><MoradoresPage /></PrivateRoute>} />
-                <Route path="/contratos" element={<PrivateRoute><ContratosPage /></PrivateRoute>} />
+                <Route path="/processos" element={<PrivateRoute><ProcessosPage /></PrivateRoute>} />
                 <Route path="/configuracoes" element={<PrivateRoute><ConfiguracaoPage /></PrivateRoute>} />
                 
                 <Route path="/cobranca/nova" element={<PrivateRoute><EnviarCobrancaPage /></PrivateRoute>} />
