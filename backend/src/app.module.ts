@@ -26,6 +26,7 @@ import { RegisterController } from './register.controller';
 import { ContactController } from './contact.controller';
 import { ContactService } from './contact.service';
 import { SharedModule } from './shared/shared.module';
+import { ProcessoModule } from './processo/processo.module';
 
 @Module({
   imports: [
@@ -47,6 +48,7 @@ import { SharedModule } from './shared/shared.module';
     ModeloCartaModule,
     DashboardModule,
     SharedModule,
+    ProcessoModule,
     JwtModule.register({
       secret: 'sua_chave_secreta_aqui', // Troque por variável de ambiente em produção
       signOptions: { expiresIn: '1d' },

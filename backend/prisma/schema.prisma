@@ -122,6 +122,22 @@ model LogAuditoria {
   createdAt DateTime @default(now())
 }
 
+/// Tabela de processos jurídicos cadastrados manualmente
+model Processo {
+  id             String   @id @default(uuid())
+  nome           String
+  unidade        String
+  acaoDe         String
+  situacao       String
+  numeroProcesso String
+  valorDivida    Float?   // opcional
+  movimentacoes  String?  // texto livre
+  condominioId   String?  // opcional
+
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+}
+
 enum StatusCobranca {
   PENDENTE
   PAGO
