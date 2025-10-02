@@ -1,8 +1,11 @@
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
+import { Printer } from 'lucide-react';
 import { HistoricoCobranca, CobrancaStatus } from '../../types';
 import { useState } from 'react';
 import cobrancaService from '../../services/cobrancaService';
+import { ImpressaoModal } from '../ImpressaoModal';
 
 interface Props {
   data: HistoricoCobranca[];
@@ -19,6 +22,7 @@ const getStatusVariant = (status: CobrancaStatus): "default" | "destructive" | "
 
 export const CobrancasTable = ({ data }: Props) => {
   const [selecionados, setSelecionados] = useState<string[]>([]);
+  const [modalImpressao, setModalImpressao] = useState(false);
 
   const allSelected = data.length > 0 && selecionados.length === data.length;
   const toggleSelectAll = () => {
@@ -37,10 +41,14 @@ export const CobrancasTable = ({ data }: Props) => {
   return (
     <div className="overflow-x-auto">
       {selecionados.length > 0 && (
-        <div className="mb-2 flex justify-end">
-          <button className="bg-destructive text-white px-4 py-2 rounded" onClick={handleDeleteSelected}>
+        <div className="mb-2 flex justify-end gap-2">
+          <Button variant="outline" onClick={() => setModalImpressao(true)}>
+            <Printer className="w-4 h-4 mr-2" />
+            Imprimir Cartas ({selecionados.length})
+          </Button>
+          <Button variant="destructive" onClick={handleDeleteSelected}>
             Apagar selecionados ({selecionados.length})
-          </button>
+          </Button>
         </div>
       )}
       <Table>
@@ -87,6 +95,12 @@ export const CobrancasTable = ({ data }: Props) => {
           })}
         </TableBody>
       </Table>
+      
+      <ImpressaoModal 
+        isOpen={modalImpressao}
+        onClose={() => setModalImpressao(false)}
+        cobrancaIds={selecionados}
+      />
     </div>
   );
 };

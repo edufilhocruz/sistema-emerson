@@ -52,6 +52,10 @@ const cobrancaService = {
   deleteCobranca: async (id: string) => {
     await apiClient.delete(`/cobranca/${id}`);
   },
+  gerarCartasImpressao: async (cobrancaIds: string[]) => {
+    const response = await apiClient.post('/cobranca/gerar-impressao', { cobrancaIds });
+    return response.data;
+  },
 };
 
 export default cobrancaService;

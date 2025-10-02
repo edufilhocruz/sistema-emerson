@@ -292,6 +292,14 @@ export class CobrancaController {
   }
 
   /**
+   * Gera cobrança(s) formatada(s) para impressão
+   */
+  @Post('gerar-impressao')
+  async gerarImpressao(@Body() body: { cobrancaIds: string[] }) {
+    return this.cobrancaService.gerarCartasImpressao(body.cobrancaIds);
+  }
+
+  /**
    * Corrige status de cobranças marcadas como ERRO mas que foram enviadas
    */
   @Post('corrigir-status')

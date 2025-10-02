@@ -456,4 +456,79 @@ export class CobrancaService {
       vencimento: c.vencimento,
     }));
   }
+
+  /**
+   * Gera cartas de cobrança formatadas para impressão
+   */
+  async gerarCartasImpressao(cobrancaIds: string[]) {
+    console.log('=== GERANDO CARTAS PARA IMPRESSÃO ===');
+    console.log('IDs das cobranças:', cobrancaIds);
+
+    try {
+      const cartas = await Promise.all(
+        cobrancaIds.map(async (id) => {
+          // Busca a cobrança com dados relacionados
+          const cobranca = await this.prisma.cobranca.findUnique({
+            where: { id },
+            include: {
+              morador: true,
+              condominio: true,
+              modeloCarta: true,
+            },
+          });
+
+          if (!cobranca) {
+            throw new NotFoundException(`Cobrança ${id} não encontrada`);
+          }
+
+          // Processa os dados para substituição de placeholders
+          const dadosProcessados = this.cobrancaProcessor.processarDadosCobranca(cobranca);
+          
+          // Substitui placeholders no conteúdo do modelo
+          const conteudoProcessado = this.emailTemplateService.substitutePlaceholders(
+            cobranca.modeloCarta.conteudo,
+            dadosProcessados
+          );
+
+          // Monta endereço completo do destinatário
+          const enderecoDestinatario = [
+            cobranca.morador.nome,
+            `${cobranca.morador.bloco || ''} ${cobranca.morador.apartamento || ''}`.trim(),
+            cobranca.condominio.logradouro,
+            cobranca.condominio.numero,
+            cobranca.condominio.bairro,
+            `${cobranca.condominio.cidade}/${cobranca.condominio.estado}`,
+            cobranca.condominio.cep
+          ].filter(Boolean);
+
+          return {
+            id: cobranca.id,
+            destinatario: {
+              nome: cobranca.morador.nome,
+              endereco: enderecoDestinatario,
+              unidade: `${cobranca.morador.bloco || ''} ${cobranca.morador.apartamento || ''}`.trim()
+            },
+            conteudo: conteudoProcessado,
+            modelo: cobranca.modeloCarta.titulo,
+            valor: dadosProcessados.valor_formatado,
+            vencimento: dadosProcessados.data_vencimento,
+            condominio: cobranca.condominio.nome
+          };
+        })
+      );
+
+      console.log(`✅ ${cartas.length} cartas geradas para impressão`);
+      
+      return {
+        success: true,
+        cartas,
+        totalCartas: cartas.length,
+        message: `${cartas.length} carta(s) gerada(s) para impressão`
+      };
+
+    } catch (error) {
+      console.error('❌ Erro ao gerar cartas para impressão:', error);
+      throw error;
+    }
+  }
 }
