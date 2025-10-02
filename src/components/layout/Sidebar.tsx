@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { useLocation, Link } from "react-router-dom";
-import { Home, Building2, Users, DollarSign, Settings, BarChart2, ChevronDown, UploadCloud, FileText, Send, FileCheck } from "lucide-react";
+import { Home, Building2, Users, DollarSign, Settings, BarChart2, ChevronDown, UploadCloud, FileText, Send, FileCheck, Printer } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 
@@ -24,6 +24,7 @@ export function Sidebar({ className }: SidebarProps) {
       children: [
         // Renomeado para refletir a ação de seleção
         { name: "Cobrança Individual", href: "/cobranca/nova", icon: Send }, 
+        { name: "Imprimir Cobrança", href: "/cobrancas/imprimir", icon: Printer },
         // Renomeado para destacar o uso de planilhas
         { name: "Importar Planilha", href: "/cobrancas/importacao", icon: UploadCloud },
         { name: "Envio em Massa", href: "/cobrancas/envio-em-massa", icon: Users },

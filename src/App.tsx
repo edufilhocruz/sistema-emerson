@@ -20,6 +20,7 @@ const ProcessosPage = React.lazy(() => import("./pages/Processos"));
 const ConfiguracaoPage = React.lazy(() => import("./pages/Configuracao"));
 const NotFoundPage = React.lazy(() => import("./pages/NotFound"));
 const EnviarCobrancaPage = React.lazy(() => import("./pages/cobrancas/Enviar"));
+const ImprimirCobrancaPage = React.lazy(() => import("./pages/cobrancas/ImprimirCobranca"));
 const ImportacaoEmMassaPage = React.lazy(() => import("./pages/cobrancas/Importacao"));
 const ModelosDeCartaPage = React.lazy(() => import("./pages/cobrancas/Modelos"));
 const EnvioEmMassaPage = React.lazy(() => import("./pages/cobrancas/EnvioEmMassa"));
@@ -74,6 +75,7 @@ const App = () => {
                 <Route path="/configuracoes" element={<PrivateRoute><ConfiguracaoPage /></PrivateRoute>} />
                 
                 <Route path="/cobranca/nova" element={<PrivateRoute><EnviarCobrancaPage /></PrivateRoute>} />
+                <Route path="/cobrancas/imprimir" element={<PrivateRoute><ImprimirCobrancaPage /></PrivateRoute>} />
                 <Route path="/cobrancas/importacao" element={<PrivateRoute><ImportacaoEmMassaPage /></PrivateRoute>} />
                 <Route path="/cobrancas/modelos" element={<PrivateRoute><ModelosDeCartaPage /></PrivateRoute>} />
                 <Route path="/cobrancas/envio-em-massa" element={<PrivateRoute><EnvioEmMassaPage /></PrivateRoute>} />
