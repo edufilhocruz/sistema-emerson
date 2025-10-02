@@ -107,9 +107,6 @@ export const ImpressaoModal = ({ isOpen, onClose, cobrancaIds }: Props) => {
                     <div className="text-lg font-bold mb-2">
                       {carta.condominio}
                     </div>
-                    <div className="text-sm text-gray-600">
-                      Modelo: {carta.modelo}
-                    </div>
                   </div>
 
                   {/* Destinatário */}
