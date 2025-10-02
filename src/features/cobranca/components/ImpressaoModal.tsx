@@ -90,12 +90,13 @@ export const ImpressaoModal = ({ isOpen, onClose, cobrancaIds }: Props) => {
           ) : (
             <div className="space-y-8 print:space-y-0">
               {cartas.map((carta, index) => (
-                <div 
+                  <div 
                   key={carta.id} 
-                  className="border rounded-lg p-6 bg-white print:border-0 print:rounded-none print:p-8 print:page-break-after-always print:min-h-screen"
+                  className="border rounded-lg p-6 bg-white print:border-0 print:rounded-none print:p-8 print:page-break-after-always print:min-h-screen print:bg-white"
                   style={{ 
                     pageBreakAfter: index < cartas.length - 1 ? 'always' : 'auto',
-                    minHeight: '297mm' // A4 height
+                    minHeight: '297mm', // A4 height
+                    backgroundColor: 'white'
                   }}
                 >
                   {/* Cabeçalho da carta */}

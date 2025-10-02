@@ -5,9 +5,17 @@
 
 /* Estilos específicos para impressão */
 @media print {
+  * {
+    background: white !important;
+    color: black !important;
+  }
+  
   body {
     print-color-adjust: exact;
     -webkit-print-color-adjust: exact;
+    background: white !important;
+    margin: 0 !important;
+    padding: 0 !important;
   }
   
   .print\:hidden {
@@ -42,10 +50,15 @@
     margin-top: 0 !important;
   }
   
+  .print\:bg-white {
+    background: white !important;
+  }
+  
   /* Configurações de página para A4 */
   @page {
     size: A4;
     margin: 20mm;
+    background: white;
   }
   
   /* Quebras de página */
@@ -60,6 +73,12 @@
   /* Evitar quebra dentro de elementos */
   .no-page-break {
     page-break-inside: avoid;
+  }
+  
+  /* Remover qualquer fundo escuro */
+  .bg-black, .bg-gray-900, .bg-gray-800, .bg-dark {
+    background: white !important;
+    color: black !important;
   }
 }
 
