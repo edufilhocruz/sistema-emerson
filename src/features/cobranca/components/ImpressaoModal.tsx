@@ -32,11 +32,14 @@ export const ImpressaoModal = ({ isOpen, onClose, cobrancaIds }: Props) => {
   const handleGerar = async () => {
     setLoading(true);
     try {
+      console.log('🔄 Gerando cartas para IDs:', cobrancaIds);
       const response = await cobrancaService.gerarCartasImpressao(cobrancaIds);
+      console.log('✅ Resposta recebida:', response);
+      console.log('✅ Cartas geradas:', response.cartas);
       setCartas(response.cartas);
       setGerado(true);
     } catch (error) {
-      console.error('Erro ao gerar cartas:', error);
+      console.error('❌ Erro ao gerar cartas:', error);
     } finally {
       setLoading(false);
     }

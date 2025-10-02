@@ -1,72 +1,7 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Poppins:wght@400;500;600;700&family=Open+Sans:wght@400;500;600;700&display=swap');
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
-
-@layer base {
-  :root {
-    --background: 0 0% 100%;
-    --foreground: 222.2 84% 4.9%;
-    --card: 0 0% 100%;
-    --card-foreground: 222.2 84% 4.9%;
-    --popover: 0 0% 100%;
-    --popover-foreground: 222.2 84% 4.9%;
-    --primary: 221.2 83.2% 53.3%;
-    --primary-foreground: 210 40% 98%;
-    --secondary: 210 40% 96%;
-    --secondary-foreground: 222.2 84% 4.9%;
-    --muted: 210 40% 96%;
-    --muted-foreground: 215.4 16.3% 46.9%;
-    --accent: 210 40% 96%;
-    --accent-foreground: 222.2 84% 4.9%;
-    --destructive: 0 62.8% 30.6%;
-    --destructive-foreground: 210 40% 98%;
-    --border: 214.3 31.8% 91.4%;
-    --input: 214.3 31.8% 91.4%;
-    --ring: 221.2 83.2% 53.3%;
-    --radius: 0.75rem;
-    --chart-1: 12 76% 61%;
-    --chart-2: 173 58% 39%;
-    --chart-3: 197 37% 24%;
-    --chart-4: 43 74% 66%;
-    --chart-5: 27 87% 67%;
-  }
-
-  .dark {
-    --background: 222.2 84% 4.9%;
-    --foreground: 210 40% 98%;
-    --card: 222.2 84% 4.9%;
-    --card-foreground: 210 40% 98%;
-    --popover: 222.2 84% 4.9%;
-    --popover-foreground: 210 40% 98%;
-    --primary: 217.2 91.2% 59.8%;
-    --primary-foreground: 222.2 84% 4.9%;
-    --secondary: 217.2 32.6% 17.5%;
-    --secondary-foreground: 210 40% 98%;
-    --muted: 217.2 32.6% 17.5%;
-    --muted-foreground: 215 20.2% 65.1%;
-    --accent: 217.2 32.6% 17.5%;
-    --accent-foreground: 210 40% 98%;
-    --destructive: 0 62.8% 30.6%;
-    --destructive-foreground: 210 40% 98%;
-    --border: 217.2 32.6% 17.5%;
-    --input: 217.2 32.6% 17.5%;
-    --ring: 224.3 76.3% 94.1%;
-    --chart-1: 220 70% 50%;
-    --chart-2: 160 60% 45%;
-    --chart-3: 30 80% 55%;
-    --chart-4: 280 65% 60%;
-    --chart-5: 340 75% 55%;
-  }
-}
-
-@layer base {
-  * {
-    @apply border-border;
-  }
-  body {
-    @apply bg-background text-foreground;
-  }
-}
 
 /* Estilos específicos para impressão */
 @media print {
@@ -125,5 +60,267 @@
   /* Evitar quebra dentro de elementos */
   .no-page-break {
     page-break-inside: avoid;
+  }
+}
+
+/* CondoAdmin Design System - Gold Theme with Enhanced Animations */
+
+@layer base {
+  :root {
+    /* Primary Gold Theme */
+    --primary-gold: 40 45% 55%;
+    --primary-gold-hover: 43 50% 65%;
+    --primary-gold-light: 45 55% 85%;
+    --primary-gold-dark: 38 40% 45%;
+    
+    /* Background Colors */
+    --background: 0 0% 100%;
+    --background-secondary: 220 15% 97%;
+    --sidebar-bg: 220 14% 97%;
+    --card-gradient: linear-gradient(145deg, hsl(0 0% 100%), hsl(220 15% 98%));
+    
+    /* Text Colors */
+    --foreground: 0 0% 0%;
+    --text-secondary: 0 0% 33%;
+    --text-muted: 0 0% 65%;
+    
+    /* Card & Surface Colors */
+    --card: 0 0% 100%;
+    --card-foreground: 0 0% 0%;
+    --card-hover: 220 15% 99%;
+    
+    /* Border & Input */
+    --border: 220 13% 91%;
+    --input: 220 13% 91%;
+    --ring: 40 45% 55%;
+    
+    /* Status Colors */
+    --success: 120 50% 45%;
+    --success-light: 120 50% 95%;
+    --warning: 45 100% 55%;
+    --warning-light: 45 100% 95%;
+    --danger: 0 70% 55%;
+    --danger-light: 0 70% 95%;
+    --info: 220 70% 55%;
+    --info-light: 220 70% 95%;
+    
+    /* Chart Colors */
+    --chart-primary: 40 45% 55%;
+    --chart-secondary: 220 13% 91%;
+    
+    /* Animation & Shadows */
+    --radius: 0.75rem;
+    --shadow-sm: 0 1px 3px 0 hsl(0 0% 0% / 0.1), 0 1px 2px 0 hsl(0 0% 0% / 0.06);
+    --shadow-md: 0 4px 6px -1px hsl(0 0% 0% / 0.1), 0 2px 4px -1px hsl(0 0% 0% / 0.06);
+    --shadow-lg: 0 10px 15px -3px hsl(0 0% 0% / 0.1), 0 4px 6px -2px hsl(0 0% 0% / 0.05);
+    --shadow-gold: 0 4px 12px hsl(var(--primary-gold) / 0.15);
+    
+    /* Transitions */
+    --transition-fast: 150ms cubic-bezier(0.4, 0, 0.2, 1);
+    --transition-normal: 300ms cubic-bezier(0.4, 0, 0.2, 1);
+    --transition-slow: 500ms cubic-bezier(0.4, 0, 0.2, 1);
+    
+    /* Legacy shadcn variables for compatibility */
+    --primary: 40 45% 55%;
+    --primary-foreground: 0 0% 100%;
+    --secondary: 220 14% 97%;
+    --secondary-foreground: 0 0% 0%;
+    --muted: 220 14% 97%;
+    --muted-foreground: 0 0% 45%;
+    --accent: 220 14% 97%;
+    --accent-foreground: 0 0% 0%;
+    --destructive: 0 70% 55%;
+    --destructive-foreground: 0 0% 100%;
+    --popover: 0 0% 100%;
+    --popover-foreground: 0 0% 0%;
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+
+  body {
+    @apply bg-background text-foreground font-sans;
+  }
+}
+
+@layer components {
+  /* Enhanced Animation Classes */
+  .animate-fade-in {
+    animation: fadeIn var(--transition-normal) ease-out;
+  }
+  
+  .animate-slide-up {
+    animation: slideUp var(--transition-normal) ease-out;
+  }
+  
+  .animate-scale-in {
+    animation: scaleIn var(--transition-fast) ease-out;
+  }
+  
+  .animate-float {
+    animation: float 3s ease-in-out infinite;
+  }
+  
+  /* Card Enhancement */
+  .card-enhanced {
+    @apply bg-card border border-border rounded-xl shadow-sm transition-all duration-300;
+    background: var(--card-gradient);
+  }
+  
+  .card-enhanced:hover {
+    @apply shadow-lg;
+    box-shadow: var(--shadow-gold);
+    transform: translateY(-2px);
+  }
+  
+  /* Sidebar Link Enhancement */
+  .sidebar-link {
+    @apply flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium transition-all duration-300;
+    @apply text-text-secondary hover:bg-gold-hover hover:text-white hover:shadow-md;
+  }
+  
+  .sidebar-link.active {
+    @apply bg-gold text-white shadow-md;
+    box-shadow: var(--shadow-gold);
+  }
+  
+  .sidebar-link:hover {
+    transform: translateX(4px);
+  }
+  
+  /* Status Badge Enhancement */
+  .status-badge {
+    @apply inline-flex items-center px-3 py-1 rounded-full text-xs font-medium transition-all duration-200;
+  }
+  
+  .status-badge.success {
+    @apply bg-success-light text-success border border-success/20;
+  }
+  
+  .status-badge.info {
+    @apply bg-info-light text-info border border-info/20;
+  }
+  
+  .status-badge.danger {
+    @apply bg-danger-light text-danger border border-danger/20;
+  }
+  
+  /* Table Enhancement */
+  .table-row {
+    @apply transition-all duration-200 hover:bg-card-hover;
+  }
+  
+  /* Button Enhancement */
+  .btn-primary {
+    @apply bg-gold hover:bg-gold-hover text-white font-semibold px-6 py-2.5 rounded-lg;
+    @apply transition-all duration-300 hover:shadow-lg hover:-translate-y-0.5;
+    box-shadow: var(--shadow-gold);
+  }
+}
+
+@layer utilities {
+  /* Custom Animations */
+  @keyframes fadeIn {
+    from {
+      opacity: 0;
+      transform: translateY(20px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+  
+  @keyframes slideUp {
+    from {
+      opacity: 0;
+      transform: translateY(30px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+  
+  @keyframes scaleIn {
+    from {
+      opacity: 0;
+      transform: scale(0.95);
+    }
+    to {
+      opacity: 1;
+      transform: scale(1);
+    }
+  }
+  
+  @keyframes float {
+    0%, 100% {
+      transform: translateY(0px);
+    }
+    50% {
+      transform: translateY(-10px);
+    }
+  }
+  
+  /* Stagger Animation */
+  .stagger-animation > * {
+    opacity: 0;
+    animation: fadeIn var(--transition-normal) ease-out forwards;
+  }
+  
+  .stagger-animation > *:nth-child(1) { animation-delay: 0.1s; }
+  .stagger-animation > *:nth-child(2) { animation-delay: 0.2s; }
+  .stagger-animation > *:nth-child(3) { animation-delay: 0.3s; }
+  .stagger-animation > *:nth-child(4) { animation-delay: 0.4s; }
+  .stagger-animation > *:nth-child(5) { animation-delay: 0.5s; }
+  
+  /* Animações para elementos de fundo */
+  .animate-blob {
+    animation: blob 7s infinite;
+  }
+
+  .animation-delay-2000 {
+    animation-delay: 2s;
+  }
+
+  .animation-delay-4000 {
+    animation-delay: 4s;
+  }
+
+  @keyframes blob {
+    0% {
+      transform: translate(0px, 0px) scale(1);
+    }
+    33% {
+      transform: translate(30px, -50px) scale(1.1);
+    }
+    66% {
+      transform: translate(-20px, 20px) scale(0.9);
+    }
+    100% {
+      transform: translate(0px, 0px) scale(1);
+    }
+  }
+
+  /* Responsividade mobile */
+  @media (max-width: 768px) {
+    .container {
+      @apply px-4;
+    }
+    
+    .text-4xl {
+      font-size: 2rem;
+    }
+    
+    .text-5xl {
+      font-size: 2.5rem;
+    }
+    
+    .text-6xl {
+      font-size: 3rem;
+    }
   }
 }
