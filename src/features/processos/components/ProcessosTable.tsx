@@ -4,7 +4,7 @@ import { Badge } from '@/components/ui/badge';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Edit, Trash2, Printer, Save, X } from 'lucide-react';
+import { Edit, Trash2, Printer, Save, X, CheckCircle } from 'lucide-react';
 import processoService, { Processo } from '../services/processoService';
 import { ProcessoForm } from './ProcessoForm';
 import { DeleteConfirmationModal } from './DeleteConfirmationModal';
@@ -37,6 +37,7 @@ export const ProcessosTable: React.FC = () => {
   const [savingSituacao, setSavingSituacao] = useState(false);
   const [deleteModalOpen, setDeleteModalOpen] = useState(false);
   const [processoToDelete, setProcessoToDelete] = useState<Processo | null>(null);
+  const [showDeleteSuccess, setShowDeleteSuccess] = useState(false);
 
   const loadProcessos = async () => {
     try {
@@ -62,7 +63,14 @@ export const ProcessosTable: React.FC = () => {
   const handleDeleteConfirm = async () => {
     if (!processoToDelete) return;
     await processoService.remove(processoToDelete.id);
-    await loadProcessos();
+    setDeleteModalOpen(false);
+    setShowDeleteSuccess(true);
+    
+    // Mostrar animação de sucesso por 2 segundos
+    setTimeout(() => {
+      setShowDeleteSuccess(false);
+      await loadProcessos();
+    }, 2000);
   };
 
   const handleDeleteCancel = () => {
@@ -275,6 +283,18 @@ export const ProcessosTable: React.FC = () => {
         onConfirm={handleDeleteConfirm}
         processo={processoToDelete}
       />
+
+      {/* Overlay de Sucesso da Exclusão */}
+      {showDeleteSuccess && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-[100]">
+          <div className="bg-white rounded-2xl p-8 flex flex-col items-center space-y-4 shadow-2xl transform transition-all duration-300 ease-in-out">
+            <div className="animate-pulse">
+              <CheckCircle className="w-16 h-16 text-green-500 drop-shadow-lg" />
+            </div>
+            <p className="text-gray-800 font-bold text-xl">Processo excluído com sucesso!</p>
+          </div>
+        </div>
+      )}
 
     </div>
   );
