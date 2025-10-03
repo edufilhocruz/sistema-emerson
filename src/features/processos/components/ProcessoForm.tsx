@@ -5,7 +5,7 @@ import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
-import { Plus, FileEdit } from 'lucide-react';
+import { Plus, FileEdit, CheckCircle, Loader2 } from 'lucide-react';
 import processoService, { Processo, ProcessoCreate } from '../services/processoService';
 import condominioService from '@/features/condominio/services/condominioService';
 
@@ -17,6 +17,8 @@ interface ProcessoFormProps {
 export const ProcessoForm: React.FC<ProcessoFormProps> = ({ processo, onSuccess }) => {
   const [isOpen, setIsOpen] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [showSuccess, setShowSuccess] = useState(false);
+  const [showLoading, setShowLoading] = useState(false);
   const [formData, setFormData] = useState<ProcessoCreate>({
     nome: '',
     unidade: '',
@@ -91,6 +93,7 @@ export const ProcessoForm: React.FC<ProcessoFormProps> = ({ processo, onSuccess 
     }
 
     setLoading(true);
+    setShowLoading(true);
 
     try {
       const submitData = {
@@ -117,25 +120,34 @@ export const ProcessoForm: React.FC<ProcessoFormProps> = ({ processo, onSuccess 
         console.log('Resultado da criação:', resultado);
       }
 
-      // Reset form
-      setFormData({
-        nome: '',
-        unidade: '',
-        acaoDe: '',
-        situacao: 'EM_ANDAMENTO',
-        numeroProcesso: '',
-        valorDivida: undefined,
-        movimentacoes: '',
-        condominioId: undefined,
-      });
-
+      // Mostrar animação de sucesso
+      setShowLoading(false);
+      setShowSuccess(true);
+      
       console.log('Processo salvo com sucesso!');
-      alert('Processo salvo com sucesso!');
-      setIsOpen(false);
-      onSuccess();
+
+      // Reset form após 2 segundos e fechar modal
+      setTimeout(() => {
+        setFormData({
+          nome: '',
+          unidade: '',
+          acaoDe: '',
+          situacao: 'EM_ANDAMENTO',
+          numeroProcesso: '',
+          valorDivida: undefined,
+          movimentacoes: '',
+          condominioId: undefined,
+        });
+
+        setIsOpen(false);
+        setShowSuccess(false);
+        onSuccess();
+      }, 2000);
+      
     } catch (error) {
       console.error('ERROR AO SALVAR PROCESSO:', error);
       alert(`Erro ao salvar processo: ${error.message || error}`);
+      setShowLoading(false);
     } finally {
       setLoading(false);
     }
@@ -293,6 +305,30 @@ export const ProcessoForm: React.FC<ProcessoFormProps> = ({ processo, onSuccess 
           </div>
         </form>
       </DialogContent>
+      
+      {/* Overlay de Loading */}
+      {showLoading && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <div className="bg-white rounded-2xl p-8 flex flex-col items-center space-y-4 shadow-2xl">
+            <div className="animate-spin">
+              <Loader2 className="w-12 h-12 text-blue-600" />
+            </div>
+            <p className="text-gray-700 font-semibold text-lg">Salvando processo...</p>
+          </div>
+        </div>
+      )}
+      
+      {/* Overlay de Sucesso */}
+      {showSuccess && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <div className="bg-white rounded-2xl p-8 flex flex-col items-center space-y-4 shadow-2xl transform transition-all duration-300 ease-in-out">
+            <div className="animate-pulse">
+              <CheckCircle className="w-16 h-16 text-green-500 drop-shadow-lg" />
+            </div>
+            <p className="text-gray-800 font-bold text-xl">Processo salvo com sucesso!</p>
+          </div>
+        </div>
+      )}
     </Dialog>
   );
 };
