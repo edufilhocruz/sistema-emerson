@@ -59,7 +59,7 @@ export class CobrancaProcessor {
 
     const dadosProcessados: DadosCobrancaProcessados = {
       // Campos do morador
-      nome_morador: cobranca.morador.nome,
+      nome_morador: this.capitalizarNome(cobranca.morador.nome),
       email: cobranca.morador.email,
       telefone: cobranca.morador.telefone || 'Telefone não informado',
       bloco: cobranca.morador.bloco,
@@ -111,5 +111,29 @@ export class CobrancaProcessor {
     
     console.log('✅ Texto processado:', resultado);
     return resultado;
+  }
+
+  /**
+   * Capitaliza o nome completo do morador
+   */
+  private capitalizarNome(nome: string): string {
+    if (!nome) return '';
+    
+    // Divide o nome por espaços e capitaliza cada palavra
+    return nome.trim()
+      .split(' ')
+      .map(palavra => {
+        if (!palavra) return palavra;
+        
+        // Mantém algumas palavras em minúsculas por padrão
+        const palavrasMinusculas = ['da', 'de', 'do', 'das', 'dos', 'e'];
+        
+        if (palavrasMinusculas.includes(palavra.toLowerCase()) && palavra.length > 2) {
+          return palavra.toLowerCase();
+        }
+        
+        return palavra.charAt(0).toUpperCase() + palavra.slice(1).toLowerCase();
+      })
+      .join(' ');
   }
 }

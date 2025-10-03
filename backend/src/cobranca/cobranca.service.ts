@@ -490,9 +490,8 @@ export class CobrancaService {
             dadosProcessados
           );
 
-          // Monta endereço completo do destinatário
+          // Monta endereço completo do destinatário (sem o nome)
           const enderecoDestinatario = [
-            cobranca.morador.nome,
             `${cobranca.morador.bloco || ''} ${cobranca.morador.apartamento || ''}`.trim(),
             cobranca.condominio.logradouro,
             cobranca.condominio.numero,
@@ -504,7 +503,7 @@ export class CobrancaService {
           return {
             id: cobranca.id,
             destinatario: {
-              nome: cobranca.morador.nome,
+              nome: this.capitalizarNome(cobranca.morador.nome),
               endereco: enderecoDestinatario,
               unidade: `${cobranca.morador.bloco || ''} ${cobranca.morador.apartamento || ''}`.trim()
             },
@@ -530,5 +529,29 @@ export class CobrancaService {
       console.error('❌ Erro ao gerar cartas para impressão:', error);
       throw error;
     }
+  }
+
+  /**
+   * Capitaliza o nome completo do morador
+   */
+  private capitalizarNome(nome: string): string {
+    if (!nome) return '';
+    
+    // Divide o nome por espaços e capitaliza cada palavra
+    return nome.trim()
+      .split(' ')
+      .map(palavra => {
+        if (!palavra) return palavra;
+        
+        // Mantém algumas palavras em minúsculas por padrão
+        const palavrasMinusculas = ['da', 'de', 'do', 'das', 'dos', 'e'];
+        
+        if (palavrasMinusculas.includes(palavra.toLowerCase()) && palavra.length > 2) {
+          return palavra.toLowerCase();
+        }
+        
+        return palavra.charAt(0).toUpperCase() + palavra.slice(1).toLowerCase();
+      })
+      .join(' ');
   }
 }
