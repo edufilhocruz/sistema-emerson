@@ -92,8 +92,10 @@ export const ProcessoForm: React.FC<ProcessoFormProps> = ({ processo, onSuccess 
       return;
     }
 
+    console.log('=== INICIANDO PROCESSAMENTO ===');
     setLoading(true);
     setShowLoading(true);
+    console.log('Status setado: loading=true, showLoading=true');
 
     try {
       const submitData = {
@@ -179,7 +181,7 @@ export const ProcessoForm: React.FC<ProcessoFormProps> = ({ processo, onSuccess 
         </Button>
       </DialogTrigger>
       
-      <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
+      <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto relative">
         <DialogHeader>
           <DialogTitle>
             {processo ? 'Editar Processo' : 'Novo Processo'}
@@ -304,31 +306,31 @@ export const ProcessoForm: React.FC<ProcessoFormProps> = ({ processo, onSuccess 
             </Button>
           </div>
         </form>
+
+        {/* Overlay de Loading */}
+        {showLoading && (
+          <div className="absolute inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 rounded-lg">
+            <div className="bg-white rounded-2xl p-8 flex flex-col items-center space-y-4 shadow-2xl">
+              <div className="animate-spin">
+                <Loader2 className="w-12 h-12 text-blue-600" />
+              </div>
+              <p className="text-gray-700 font-semibold text-lg">Salvando processo...</p>
+            </div>
+          </div>
+        )}
+        
+        {/* Overlay de Sucesso */}
+        {showSuccess && (
+          <div className="absolute inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 rounded-lg">
+            <div className="bg-white rounded-2xl p-8 flex flex-col items-center space-y-4 shadow-2xl transform transition-all duration-300 ease-in-out">
+              <div className="animate-pulse">
+                <CheckCircle className="w-16 h-16 text-green-500 drop-shadow-lg" />
+              </div>
+              <p className="text-gray-800 font-bold text-xl">Processo salvo com sucesso!</p>
+            </div>
+          </div>
+        )}
       </DialogContent>
-      
-      {/* Overlay de Loading */}
-      {showLoading && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-          <div className="bg-white rounded-2xl p-8 flex flex-col items-center space-y-4 shadow-2xl">
-            <div className="animate-spin">
-              <Loader2 className="w-12 h-12 text-blue-600" />
-            </div>
-            <p className="text-gray-700 font-semibold text-lg">Salvando processo...</p>
-          </div>
-        </div>
-      )}
-      
-      {/* Overlay de Sucesso */}
-      {showSuccess && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-          <div className="bg-white rounded-2xl p-8 flex flex-col items-center space-y-4 shadow-2xl transform transition-all duration-300 ease-in-out">
-            <div className="animate-pulse">
-              <CheckCircle className="w-16 h-16 text-green-500 drop-shadow-lg" />
-            </div>
-            <p className="text-gray-800 font-bold text-xl">Processo salvo com sucesso!</p>
-          </div>
-        </div>
-      )}
     </Dialog>
   );
 };
