@@ -7,6 +7,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Edit, Trash2, Printer, Save, X } from 'lucide-react';
 import processoService, { Processo } from '../services/processoService';
 import { ProcessoForm } from './ProcessoForm';
+import { DeleteConfirmationModal } from './DeleteConfirmationModal';
 
 const SITUACAO_CORES = {
   'EM_ANDAMENTO': 'default',
@@ -34,6 +35,8 @@ export const ProcessosTable: React.FC = () => {
   const [editingSituacao, setEditingSituacao] = useState<string | null>(null);
   const [novaSituacao, setNovaSituacao] = useState<string>('');
   const [savingSituacao, setSavingSituacao] = useState(false);
+  const [deleteModalOpen, setDeleteModalOpen] = useState(false);
+  const [processoToDelete, setProcessoToDelete] = useState<Processo | null>(null);
 
   const loadProcessos = async () => {
     try {
@@ -51,15 +54,20 @@ export const ProcessosTable: React.FC = () => {
     loadProcessos();
   }, []);
 
-  const handleDelete = async (id: string) => {
-    if (confirm('Tem certeza que deseja excluir este processo?')) {
-      try {
-        await processoService.remove(id);
-        await loadProcessos();
-      } catch (error) {
-        console.error('Erro ao excluir processo:', error);
-      }
-    }
+  const handleDeleteClick = (processo: Processo) => {
+    setProcessoToDelete(processo);
+    setDeleteModalOpen(true);
+  };
+
+  const handleDeleteConfirm = async () => {
+    if (!processoToDelete) return;
+    await processoService.remove(processoToDelete.id);
+    await loadProcessos();
+  };
+
+  const handleDeleteCancel = () => {
+    setDeleteModalOpen(false);
+    setProcessoToDelete(null);
   };
 
   const handleEditSituacao = (id: string, situacaoAtual: string) => {
@@ -244,7 +252,7 @@ export const ProcessosTable: React.FC = () => {
                           <Button
                             size="sm"
                             variant="ghost"
-                            onClick={() => handleDelete(processo.id)}
+                            onClick={() => handleDeleteClick(processo)}
                             title="Excluir"
                           >
                             <Trash2 className="w-4 h-4 text-red-600" />
@@ -259,6 +267,14 @@ export const ProcessosTable: React.FC = () => {
           </div>
         </CardContent>
       </Card>
+
+      {/* Modal de Confirmação de Exclusão */}
+      <DeleteConfirmationModal
+        isOpen={deleteModalOpen}
+        onClose={handleDeleteCancel}
+        onConfirm={handleDeleteConfirm}
+        processo={processoToDelete}
+      />
 
     </div>
   );
