@@ -4,8 +4,7 @@ import { Badge } from '@/components/ui/badge';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
-import { Edit, Trash2, FileText, Printer, Save, X } from 'lucide-react';
+import { Edit, Trash2, Printer, Save, X } from 'lucide-react';
 import processoService, { Processo } from '../services/processoService';
 import { ProcessoForm } from './ProcessoForm';
 
@@ -261,21 +260,6 @@ export const ProcessosTable: React.FC = () => {
         </CardContent>
       </Card>
 
-      {/* Modal para visualizar detalhes */}
-      <Dialog>
-        <DialogTrigger asChild>
-          <Button variant="outline" className="mr-2">
-            <FileText className="w-4 h-4 mr-1" />
-            Ver Detalhes
-          </Button>
-        </DialogTrigger>
-        <DialogContent className="max-w-2xl">
-          <DialogHeader>
-            <DialogTitle>Detalhes do Processo</DialogTitle>
-          </DialogHeader>
-          {/* Implementar detalhes do processo */}
-        </DialogContent>
-      </Dialog>
     </div>
   );
 };
