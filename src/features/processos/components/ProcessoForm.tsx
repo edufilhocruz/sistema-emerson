@@ -47,17 +47,46 @@ export const ProcessoForm: React.FC<ProcessoFormProps> = ({ processo, onSuccess 
   useEffect(() => {
     const loadCondominios = async () => {
       try {
-        const data = await condominioService.list();
+        console.log('Carregando condomínios...');
+        const data = await condominioService.getCondominios();
+        console.log('Condomínios carregados:', data);
         setCondominios(data);
       } catch (error) {
         console.error('Erro ao carregar condomínios:', error);
+        alert('Erro ao carregar lista de condomínios');
       }
     };
-    loadCondominios();
-  }, []);
+    
+    if (isOpen) {
+      loadCondominios();
+    }
+  }, [isOpen]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    
+    // Validação dos campos obrigatórios
+    if (!formData.nome.trim()) {
+      alert('Nome é obrigatório');
+      return;
+    }
+    if (!formData.numeroProcesso.trim()) {
+      alert('Número do Processo é obrigatório');
+      return;
+    }
+    if (!formData.unidade.trim()) {
+      alert('Unidade é obrigatório');
+      return;
+    }
+    if (!formData.acaoDe.trim()) {
+      alert('Ação De é obrigatório');
+      return;
+    }
+    if (!formData.situacao) {
+      alert('Situação é obrigatório');
+      return;
+    }
+
     setLoading(true);
 
     try {
@@ -65,7 +94,10 @@ export const ProcessoForm: React.FC<ProcessoFormProps> = ({ processo, onSuccess 
         ...formData,
         valorDivida: formData.valorDivida || null,
         condominioId: formData.condominioId || null,
+        movimentacoes: formData.movimentacoes || null,
       };
+
+      console.log('Dados a serem enviados:', submitData);
 
       if (processo) {
         await processoService.update(processo.id, submitData);
@@ -73,10 +105,20 @@ export const ProcessoForm: React.FC<ProcessoFormProps> = ({ processo, onSuccess 
         await processoService.create(submitData);
       }
 
+      // Reset form
+      setFormData({
+        nome: '',
+        unidade: '',
+        acaoDe: '',
+        situacao: 'EM_ANDAMENTO',
+        numeroProcesso: '',
+        valorDivida: undefined,
+        movimentacoes: '',
+        condominioId: undefined,
+      });
+
       setIsOpen(false);
       onSuccess();
-    } catch (error) {
-      console.error('Erro ao salvar processo:', error);
     } finally {
       setLoading(false);
     }
@@ -178,14 +220,20 @@ export const ProcessoForm: React.FC<ProcessoFormProps> = ({ processo, onSuccess 
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="valorDivida">Valor da Dívida (R$)</Label>
+              <Label htmlFor="valorDivida">Valor da Dívida</Label>
               <Input
                 id="valorDivida"
-                type="number"
-                step="0.01"
-                value={formData.valorDivida || ''}
-                onChange={(e) => handleChange('valorDivida', e.target.value ? parseFloat(e.target.value) : null)}
+                placeholder="0,00"
+                value={formData.valorDivida ? `${formData.valorDivida.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}` : ''}
+                onChange={(e) => {
+                  const value = e.target.value.replace(/[^\d,]/g, '').replace(',', '.');
+                  const numericValue = value ? parseFloat(value) : null;
+                  handleChange('valorDivida', numericValue);
+                }}
               />
+              <p className="text-xs text-muted-foreground">
+                Digite apenas números e vírgula (exemplo: 1500,50)
+              </p>
             </div>
           </div>
 
