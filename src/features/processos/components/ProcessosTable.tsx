@@ -67,7 +67,7 @@ export const ProcessosTable: React.FC = () => {
     setShowDeleteSuccess(true);
     
     // Mostrar animação de sucesso por 2 segundos
-    setTimeout(() => {
+    setTimeout(async () => {
       setShowDeleteSuccess(false);
       await loadProcessos();
     }, 2000);
@@ -153,7 +153,7 @@ export const ProcessosTable: React.FC = () => {
     <div className="space-y-6">
       <Card>
         <CardHeader>
-          <div className="flex justify-between items-center">
+          <div className="flex items-center justify-between">
             <CardTitle>Gestão de Processos Jurídicos</CardTitle>
             <ProcessoForm onSuccess={loadProcessos} />
           </div>
@@ -180,7 +180,7 @@ export const ProcessosTable: React.FC = () => {
               <TableBody>
                 {processos.length === 0 ? (
                   <TableRow>
-                    <TableCell colSpan={9} className="text-center py-8 text-gray-500">
+                    <TableCell colSpan={9} className="py-8 text-center text-gray-500">
                       Nenhum processo encontrado
                     </TableCell>
                   </TableRow>
@@ -287,11 +287,11 @@ export const ProcessosTable: React.FC = () => {
       {/* Overlay de Sucesso da Exclusão */}
       {showDeleteSuccess && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-[100]">
-          <div className="bg-white rounded-2xl p-8 flex flex-col items-center space-y-4 shadow-2xl transform transition-all duration-300 ease-in-out">
+          <div className="flex flex-col items-center p-8 space-y-4 transition-all duration-300 ease-in-out transform bg-white shadow-2xl rounded-2xl">
             <div className="animate-pulse">
               <CheckCircle className="w-16 h-16 text-green-500 drop-shadow-lg" />
             </div>
-            <p className="text-gray-800 font-bold text-xl">Processo excluído com sucesso!</p>
+            <p className="text-xl font-bold text-gray-800">Processo excluído com sucesso!</p>
           </div>
         </div>
       )}
