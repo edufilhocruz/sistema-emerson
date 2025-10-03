@@ -6,19 +6,40 @@ export class ProcessoRepository {
   constructor(private readonly prisma: PrismaService) {}
 
   async create(data: any) {
-    return this.prisma.processo.create({ data });
+    return this.prisma.processo.create({
+      data,
+      include: {
+        condominio: true,
+      },
+    });
   }
 
   async findAll() {
-    return this.prisma.processo.findMany({ orderBy: { createdAt: 'desc' } });
+    return this.prisma.processo.findMany({
+      include: {
+        condominio: true,
+      },
+      orderBy: { createdAt: 'desc' },
+    });
   }
 
   async findOne(id: string) {
-    return this.prisma.processo.findUnique({ where: { id } });
+    return this.prisma.processo.findUnique({
+      where: { id },
+      include: {
+        condominio: true,
+      },
+    });
   }
 
   async update(id: string, data: any) {
-    return this.prisma.processo.update({ where: { id }, data });
+    return this.prisma.processo.update({
+      where: { id },
+      data,
+      include: {
+        condominio: true,
+      },
+    });
   }
 
   async remove(id: string) {

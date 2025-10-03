@@ -10,6 +10,10 @@ export interface Processo {
   valorDivida?: number | null;
   movimentacoes?: string | null;
   condominioId?: string | null;
+  condominio?: {
+    id: string;
+    nome: string;
+  };
   createdAt: string;
   updatedAt: string;
 }
@@ -32,6 +36,20 @@ const processoService = {
   },
   remove: async (id: string): Promise<void> => {
     await apiClient.delete(`/processos/${id}`);
+  },
+  getSituacoes: async () => {
+    const res = await apiClient.get('/processos/situacoes');
+    return res.data;
+  },
+  updateSituacao: async (id: string, situacao: string): Promise<Processo> => {
+    const res = await apiClient.patch(`/processos/${id}/situacao`, { situacao });
+    return res.data;
+  },
+  gerarPdf: async (id: string): Promise<Blob> => {
+    const res = await apiClient.get(`/processos/${id}/pdf`, {
+      responseType: 'blob',
+    });
+    return res.data;
   },
 };
 

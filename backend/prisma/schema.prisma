@@ -26,6 +26,7 @@ model Condominio {
   sindicoTelefone String      @default("(00) 00000-0000")
   moradores       Morador[]
   cobrancas       Cobranca[]
+  processos       Processo[]   // Relacionamento com processos
 
   createdAt       DateTime    @default(now())
   updatedAt       DateTime    @updatedAt
@@ -124,18 +125,21 @@ model LogAuditoria {
 
 /// Tabela de processos jurídicos cadastrados manualmente
 model Processo {
-  id             String   @id @default(uuid())
+  id             String          @id @default(uuid())
   nome           String
   unidade        String
   acaoDe         String
-  situacao       String
+  situacao       SituacaoProcesso @default(EM_ANDAMENTO)
   numeroProcesso String
-  valorDivida    Float?   // opcional
-  movimentacoes  String?  // texto livre
-  condominioId   String?  // opcional
+  valorDivida    Float?          // opcional
+  movimentacoes  String?         // texto livre
+  condominioId   String?         // opcional
+  
+  // Relacionamentos
+  condominio     Condominio?     @relation(fields: [condominioId], references: [id])
 
-  createdAt      DateTime @default(now())
-  updatedAt      DateTime @updatedAt
+  createdAt      DateTime        @default(now())
+  updatedAt      DateTime        @updatedAt
 }
 
 enum StatusCobranca {
@@ -159,4 +163,14 @@ enum StatusEnvio {
 enum TipoServico {
   ASSESSORIA_MENSAL
   SOMENTE_COBRANCAS
+}
+
+enum SituacaoProcesso {
+  EM_ANDAMENTO
+  ARQUIVADO
+  SUSPENSO
+  EVIDENCIDO
+  JULGADO
+  CAUTELAR
+  EXTINTO
 }
