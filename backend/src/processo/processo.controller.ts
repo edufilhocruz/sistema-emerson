@@ -10,6 +10,8 @@ export class ProcessoController {
 
   @Post()
   create(@Body() createProcessoDto: CreateProcessoDto) {
+    console.log('=== CRIAÇÃO DE PROCESSO ===');
+    console.log('DTO recebido:', JSON.stringify(createProcessoDto, null, 2));
     return this.service.create(createProcessoDto);
   }
 

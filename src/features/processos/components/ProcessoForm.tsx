@@ -65,6 +65,9 @@ export const ProcessoForm: React.FC<ProcessoFormProps> = ({ processo, onSuccess 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
+    console.log('=== VALIDAÇÃO DO FORMULARIO ===');
+    console.log('Dados do formulário:', formData);
+    
     // Validação dos campos obrigatórios
     if (!formData.nome.trim()) {
       alert('Nome é obrigatório');
@@ -91,18 +94,27 @@ export const ProcessoForm: React.FC<ProcessoFormProps> = ({ processo, onSuccess 
 
     try {
       const submitData = {
-        ...formData,
+        nome: formData.nome.trim(),
+        unidade: formData.unidade.trim(),
+        acaoDe: formData.acaoDe.trim(),
+        situacao: formData.situacao,
+        numeroProcesso: formData.numeroProcesso.trim(),
         valorDivida: formData.valorDivida || null,
         condominioId: formData.condominioId || null,
-        movimentacoes: formData.movimentacoes || null,
+        movimentacoes: formData.movimentacoes?.trim() || null,
       };
 
-      console.log('Dados a serem enviados:', submitData);
+      console.log('=== ENVIANDO DADOS ===');
+      console.log('Dados processados:', submitData);
 
       if (processo) {
-        await processoService.update(processo.id, submitData);
+        console.log('Atualizando processo:', processo.id);
+        const resultado = await processoService.update(processo.id, submitData);
+        console.log('Resultado da atualização:', resultado);
       } else {
-        await processoService.create(submitData);
+        console.log('Criando novo processo');
+        const resultado = await processoService.create(submitData);
+        console.log('Resultado da criação:', resultado);
       }
 
       // Reset form
@@ -117,8 +129,13 @@ export const ProcessoForm: React.FC<ProcessoFormProps> = ({ processo, onSuccess 
         condominioId: undefined,
       });
 
+      console.log('Processo salvo com sucesso!');
+      alert('Processo salvo com sucesso!');
       setIsOpen(false);
       onSuccess();
+    } catch (error) {
+      console.error('ERROR AO SALVAR PROCESSO:', error);
+      alert(`Erro ao salvar processo: ${error.message || error}`);
     } finally {
       setLoading(false);
     }
@@ -220,20 +237,18 @@ export const ProcessoForm: React.FC<ProcessoFormProps> = ({ processo, onSuccess 
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="valorDivida">Valor da Dívida</Label>
+              <Label htmlFor="valorDivida">Valor da Dívida (opcional)</Label>
               <Input
                 id="valorDivida"
-                placeholder="0,00"
-                value={formData.valorDivida ? `${formData.valorDivida.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}` : ''}
+                placeholder="Ex: 1500"
+                type="text"
+                value={formData.valorDivida ? formData.valorDivida.toString() : ''}
                 onChange={(e) => {
-                  const value = e.target.value.replace(/[^\d,]/g, '').replace(',', '.');
+                  const value = e.target.value.replace(/[^\d.]/g, '');
                   const numericValue = value ? parseFloat(value) : null;
                   handleChange('valorDivida', numericValue);
                 }}
               />
-              <p className="text-xs text-muted-foreground">
-                Digite apenas números e vírgula (exemplo: 1500,50)
-              </p>
             </div>
           </div>
 

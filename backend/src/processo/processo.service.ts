@@ -7,7 +7,17 @@ export class ProcessoService {
   constructor(private readonly repository: ProcessoRepository) {}
 
   async create(data: any) {
-    return this.repository.create(data);
+    console.log('=== PROCESSO SERVICE CREATE ===');
+    console.log('Dados recebidos pelo service:', JSON.stringify(data, null, 2));
+    
+    try {
+      const resultado = await this.repository.create(data);
+      console.log('Processo criado com sucesso:', JSON.stringify(resultado, null, 2));
+      return resultado;
+    } catch (error) {
+      console.error('ERRO ao criar processo:', error);
+      throw error;
+    }
   }
 
   async findAll() {
