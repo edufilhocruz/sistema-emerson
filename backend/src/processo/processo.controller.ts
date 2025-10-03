@@ -1,9 +1,8 @@
 import { Body, Controller, Delete, Get, Param, Post, Patch, Res } from '@nestjs/common';
 import { Response } from 'express';
 import { ProcessoService } from './processo.service';
-import { CreateProcessoDto } from './dto/create-processo.dto';
+import { CreateProcessoDto, SituacaoProcesso } from './dto/create-processo.dto';
 import { UpdateProcessoDto } from './dto/update-processo.dto';
-import { SituacaoProcesso } from '@prisma/client';
 
 @Controller('processos')
 export class ProcessoController {

@@ -1,5 +1,14 @@
 import { IsString, IsOptional, IsNumber, IsEnum } from 'class-validator';
-import { SituacaoProcesso } from '@prisma/client';
+
+export enum SituacaoProcesso {
+  EM_ANDAMENTO = 'EM_ANDAMENTO',
+  ARQUIVADO = 'ARQUIVADO',
+  SUSPENSO = 'SUSPENSO',
+  EVIDENCIDO = 'EVIDENCIDO',
+  JULGADO = 'JULGADO',
+  CAUTELAR = 'CAUTELAR',
+  EXTINTO = 'EXTINTO',
+}
 
 export class CreateProcessoDto {
   @IsString()
