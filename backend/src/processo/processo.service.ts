@@ -61,7 +61,13 @@ export class ProcessoService {
       }
       
       if (processo.valorDivida) {
-        doc.text(`Valor da Dívida: R$ ${processo.valorDivida.toFixed(2)}`, 50, 280);
+        const valorFormatado = processo.valorDivida.toLocaleString('pt-BR', {
+          style: 'currency',
+          currency: 'BRL',
+          minimumFractionDigits: 2,
+          maximumFractionDigits: 2,
+        });
+        doc.text(`Valor da Dívida: ${valorFormatado}`, 50, 280);
       }
 
       if (processo.movimentacoes) {
