@@ -61,13 +61,18 @@ export class ProcessoController {
 
   private getSituacaoLabel(situacao: SituacaoProcesso): string {
     const labels = {
-      [SituacaoProcesso.EM_ANDAMENTO]: 'Em Andamento',
-      [SituacaoProcesso.ARQUIVADO]: 'Arquivado',
-      [SituacaoProcesso.SUSPENSO]: 'Suspenso',
-      [SituacaoProcesso.EVIDENCIDO]: 'Evidenciado',
-      [SituacaoProcesso.JULGADO]: 'Julgado',
-      [SituacaoProcesso.CAUTELAR]: 'Cautelar',
+      [SituacaoProcesso.CITACAO]: 'Citação',
+      [SituacaoProcesso.CONTESTACAO]: 'Contestação',
+      [SituacaoProcesso.REPLICA]: 'Réplica',
+      [SituacaoProcesso.SISBAJUD]: 'Sisbajud',
+      [SituacaoProcesso.PENHORA_DA_UNIDADE]: 'Penhorada da Unidade',
+      [SituacaoProcesso.ACORDO_PROTOCOLADO]: 'Acordo Protocolado',
+      [SituacaoProcesso.ACORDO_HOMOLOGADO]: 'Acordo Homologado',
+      [SituacaoProcesso.ACORDO_QUEBRADO]: 'Acordo Quebrado',
+      [SituacaoProcesso.QUITACAO_DA_DIVIDA]: 'Quitação da Dívida',
       [SituacaoProcesso.EXTINTO]: 'Extinto',
+      [SituacaoProcesso.CUMP_SENTENCA]: 'Cump. de Sentença',
+      [SituacaoProcesso.GRAU_DE_RECURSO]: 'Grau de Recurso',
     };
     return labels[situacao] || situacao;
   }
