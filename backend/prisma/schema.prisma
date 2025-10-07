@@ -129,7 +129,7 @@ model Processo {
   nome           String
   unidade        String
   acaoDe         String
-  situacao       SituacaoProcesso @default(EM_ANDAMENTO)
+  situacao       SituacaoProcesso @default(CITACAO)
   numeroProcesso String
   valorDivida    Float?          // opcional
   movimentacoes  String?         // texto livre
@@ -166,11 +166,16 @@ enum TipoServico {
 }
 
 enum SituacaoProcesso {
-  EM_ANDAMENTO
-  ARQUIVADO
-  SUSPENSO
-  EVIDENCIDO
-  JULGADO
-  CAUTELAR
+  CITACAO
+  CONTESTACAO
+  REPLICA
+  SISBAJUD
+  PENHORA_DA_UNIDADE
+  ACORDO_PROTOCOLADO
+  ACORDO_HOMOLOGADO
+  ACORDO_QUEBRADO
+  QUITACAO_DA_DIVIDA
   EXTINTO
+  CUMP_SENTENCA
+  GRAU_DE_RECURSO
 }

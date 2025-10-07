@@ -1,11 +1,16 @@
 export type SituacaoProcesso = 
-  | 'EM_ANDAMENTO'
-  | 'ARQUIVADO'
-  | 'SUSPENSO'
-  | 'EVIDENCIDO'
-  | 'JULGADO'
-  | 'CAUTELAR'
-  | 'EXTINTO';
+  | 'CITACAO'
+  | 'CONTESTACAO'
+  | 'REPLICA'
+  | 'SISBAJUD'
+  | 'PENHORA_DA_UNIDADE'
+  | 'ACORDO_PROTOCOLADO'
+  | 'ACORDO_HOMOLOGADO'
+  | 'ACORDO_QUEBRADO'
+  | 'QUITACAO_DA_DIVIDA'
+  | 'EXTINTO'
+  | 'CUMP_SENTENCA'
+  | 'GRAU_DE_RECURSO';
 
 export interface ProcessoData {
   id: string;

@@ -10,23 +10,33 @@ import { ProcessoForm } from './ProcessoForm';
 import { DeleteConfirmationModal } from './DeleteConfirmationModal';
 
 const SITUACAO_CORES = {
-  'EM_ANDAMENTO': 'default',
-  'ARQUIVADO': 'secondary',
-  'SUSPENSO': 'destructive',
-  'EVIDENCIDO': 'outline',
-  'JULGADO': 'default',
-  'CAUTELAR': 'secondary',
-  'EXTINTO': 'destructive',
+  'CITACAO': 'default',
+  'CONTESTACAO': 'secondary',
+  'REPLICA': 'outline',
+  'SISBAJUD': 'default',
+  'PENHORA_DA_UNIDADE': 'destructive',
+  'ACORDO_PROTOCOLADO': 'secondary',
+  'ACORDO_HOMOLOGADO': 'default',
+  'ACORDO_QUEBRADO': 'destructive',
+  'QUITACAO_DA_DIVIDA': 'default',
+  'EXTINTO': 'secondary',
+  'CUMP_SENTENCA': 'outline',
+  'GRAU_DE_RECURSO': 'default',
 } as const;
 
 const SITUACAO_LABELS = {
-  'EM_ANDAMENTO': 'Em Andamento',
-  'ARQUIVADO': 'Arquivado',
-  'SUSPENSO': 'Suspenso',
-  'EVIDENCIDO': 'Evidenciado',
-  'JULGADO': 'Julgado',
-  'CAUTELAR': 'Cautelar',
+  'CITACAO': 'Citação',
+  'CONTESTACAO': 'Contestação',
+  'REPLICA': 'Réplica',
+  'SISBAJUD': 'Sisbajud',
+  'PENHORA_DA_UNIDADE': 'Penhorada da Unidade',
+  'ACORDO_PROTOCOLADO': 'Acordo Protocolado',
+  'ACORDO_HOMOLOGADO': 'Acordo Homologado',
+  'ACORDO_QUEBRADO': 'Acordo Quebrado',
+  'QUITACAO_DA_DIVIDA': 'Quitação da Dívida',
   'EXTINTO': 'Extinto',
+  'CUMP_SENTENCA': 'Cump. de Sentença',
+  'GRAU_DE_RECURSO': 'Grau de Recurso',
 } as const;
 
 export const ProcessosTable: React.FC = () => {

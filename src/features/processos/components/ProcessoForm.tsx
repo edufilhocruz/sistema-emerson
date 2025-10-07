@@ -23,7 +23,7 @@ export const ProcessoForm: React.FC<ProcessoFormProps> = ({ processo, onSuccess 
     nome: '',
     unidade: '',
     acaoDe: '',
-    situacao: 'EM_ANDAMENTO',
+    situacao: 'CITACAO',
     numeroProcesso: '',
     valorDivida: undefined,
     movimentacoes: '',
@@ -134,7 +134,7 @@ export const ProcessoForm: React.FC<ProcessoFormProps> = ({ processo, onSuccess 
           nome: '',
           unidade: '',
           acaoDe: '',
-          situacao: 'EM_ANDAMENTO',
+          situacao: 'CITACAO',
           numeroProcesso: '',
           valorDivida: undefined,
           movimentacoes: '',
@@ -163,13 +163,18 @@ export const ProcessoForm: React.FC<ProcessoFormProps> = ({ processo, onSuccess 
   };
 
   const SituacaoOptions = [
-    { value: 'EM_ANDAMENTO', label: 'Em Andamento' },
-    { value: 'ARQUIVADO', label: 'Arquivado' },
-    { value: 'SUSPENSO', label: 'Suspenso' },
-    { value: 'EVIDENCIDO', label: 'Evidenciado' },
-    { value: 'JULGADO', label: 'Julgado' },
-    { value: 'CAUTELAR', label: 'Cautelar' },
+    { value: 'CITACAO', label: 'Citação' },
+    { value: 'CONTESTACAO', label: 'Contestação' },
+    { value: 'REPLICA', label: 'Réplica' },
+    { value: 'SISBAJUD', label: 'Sisbajud' },
+    { value: 'PENHORA_DA_UNIDADE', label: 'Penhorada da Unidade' },
+    { value: 'ACORDO_PROTOCOLADO', label: 'Acordo Protocolado' },
+    { value: 'ACORDO_HOMOLOGADO', label: 'Acordo Homologado' },
+    { value: 'ACORDO_QUEBRADO', label: 'Acordo Quebrado' },
+    { value: 'QUITACAO_DA_DIVIDA', label: 'Quitação da Dívida' },
     { value: 'EXTINTO', label: 'Extinto' },
+    { value: 'CUMP_SENTENCA', label: 'Cump. de Sentença' },
+    { value: 'GRAU_DE_RECURSO', label: 'Grau de Recurso' },
   ];
 
   return (
