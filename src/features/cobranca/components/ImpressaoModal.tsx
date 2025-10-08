@@ -68,7 +68,7 @@ export const ImpressaoModal = ({ isOpen, onClose, cobrancaIds }: Props) => {
     if (printWindow) {
       const cartasHtml = cartas.map((carta) => `
         <!-- PÁGINA DE ROSTO -->
-        <div style="page-break-after: always; width: 210mm; min-height: 297mm; padding: 15mm; margin: 0; background: white; box-shadow: none; border: none;">
+        <div style="page-break-after: always; width: 210mm; min-height: 297mm; padding: 15mm; margin: 0; background: white; box-shadow: none; border: none; display: flex; flex-direction: column;">
           <!-- Logo e Cabeçalho -->
           <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 20mm;">
             <div style="display: flex; align-items: center;">
@@ -88,8 +88,11 @@ export const ImpressaoModal = ({ isOpen, onClose, cobrancaIds }: Props) => {
             <div style="text-align: right; font-size: 9pt; margin-top: 3mm;">Unidade: ${carta.paginaRosto.unidade}</div>
           </div>
 
-          <!-- Informações do Morador -->
-          <div style="border: 1px solid #333; padding: 6mm;">
+          <!-- Espaço flexível para empurrar o morador para baixo -->
+          <div style="flex: 1;"></div>
+
+          <!-- Informações do Morador - posicionado próximo ao rodapé -->
+          <div style="border: 1px solid #333; padding: 6mm; margin-bottom: 15px;">
             <div style="font-weight: bold; font-size: 11pt; margin-bottom: 3mm;">${carta.paginaRosto.nomeMorador}</div>
             <div style="font-size: 9pt; margin-bottom: 1.5mm;">${carta.paginaRosto.enderecoMorador}</div>
             <div style="font-size: 9pt; margin-bottom: 1.5mm;">${carta.paginaRosto.cepMorador} - ${carta.paginaRosto.bairroMorador} - ${carta.paginaRosto.cidadeEstadoMorador}</div>
