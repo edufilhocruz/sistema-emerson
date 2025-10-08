@@ -72,6 +72,29 @@
     border-radius: 0 !important;
   }
   
+  /* Primeira página sempre quebra */
+  .print-page-a4:first-of-type {
+    page-break-after: always !important;
+  }
+  
+  /* Última página não quebra */
+  .print-page-a4:last-of-type {
+    page-break-after: auto !important;
+  }
+  
+  /* Remover todos os sombreados e bordas na impressão */
+  .print-page-a4 * {
+    box-shadow: none !important;
+    border: none !important;
+    border-radius: 0 !important;
+  }
+  
+  /* Manter apenas bordas específicas para caixas de endereço */
+  .print-page-a4 .address-box {
+    border: 1px solid #d1d5db !important;
+    box-shadow: none !important;
+  }
+  
   .print\:bg-white {
     background: white !important;
   }

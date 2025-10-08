@@ -125,12 +125,8 @@ export const ImpressaoModal = ({ isOpen, onClose, cobrancaIds }: Props) => {
                         <img 
                           src="/logotipo.png" 
                           alt="Logotipo Raunaimer" 
-                          className="h-16 w-auto mr-4"
+                          className="h-16 w-auto"
                         />
-                        <div>
-                          <div className="text-2xl font-bold text-gray-800">RAUNAIMER</div>
-                          <div className="text-sm text-gray-600">GOVERNANÇA CONDOMINIAL</div>
-                        </div>
                       </div>
                       
                       {/* Cabeçalho de Cobrança */}
@@ -141,7 +137,7 @@ export const ImpressaoModal = ({ isOpen, onClose, cobrancaIds }: Props) => {
                     </div>
 
                     {/* Informações do Condomínio */}
-                    <div className="border border-gray-400 p-6 mb-6">
+                    <div className="address-box p-6 mb-6">
                       <div className="font-bold text-lg mb-2">{carta.paginaRosto.nomeCondominio}</div>
                       <div className="text-sm text-gray-700 mb-1">
                         {carta.paginaRosto.enderecoCondominio}
@@ -156,7 +152,7 @@ export const ImpressaoModal = ({ isOpen, onClose, cobrancaIds }: Props) => {
                     </div>
 
                     {/* Informações do Morador */}
-                    <div className="border border-gray-400 p-6">
+                    <div className="address-box p-6">
                       <div className="font-bold text-lg mb-2">{carta.paginaRosto.nomeMorador}</div>
                       <div className="text-sm text-gray-700 mb-1">{carta.paginaRosto.enderecoMorador}</div>
                       <div className="text-sm text-gray-700 mb-2">
