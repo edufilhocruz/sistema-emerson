@@ -105,10 +105,10 @@ export const ImpressaoModal = ({ isOpen, onClose, cobrancaIds }: Props) => {
           ) : (
             <div className="space-y-8 print:space-y-0">
               {cartas.map((carta, index) => (
-                <React.Fragment key={carta.id}>
+                <div key={carta.id} className="carta-container">
                   {/* PÁGINA DE ROSTO */}
                   <div 
-                    className="print-page-a4 print:page-break-after-always"
+                    className="print-page-a4"
                     style={{ 
                       pageBreakAfter: 'always',
                       minHeight: '297mm', // A4 height
@@ -221,7 +221,7 @@ export const ImpressaoModal = ({ isOpen, onClose, cobrancaIds }: Props) => {
                       Sistema Raunaimer - Gestão de Condomínios
                     </div>
                   </div>
-                </React.Fragment>
+                </div>
               ))}
             </div>
           )}

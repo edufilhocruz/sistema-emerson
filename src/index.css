@@ -54,10 +54,26 @@
     box-shadow: none !important;
   }
   
-  /* Formatação A4 específica */
+  /* Formatação A4 específica - FORÇAR */
   @page {
     size: A4;
     margin: 0;
+  }
+  
+  /* REMOVER TODOS OS ESTILOS DE CARD - FORÇAR */
+  * {
+    box-shadow: none !important;
+    border-radius: 0 !important;
+  }
+  
+  /* REMOVER ESPECIFICAMENTE ESTILOS DE DIALOG E MODAL */
+  [role="dialog"],
+  .dialog-content,
+  .modal-content {
+    box-shadow: none !important;
+    border-radius: 0 !important;
+    border: none !important;
+    background: white !important;
   }
   
   /* Garantir que as páginas tenham dimensões A4 */
@@ -70,6 +86,7 @@
     box-shadow: none !important;
     border: none !important;
     border-radius: 0 !important;
+    display: block !important;
   }
   
   /* Primeira página sempre quebra */
@@ -82,7 +99,7 @@
     page-break-after: auto !important;
   }
   
-  /* Remover todos os sombreados e bordas na impressão */
+  /* REMOVER TODOS OS SOMBRADOS E BORDAS */
   .print-page-a4 * {
     box-shadow: none !important;
     border: none !important;
@@ -93,6 +110,16 @@
   .print-page-a4 .address-box {
     border: 1px solid #d1d5db !important;
     box-shadow: none !important;
+    border-radius: 0 !important;
+  }
+  
+  /* FORÇAR QUEBRA DE PÁGINA ENTRE CARTAS */
+  .carta-container {
+    page-break-after: always !important;
+  }
+  
+  .carta-container:last-child {
+    page-break-after: auto !important;
   }
   
   .print\:bg-white {
