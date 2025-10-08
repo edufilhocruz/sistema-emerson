@@ -108,11 +108,15 @@ export const ImpressaoModal = ({ isOpen, onClose, cobrancaIds }: Props) => {
                 <React.Fragment key={carta.id}>
                   {/* PÁGINA DE ROSTO */}
                   <div 
-                    className="border rounded-lg p-6 bg-white print:border-0 print:rounded-none print:p-8 print:page-break-after-always print:min-h-screen print:bg-white"
+                    className="print-page-a4 print:page-break-after-always"
                     style={{ 
                       pageBreakAfter: 'always',
                       minHeight: '297mm', // A4 height
-                      backgroundColor: 'white'
+                      backgroundColor: 'white',
+                      width: '210mm', // A4 width
+                      margin: '0 auto',
+                      padding: '20mm',
+                      boxShadow: 'none'
                     }}
                   >
                     {/* Logo e Cabeçalho */}
@@ -165,11 +169,15 @@ export const ImpressaoModal = ({ isOpen, onClose, cobrancaIds }: Props) => {
 
                   {/* CARTA DE COBRANÇA */}
                   <div 
-                    className="border rounded-lg p-6 bg-white print:border-0 print:rounded-none print:p-8 print:page-break-after-always print:min-h-screen print:bg-white"
+                    className="print-page-a4"
                     style={{ 
                       pageBreakAfter: index < cartas.length - 1 ? 'always' : 'auto',
                       minHeight: '297mm', // A4 height
-                      backgroundColor: 'white'
+                      backgroundColor: 'white',
+                      width: '210mm', // A4 width
+                      margin: '0 auto',
+                      padding: '20mm',
+                      boxShadow: 'none'
                     }}
                   >
                     {/* Cabeçalho da carta */}

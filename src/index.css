@@ -50,6 +50,28 @@
     margin-top: 0 !important;
   }
   
+  .print\:shadow-none {
+    box-shadow: none !important;
+  }
+  
+  /* Formatação A4 específica */
+  @page {
+    size: A4;
+    margin: 0;
+  }
+  
+  /* Garantir que as páginas tenham dimensões A4 */
+  .print-page-a4 {
+    width: 210mm !important;
+    min-height: 297mm !important;
+    margin: 0 auto !important;
+    padding: 20mm !important;
+    background: white !important;
+    box-shadow: none !important;
+    border: none !important;
+    border-radius: 0 !important;
+  }
+  
   .print\:bg-white {
     background: white !important;
   }
