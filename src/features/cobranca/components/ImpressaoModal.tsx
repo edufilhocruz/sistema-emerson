@@ -68,33 +68,33 @@ export const ImpressaoModal = ({ isOpen, onClose, cobrancaIds }: Props) => {
     if (printWindow) {
       const cartasHtml = cartas.map((carta) => `
         <!-- PÁGINA DE ROSTO -->
-        <div style="page-break-after: always; width: 210mm; min-height: 297mm; padding: 20mm; margin: 0; background: white; box-shadow: none; border: none;">
+        <div style="page-break-after: always; width: 210mm; min-height: 297mm; padding: 15mm; margin: 0; background: white; box-shadow: none; border: none;">
           <!-- Logo e Cabeçalho -->
-          <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 30mm;">
+          <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 20mm;">
             <div style="display: flex; align-items: center;">
-              <img src="/logotipo.png" alt="Logotipo Raunaimer" style="height: 40mm; width: auto; max-width: 60mm;" />
+              <img src="/logotipo.png" alt="Logotipo Raunaimer" style="height: 35mm; width: auto; max-width: 50mm;" />
             </div>
-            <div style="border: 1px solid #333; padding: 8mm; text-align: center; min-width: 60mm;">
-              <div style="font-weight: bold; font-size: 14pt; margin-bottom: 4mm;">BOLETO DE COBRANÇA - ${carta.paginaRosto.mesAno}</div>
-              <div style="font-weight: bold; font-size: 14pt;">${carta.paginaRosto.nomeMorador}</div>
+            <div style="border: 1px solid #333; padding: 6mm; text-align: center; min-width: 50mm;">
+              <div style="font-weight: bold; font-size: 12pt; margin-bottom: 3mm;">BOLETO DE COBRANÇA - ${carta.paginaRosto.mesAno}</div>
+              <div style="font-weight: bold; font-size: 12pt;">${carta.paginaRosto.nomeMorador}</div>
             </div>
           </div>
 
           <!-- Informações do Condomínio -->
-          <div style="border: 1px solid #333; padding: 8mm; margin-bottom: 8mm;">
-            <div style="font-weight: bold; font-size: 12pt; margin-bottom: 4mm;">${carta.paginaRosto.nomeCondominio}</div>
-            <div style="font-size: 10pt; margin-bottom: 2mm;">${carta.paginaRosto.enderecoCondominio}${carta.paginaRosto.complementoCondominio ? ', ' + carta.paginaRosto.complementoCondominio : ''}</div>
-            <div style="font-size: 10pt; margin-bottom: 2mm;">${carta.paginaRosto.cepCondominio} - ${carta.paginaRosto.bairroCondominio} - ${carta.paginaRosto.cidadeEstadoCondominio}</div>
-            <div style="text-align: right; font-size: 10pt; margin-top: 4mm;">Unidade: ${carta.paginaRosto.unidade}</div>
+          <div style="border: 1px solid #333; padding: 6mm; margin-bottom: 6mm;">
+            <div style="font-weight: bold; font-size: 11pt; margin-bottom: 3mm;">${carta.paginaRosto.nomeCondominio}</div>
+            <div style="font-size: 9pt; margin-bottom: 1.5mm;">${carta.paginaRosto.enderecoCondominio}${carta.paginaRosto.complementoCondominio ? ', ' + carta.paginaRosto.complementoCondominio : ''}</div>
+            <div style="font-size: 9pt; margin-bottom: 1.5mm;">${carta.paginaRosto.cepCondominio} - ${carta.paginaRosto.bairroCondominio} - ${carta.paginaRosto.cidadeEstadoCondominio}</div>
+            <div style="text-align: right; font-size: 9pt; margin-top: 3mm;">Unidade: ${carta.paginaRosto.unidade}</div>
           </div>
 
           <!-- Informações do Morador -->
-          <div style="border: 1px solid #333; padding: 8mm;">
-            <div style="font-weight: bold; font-size: 12pt; margin-bottom: 8mm;">${carta.paginaRosto.nomeMorador}</div>
-            <div style="font-size: 10pt; margin-bottom: 4mm;">${carta.paginaRosto.enderecoMorador}</div>
-            <div style="font-size: 10pt; margin-bottom: 4mm;">${carta.paginaRosto.cepMorador} - ${carta.paginaRosto.bairroMorador} - ${carta.paginaRosto.cidadeEstadoMorador}</div>
-            <div style="font-size: 10pt; margin: 8mm 0;">-</div>
-            <div style="font-size: 10pt; color: #0066cc;">https://raunaimer.com.br</div>
+          <div style="border: 1px solid #333; padding: 6mm;">
+            <div style="font-weight: bold; font-size: 11pt; margin-bottom: 3mm;">${carta.paginaRosto.nomeMorador}</div>
+            <div style="font-size: 9pt; margin-bottom: 1.5mm;">${carta.paginaRosto.enderecoMorador}</div>
+            <div style="font-size: 9pt; margin-bottom: 1.5mm;">${carta.paginaRosto.cepMorador} - ${carta.paginaRosto.bairroMorador} - ${carta.paginaRosto.cidadeEstadoMorador}</div>
+            <div style="font-size: 9pt; margin: 6mm 0;">-</div>
+            <div style="font-size: 9pt; color: #0066cc;">https://raunaimer.com.br</div>
           </div>
         </div>
 
