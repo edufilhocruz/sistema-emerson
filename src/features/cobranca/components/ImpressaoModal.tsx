@@ -72,13 +72,7 @@ export const ImpressaoModal = ({ isOpen, onClose, cobrancaIds }: Props) => {
           <!-- Logo e Cabeçalho -->
           <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 30mm;">
             <div style="display: flex; align-items: center;">
-              <div style="width: 16mm; height: 16mm; background: #0066cc; border-radius: 4mm; display: flex; align-items: center; justify-content: center; margin-right: 8mm;">
-                <span style="color: white; font-weight: bold; font-size: 12pt;">R</span>
-              </div>
-              <div>
-                <div style="font-size: 18pt; font-weight: bold; color: #333; margin-bottom: 2mm;">RAUNAIMER</div>
-                <div style="font-size: 10pt; color: #666;">GOVERNANÇA CONDOMINIAL</div>
-              </div>
+              <img src="/logotipo.png" alt="Logotipo Raunaimer" style="height: 40mm; width: auto; max-width: 60mm;" />
             </div>
             <div style="border: 1px solid #333; padding: 8mm; text-align: center; min-width: 60mm;">
               <div style="font-weight: bold; font-size: 14pt; margin-bottom: 4mm;">BOLETO DE COBRANÇA - ${carta.paginaRosto.mesAno}</div>
