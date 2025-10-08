@@ -3,6 +3,8 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/u
 import { Button } from '@/components/ui/button';
 import { Printer, X } from 'lucide-react';
 import cobrancaService from '../services/cobrancaService';
+import { ImpressaoA4 } from './ImpressaoA4';
+import './ImpressaoA4.css';
 
 interface CartaImpressao {
   id: string;
@@ -103,127 +105,32 @@ export const ImpressaoModal = ({ isOpen, onClose, cobrancaIds }: Props) => {
               </div>
             </div>
           ) : (
-            <div className="space-y-8 print:space-y-0">
-              {cartas.map((carta, index) => (
-                <div key={carta.id} className="carta-container">
-                  {/* PÁGINA DE ROSTO */}
-                  <div 
-                    className="print-page-a4"
-                    style={{ 
-                      pageBreakAfter: 'always',
-                      minHeight: '297mm', // A4 height
-                      backgroundColor: 'white',
-                      width: '210mm', // A4 width
-                      margin: '0 auto',
-                      padding: '20mm',
-                      boxShadow: 'none'
-                    }}
-                  >
-                    {/* Logo e Cabeçalho */}
-                    <div className="flex justify-between items-start mb-8">
-                      <div className="flex items-center">
-                        <img 
-                          src="/logotipo.png" 
-                          alt="Logotipo Raunaimer" 
-                          className="h-16 w-auto"
-                        />
-                      </div>
-                      
-                      {/* Cabeçalho de Cobrança */}
-                      <div className="border border-gray-400 p-4 text-center">
-                        <div className="font-semibold text-lg">BOLETO DE COBRANÇA - {carta.paginaRosto.mesAno}</div>
-                        <div className="font-semibold text-lg mt-1">{carta.paginaRosto.nomeMorador}</div>
-                      </div>
-                    </div>
-
-                    {/* Informações do Condomínio */}
-                    <div className="address-box p-6 mb-6">
-                      <div className="font-bold text-lg mb-2">{carta.paginaRosto.nomeCondominio}</div>
-                      <div className="text-sm text-gray-700 mb-1">
-                        {carta.paginaRosto.enderecoCondominio}
-                        {carta.paginaRosto.complementoCondominio && `, ${carta.paginaRosto.complementoCondominio}`}
-                      </div>
-                      <div className="text-sm text-gray-700">
-                        {carta.paginaRosto.cepCondominio} - {carta.paginaRosto.bairroCondominio} - {carta.paginaRosto.cidadeEstadoCondominio}
-                      </div>
-                      <div className="text-right text-sm text-gray-600 mt-2">
-                        Unidade: {carta.paginaRosto.unidade}
-                      </div>
-                    </div>
-
-                    {/* Informações do Morador */}
-                    <div className="address-box p-6">
-                      <div className="font-bold text-lg mb-2">{carta.paginaRosto.nomeMorador}</div>
-                      <div className="text-sm text-gray-700 mb-1">{carta.paginaRosto.enderecoMorador}</div>
-                      <div className="text-sm text-gray-700 mb-2">
-                        {carta.paginaRosto.cepMorador} - {carta.paginaRosto.bairroMorador} - {carta.paginaRosto.cidadeEstadoMorador}
-                      </div>
-                      <div className="text-sm text-gray-500">-</div>
-                      <div className="text-sm text-blue-600 mt-2">https://raunaimer.com.br</div>
-                    </div>
-                  </div>
-
-                  {/* CARTA DE COBRANÇA */}
-                  <div 
-                    className="print-page-a4"
-                    style={{ 
-                      pageBreakAfter: index < cartas.length - 1 ? 'always' : 'auto',
-                      minHeight: '297mm', // A4 height
-                      backgroundColor: 'white',
-                      width: '210mm', // A4 width
-                      margin: '0 auto',
-                      padding: '20mm',
-                      boxShadow: 'none'
-                    }}
-                  >
-                    {/* Cabeçalho da carta */}
-                    <div className="mb-8">
-                      <div className="text-right text-sm text-gray-600 mb-4">
-                        {new Date().toLocaleDateString('pt-BR')}
+            <>
+              {/* Preview para tela */}
+              <div className="print:hidden">
+                <div className="space-y-8">
+                  {cartas.map((carta, index) => (
+                    <div key={carta.id} className="border rounded-lg p-6 bg-white">
+                      <div className="text-sm text-gray-600 mb-4">
+                        Carta {index + 1} de {cartas.length} - {carta.destinatario.nome}
                       </div>
                       <div className="text-lg font-bold mb-2">
                         {carta.condominio}
                       </div>
-                    </div>
-
-                    {/* Destinatário */}
-                    <div className="mb-8">
-                      <div className="font-semibold text-lg mb-2">Para:</div>
-                      <div className="border-l-4 border-primary pl-4">
-                        <div className="font-semibold">{carta.destinatario.nome}</div>
-                        <div className="text-sm text-gray-600">Unidade: {carta.destinatario.unidade}</div>
-                        {carta.destinatario.endereco.map((linha, i) => (
-                          <div key={i} className="text-sm text-gray-600">{linha}</div>
-                        ))}
+                      <div className="text-sm text-gray-600">
+                        Unidade: {carta.destinatario.unidade}
+                      </div>
+                      <div className="text-sm text-gray-600">
+                        Valor: {carta.valor} | Vencimento: {carta.vencimento}
                       </div>
                     </div>
-
-                    {/* Conteúdo da carta */}
-                    <div 
-                      className="prose max-w-none mb-8 leading-relaxed"
-                      dangerouslySetInnerHTML={{ __html: carta.conteudo }}
-                    />
-
-                    {/* Informações de cobrança */}
-                    <div className="border-t pt-4 mt-8">
-                      <div className="grid grid-cols-2 gap-4 text-sm">
-                        <div>
-                          <span className="font-semibold">Valor:</span> {carta.valor}
-                        </div>
-                        <div>
-                          <span className="font-semibold">Vencimento:</span> {carta.vencimento}
-                        </div>
-                      </div>
-                    </div>
-
-                    {/* Rodapé */}
-                    <div className="mt-8 pt-4 border-t text-center text-sm text-gray-500">
-                      Sistema Raunaimer - Gestão de Condomínios
-                    </div>
-                  </div>
+                  ))}
                 </div>
-              ))}
-            </div>
+              </div>
+              
+              {/* Componente A4 para impressão */}
+              <ImpressaoA4 cartas={cartas} />
+            </>
           )}
         </div>
       </DialogContent>

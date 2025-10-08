@@ -1,0 +1,253 @@
+/* CSS específico para impressão A4 */
+.impressao-a4-container {
+  display: none;
+}
+
+@media print {
+  /* REMOVER CABEÇALHOS E RODAPÉS DO NAVEGADOR */
+  @page {
+    size: A4;
+    margin: 0;
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
+  
+  /* ESCONDER TUDO EXCETO O CONTEÚDO DE IMPRESSÃO */
+  body * {
+    visibility: hidden;
+  }
+  
+  .impressao-a4-container,
+  .impressao-a4-container * {
+    visibility: visible;
+  }
+  
+  .impressao-a4-container {
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 100%;
+    display: block !important;
+  }
+  
+  /* REMOVER CABEÇALHOS E RODAPÉS */
+  @page :first {
+    margin-top: 0;
+  }
+  
+  @page :left {
+    margin-left: 0;
+  }
+  
+  @page :right {
+    margin-right: 0;
+  }
+  
+  /* ESTILOS PARA CADA CARTA */
+  .carta-a4 {
+    page-break-after: always;
+    width: 210mm;
+    min-height: 297mm;
+    margin: 0;
+    padding: 0;
+    background: white;
+    box-shadow: none;
+    border: none;
+    border-radius: 0;
+  }
+  
+  .carta-a4:last-child {
+    page-break-after: auto;
+  }
+  
+  /* ESTILOS PARA CADA PÁGINA */
+  .pagina-a4 {
+    width: 210mm;
+    min-height: 297mm;
+    padding: 20mm;
+    margin: 0;
+    background: white;
+    box-shadow: none;
+    border: none;
+    border-radius: 0;
+    display: flex;
+    flex-direction: column;
+    page-break-after: always;
+  }
+  
+  .pagina-carta {
+    page-break-after: auto;
+  }
+  
+  /* PÁGINA DE ROSTO */
+  .pagina-rosto {
+    justify-content: space-between;
+  }
+  
+  .cabecalho-rosto {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 30mm;
+  }
+  
+  .logo-container {
+    display: flex;
+    align-items: center;
+  }
+  
+  .logo-raunaimer {
+    height: 40mm;
+    width: auto;
+    max-width: 60mm;
+  }
+  
+  .cabecalho-cobranca {
+    border: 1px solid #333;
+    padding: 8mm;
+    text-align: center;
+    min-width: 60mm;
+  }
+  
+  .titulo-cobranca {
+    font-weight: bold;
+    font-size: 14pt;
+    margin-bottom: 4mm;
+  }
+  
+  .nome-morador {
+    font-weight: bold;
+    font-size: 14pt;
+  }
+  
+  .caixa-endereco {
+    border: 1px solid #333;
+    padding: 8mm;
+    margin-bottom: 8mm;
+    background: white;
+    box-shadow: none;
+  }
+  
+  .titulo-caixa {
+    font-weight: bold;
+    font-size: 12pt;
+    margin-bottom: 4mm;
+  }
+  
+  .endereco-linha {
+    font-size: 10pt;
+    margin-bottom: 2mm;
+  }
+  
+  .unidade-info {
+    text-align: right;
+    font-size: 10pt;
+    margin-top: 4mm;
+  }
+  
+  .linha-separadora {
+    font-size: 10pt;
+    margin: 4mm 0;
+  }
+  
+  .website-url {
+    font-size: 10pt;
+    color: #0066cc;
+  }
+  
+  /* PÁGINA DE CARTA */
+  .cabecalho-carta {
+    margin-bottom: 20mm;
+  }
+  
+  .data-carta {
+    text-align: right;
+    font-size: 10pt;
+    color: #666;
+    margin-bottom: 8mm;
+  }
+  
+  .nome-condominio {
+    font-size: 14pt;
+    font-weight: bold;
+  }
+  
+  .destinatario-section {
+    margin-bottom: 20mm;
+  }
+  
+  .label-destinatario {
+    font-size: 12pt;
+    font-weight: bold;
+    margin-bottom: 4mm;
+  }
+  
+  .dados-destinatario {
+    border-left: 4px solid #0066cc;
+    padding-left: 8mm;
+  }
+  
+  .nome-destinatario {
+    font-weight: bold;
+    font-size: 12pt;
+  }
+  
+  .unidade-destinatario {
+    font-size: 10pt;
+    color: #666;
+    margin-bottom: 2mm;
+  }
+  
+  .endereco-destinatario {
+    font-size: 10pt;
+    color: #666;
+  }
+  
+  .conteudo-carta {
+    margin-bottom: 20mm;
+    line-height: 1.6;
+    font-size: 11pt;
+  }
+  
+  .info-cobranca {
+    border-top: 1px solid #ccc;
+    padding-top: 8mm;
+    margin-top: 20mm;
+  }
+  
+  .grid-cobranca {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 8mm;
+  }
+  
+  .info-item {
+    font-size: 10pt;
+  }
+  
+  .label-info {
+    font-weight: bold;
+  }
+  
+  .rodape-carta {
+    margin-top: 20mm;
+    padding-top: 8mm;
+    border-top: 1px solid #ccc;
+    text-align: center;
+    font-size: 10pt;
+    color: #666;
+  }
+  
+  /* REMOVER TODOS OS SOMBRADOS E BORDAS DESNECESSÁRIAS */
+  * {
+    box-shadow: none !important;
+    border-radius: 0 !important;
+  }
+  
+  /* MANTER APENAS BORDAS ESPECÍFICAS */
+  .cabecalho-cobranca,
+  .caixa-endereco {
+    border: 1px solid #333 !important;
+    box-shadow: none !important;
+  }
+}
