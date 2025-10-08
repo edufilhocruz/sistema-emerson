@@ -88,8 +88,8 @@ export const ImpressaoModal = ({ isOpen, onClose, cobrancaIds }: Props) => {
             <div style="text-align: right; font-size: 9pt; margin-top: 3mm;">Unidade: ${carta.paginaRosto.unidade}</div>
           </div>
 
-          <!-- Espaço flexível para empurrar o morador para baixo -->
-          <div style="flex: 1;"></div>
+          <!-- Espaço específico de 1055px entre condomínio e morador -->
+          <div style="height: 1055px;"></div>
 
           <!-- Informações do Morador - posicionado próximo ao rodapé -->
           <div style="border: 1px solid #333; padding: 6mm; margin-bottom: 15px;">
