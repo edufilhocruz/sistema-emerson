@@ -500,6 +500,10 @@ export class CobrancaService {
             cobranca.condominio.cep
           ].filter(Boolean);
 
+          // Gera data atual para o boleto
+          const dataAtual = new Date();
+          const mesAno = `${String(dataAtual.getMonth() + 1).padStart(2, '0')}/${dataAtual.getFullYear()}`;
+
           return {
             id: cobranca.id,
             destinatario: {
@@ -511,7 +515,23 @@ export class CobrancaService {
             modelo: cobranca.modeloCarta.titulo,
             valor: dadosProcessados.valor_formatado,
             vencimento: dadosProcessados.data_vencimento,
-            condominio: cobranca.condominio.nome
+            condominio: cobranca.condominio.nome,
+            // Dados para página de rosto
+            paginaRosto: {
+              mesAno: mesAno,
+              nomeMorador: this.capitalizarNome(cobranca.morador.nome),
+              nomeCondominio: cobranca.condominio.nome,
+              enderecoCondominio: `${cobranca.condominio.logradouro}, ${cobranca.condominio.numero}`,
+              complementoCondominio: cobranca.condominio.complemento || '',
+              cepCondominio: cobranca.condominio.cep,
+              bairroCondominio: cobranca.condominio.bairro,
+              cidadeEstadoCondominio: `${cobranca.condominio.cidade} - ${cobranca.condominio.estado}`,
+              unidade: `${cobranca.morador.bloco || ''} ${cobranca.morador.apartamento || ''}`.trim(),
+              enderecoMorador: `${cobranca.condominio.logradouro}, ${cobranca.condominio.numero}`,
+              cepMorador: cobranca.condominio.cep,
+              bairroMorador: cobranca.condominio.bairro,
+              cidadeEstadoMorador: `${cobranca.condominio.cidade} - ${cobranca.condominio.estado}`
+            }
           };
         })
       );

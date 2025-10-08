@@ -16,6 +16,21 @@ interface CartaImpressao {
   valor: string;
   vencimento: string;
   condominio: string;
+  paginaRosto: {
+    mesAno: string;
+    nomeMorador: string;
+    nomeCondominio: string;
+    enderecoCondominio: string;
+    complementoCondominio: string;
+    cepCondominio: string;
+    bairroCondominio: string;
+    cidadeEstadoCondominio: string;
+    unidade: string;
+    enderecoMorador: string;
+    cepMorador: string;
+    bairroMorador: string;
+    cidadeEstadoMorador: string;
+  };
 }
 
 interface Props {
@@ -90,60 +105,117 @@ export const ImpressaoModal = ({ isOpen, onClose, cobrancaIds }: Props) => {
           ) : (
             <div className="space-y-8 print:space-y-0">
               {cartas.map((carta, index) => (
+                <React.Fragment key={carta.id}>
+                  {/* PÁGINA DE ROSTO */}
                   <div 
-                  key={carta.id} 
-                  className="border rounded-lg p-6 bg-white print:border-0 print:rounded-none print:p-8 print:page-break-after-always print:min-h-screen print:bg-white"
-                  style={{ 
-                    pageBreakAfter: index < cartas.length - 1 ? 'always' : 'auto',
-                    minHeight: '297mm', // A4 height
-                    backgroundColor: 'white'
-                  }}
-                >
-                  {/* Cabeçalho da carta */}
-                  <div className="mb-8">
-                    <div className="text-right text-sm text-gray-600 mb-4">
-                      {new Date().toLocaleDateString('pt-BR')}
-                    </div>
-                    <div className="text-lg font-bold mb-2">
-                      {carta.condominio}
-                    </div>
-                  </div>
-
-                  {/* Destinatário */}
-                  <div className="mb-8">
-                    <div className="font-semibold text-lg mb-2">Para:</div>
-                    <div className="border-l-4 border-primary pl-4">
-                      <div className="font-semibold">{carta.destinatario.nome}</div>
-                      <div className="text-sm text-gray-600">Unidade: {carta.destinatario.unidade}</div>
-                      {carta.destinatario.endereco.map((linha, i) => (
-                        <div key={i} className="text-sm text-gray-600">{linha}</div>
-                      ))}
-                    </div>
-                  </div>
-
-                  {/* Conteúdo da carta */}
-                  <div 
-                    className="prose max-w-none mb-8 leading-relaxed"
-                    dangerouslySetInnerHTML={{ __html: carta.conteudo }}
-                  />
-
-                  {/* Informações de cobrança */}
-                  <div className="border-t pt-4 mt-8">
-                    <div className="grid grid-cols-2 gap-4 text-sm">
-                      <div>
-                        <span className="font-semibold">Valor:</span> {carta.valor}
+                    className="border rounded-lg p-6 bg-white print:border-0 print:rounded-none print:p-8 print:page-break-after-always print:min-h-screen print:bg-white"
+                    style={{ 
+                      pageBreakAfter: 'always',
+                      minHeight: '297mm', // A4 height
+                      backgroundColor: 'white'
+                    }}
+                  >
+                    {/* Logo e Cabeçalho */}
+                    <div className="flex justify-between items-start mb-8">
+                      <div className="flex items-center">
+                        <div className="w-16 h-16 bg-blue-600 rounded-lg flex items-center justify-center mr-4">
+                          <span className="text-white font-bold text-2xl">R</span>
+                        </div>
+                        <div>
+                          <div className="text-2xl font-bold text-gray-800">RAUNAIMER</div>
+                          <div className="text-sm text-gray-600">GOVERNANÇA CONDOMINIAL</div>
+                        </div>
                       </div>
-                      <div>
-                        <span className="font-semibold">Vencimento:</span> {carta.vencimento}
+                      
+                      {/* Cabeçalho de Cobrança */}
+                      <div className="border border-gray-400 p-4 text-center">
+                        <div className="font-semibold text-lg">BOLETO DE COBRANÇA - {carta.paginaRosto.mesAno}</div>
+                        <div className="font-semibold text-lg mt-1">{carta.paginaRosto.nomeMorador}</div>
                       </div>
                     </div>
+
+                    {/* Informações do Condomínio */}
+                    <div className="border border-gray-400 p-6 mb-6">
+                      <div className="font-bold text-lg mb-2">{carta.paginaRosto.nomeCondominio}</div>
+                      <div className="text-sm text-gray-700 mb-1">
+                        {carta.paginaRosto.enderecoCondominio}
+                        {carta.paginaRosto.complementoCondominio && `, ${carta.paginaRosto.complementoCondominio}`}
+                      </div>
+                      <div className="text-sm text-gray-700">
+                        {carta.paginaRosto.cepCondominio} - {carta.paginaRosto.bairroCondominio} - {carta.paginaRosto.cidadeEstadoCondominio}
+                      </div>
+                      <div className="text-right text-sm text-gray-600 mt-2">
+                        Unidade: {carta.paginaRosto.unidade}
+                      </div>
+                    </div>
+
+                    {/* Informações do Morador */}
+                    <div className="border border-gray-400 p-6">
+                      <div className="font-bold text-lg mb-2">{carta.paginaRosto.nomeMorador}</div>
+                      <div className="text-sm text-gray-700 mb-1">{carta.paginaRosto.enderecoMorador}</div>
+                      <div className="text-sm text-gray-700 mb-2">
+                        {carta.paginaRosto.cepMorador} - {carta.paginaRosto.bairroMorador} - {carta.paginaRosto.cidadeEstadoMorador}
+                      </div>
+                      <div className="text-sm text-gray-500">-</div>
+                      <div className="text-sm text-blue-600 mt-2">https://raunaimer.com.br</div>
+                    </div>
                   </div>
 
-                  {/* Rodapé */}
-                  <div className="mt-8 pt-4 border-t text-center text-sm text-gray-500">
-                    Sistema Raunaimer - Gestão de Condomínios
+                  {/* CARTA DE COBRANÇA */}
+                  <div 
+                    className="border rounded-lg p-6 bg-white print:border-0 print:rounded-none print:p-8 print:page-break-after-always print:min-h-screen print:bg-white"
+                    style={{ 
+                      pageBreakAfter: index < cartas.length - 1 ? 'always' : 'auto',
+                      minHeight: '297mm', // A4 height
+                      backgroundColor: 'white'
+                    }}
+                  >
+                    {/* Cabeçalho da carta */}
+                    <div className="mb-8">
+                      <div className="text-right text-sm text-gray-600 mb-4">
+                        {new Date().toLocaleDateString('pt-BR')}
+                      </div>
+                      <div className="text-lg font-bold mb-2">
+                        {carta.condominio}
+                      </div>
+                    </div>
+
+                    {/* Destinatário */}
+                    <div className="mb-8">
+                      <div className="font-semibold text-lg mb-2">Para:</div>
+                      <div className="border-l-4 border-primary pl-4">
+                        <div className="font-semibold">{carta.destinatario.nome}</div>
+                        <div className="text-sm text-gray-600">Unidade: {carta.destinatario.unidade}</div>
+                        {carta.destinatario.endereco.map((linha, i) => (
+                          <div key={i} className="text-sm text-gray-600">{linha}</div>
+                        ))}
+                      </div>
+                    </div>
+
+                    {/* Conteúdo da carta */}
+                    <div 
+                      className="prose max-w-none mb-8 leading-relaxed"
+                      dangerouslySetInnerHTML={{ __html: carta.conteudo }}
+                    />
+
+                    {/* Informações de cobrança */}
+                    <div className="border-t pt-4 mt-8">
+                      <div className="grid grid-cols-2 gap-4 text-sm">
+                        <div>
+                          <span className="font-semibold">Valor:</span> {carta.valor}
+                        </div>
+                        <div>
+                          <span className="font-semibold">Vencimento:</span> {carta.vencimento}
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Rodapé */}
+                    <div className="mt-8 pt-4 border-t text-center text-sm text-gray-500">
+                      Sistema Raunaimer - Gestão de Condomínios
+                    </div>
                   </div>
-                </div>
+                </React.Fragment>
               ))}
             </div>
           )}
