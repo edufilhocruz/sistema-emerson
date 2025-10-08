@@ -90,10 +90,10 @@ export const ImpressaoModal = ({ isOpen, onClose, cobrancaIds }: Props) => {
 
           <!-- Informações do Morador -->
           <div style="border: 1px solid #333; padding: 8mm;">
-            <div style="font-weight: bold; font-size: 12pt; margin-bottom: 4mm;">${carta.paginaRosto.nomeMorador}</div>
-            <div style="font-size: 10pt; margin-bottom: 2mm;">${carta.paginaRosto.enderecoMorador}</div>
-            <div style="font-size: 10pt; margin-bottom: 2mm;">${carta.paginaRosto.cepMorador} - ${carta.paginaRosto.bairroMorador} - ${carta.paginaRosto.cidadeEstadoMorador}</div>
-            <div style="font-size: 10pt; margin: 4mm 0;">-</div>
+            <div style="font-weight: bold; font-size: 12pt; margin-bottom: 8mm;">${carta.paginaRosto.nomeMorador}</div>
+            <div style="font-size: 10pt; margin-bottom: 4mm;">${carta.paginaRosto.enderecoMorador}</div>
+            <div style="font-size: 10pt; margin-bottom: 4mm;">${carta.paginaRosto.cepMorador} - ${carta.paginaRosto.bairroMorador} - ${carta.paginaRosto.cidadeEstadoMorador}</div>
+            <div style="font-size: 10pt; margin: 8mm 0;">-</div>
             <div style="font-size: 10pt; color: #0066cc;">https://raunaimer.com.br</div>
           </div>
         </div>
