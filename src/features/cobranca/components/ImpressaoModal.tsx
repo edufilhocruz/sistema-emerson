@@ -118,9 +118,11 @@ export const ImpressaoModal = ({ isOpen, onClose, cobrancaIds }: Props) => {
                     {/* Logo e Cabeçalho */}
                     <div className="flex justify-between items-start mb-8">
                       <div className="flex items-center">
-                        <div className="w-16 h-16 bg-blue-600 rounded-lg flex items-center justify-center mr-4">
-                          <span className="text-white font-bold text-2xl">R</span>
-                        </div>
+                        <img 
+                          src="/logotipo.png" 
+                          alt="Logotipo Raunaimer" 
+                          className="h-16 w-auto mr-4"
+                        />
                         <div>
                           <div className="text-2xl font-bold text-gray-800">RAUNAIMER</div>
                           <div className="text-sm text-gray-600">GOVERNANÇA CONDOMINIAL</div>
