@@ -63,79 +63,75 @@ export const ImpressaoModal = ({ isOpen, onClose, cobrancaIds }: Props) => {
   };
 
   const handleImprimir = () => {
-    // Forçar impressão com JavaScript
+    // Forçar impressão com JavaScript - FORMATO CORRETO
     const printWindow = window.open('', '_blank');
     if (printWindow) {
       const cartasHtml = cartas.map((carta) => `
-        <div style="page-break-after: always; width: 210mm; min-height: 297mm; padding: 15mm; margin: 0; background: white; box-shadow: none; border: none;">
-          <!-- PÁGINA DE ROSTO -->
-          <div style="width: 100%; height: 100%; display: flex; flex-direction: column; justify-content: space-between;">
-            <!-- Logo e Cabeçalho -->
-            <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 20mm;">
-              <div style="display: flex; align-items: center;">
-                <img src="/logotipo.png" alt="Logotipo Raunaimer" style="height: 35mm; width: auto; max-width: 50mm;" />
-              </div>
-              <div style="border: 1px solid #333; padding: 6mm; text-align: center; min-width: 50mm;">
-                <div style="font-weight: bold; font-size: 12pt; margin-bottom: 3mm;">BOLETO DE COBRANÇA - ${carta.paginaRosto.mesAno}</div>
-                <div style="font-weight: bold; font-size: 12pt;">${carta.paginaRosto.nomeMorador}</div>
-              </div>
+        <!-- PÁGINA DE ROSTO -->
+        <div style="page-break-after: always; width: 210mm; min-height: 297mm; padding: 20mm; margin: 0; background: white; box-shadow: none; border: none;">
+          <!-- Logo e Cabeçalho -->
+          <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 30mm;">
+            <div style="display: flex; align-items: center;">
+              <img src="/logotipo.png" alt="Logotipo Raunaimer" style="height: 40mm; width: auto; max-width: 60mm;" />
             </div>
+            <div style="border: 1px solid #333; padding: 8mm; text-align: center; min-width: 60mm;">
+              <div style="font-weight: bold; font-size: 14pt; margin-bottom: 4mm;">BOLETO DE COBRANÇA - ${carta.paginaRosto.mesAno}</div>
+              <div style="font-weight: bold; font-size: 14pt;">${carta.paginaRosto.nomeMorador}</div>
+            </div>
+          </div>
 
-            <!-- Informações do Condomínio -->
-            <div style="border: 1px solid #333; padding: 6mm; margin-bottom: 6mm;">
-              <div style="font-weight: bold; font-size: 11pt; margin-bottom: 3mm;">${carta.paginaRosto.nomeCondominio}</div>
-              <div style="font-size: 9pt; margin-bottom: 1mm;">${carta.paginaRosto.enderecoCondominio}${carta.paginaRosto.complementoCondominio ? ', ' + carta.paginaRosto.complementoCondominio : ''}</div>
-              <div style="font-size: 9pt; margin-bottom: 1mm;">${carta.paginaRosto.cepCondominio} - ${carta.paginaRosto.bairroCondominio} - ${carta.paginaRosto.cidadeEstadoCondominio}</div>
-              <div style="text-align: right; font-size: 9pt; margin-top: 3mm;">Unidade: ${carta.paginaRosto.unidade}</div>
-            </div>
+          <!-- Informações do Condomínio -->
+          <div style="border: 1px solid #333; padding: 8mm; margin-bottom: 8mm;">
+            <div style="font-weight: bold; font-size: 12pt; margin-bottom: 4mm;">${carta.paginaRosto.nomeCondominio}</div>
+            <div style="font-size: 10pt; margin-bottom: 2mm;">${carta.paginaRosto.enderecoCondominio}${carta.paginaRosto.complementoCondominio ? ', ' + carta.paginaRosto.complementoCondominio : ''}</div>
+            <div style="font-size: 10pt; margin-bottom: 2mm;">${carta.paginaRosto.cepCondominio} - ${carta.paginaRosto.bairroCondominio} - ${carta.paginaRosto.cidadeEstadoCondominio}</div>
+            <div style="text-align: right; font-size: 10pt; margin-top: 4mm;">Unidade: ${carta.paginaRosto.unidade}</div>
+          </div>
 
-            <!-- Informações do Morador -->
-            <div style="border: 1px solid #333; padding: 6mm;">
-              <div style="font-weight: bold; font-size: 11pt; margin-bottom: 3mm;">${carta.paginaRosto.nomeMorador}</div>
-              <div style="font-size: 9pt; margin-bottom: 1mm;">${carta.paginaRosto.enderecoMorador}</div>
-              <div style="font-size: 9pt; margin-bottom: 1mm;">${carta.paginaRosto.cepMorador} - ${carta.paginaRosto.bairroMorador} - ${carta.paginaRosto.cidadeEstadoMorador}</div>
-              <div style="font-size: 9pt; margin: 3mm 0;">-</div>
-              <div style="font-size: 9pt; color: #0066cc;">https://raunaimer.com.br</div>
-            </div>
+          <!-- Informações do Morador -->
+          <div style="border: 1px solid #333; padding: 8mm;">
+            <div style="font-weight: bold; font-size: 12pt; margin-bottom: 4mm;">${carta.paginaRosto.nomeMorador}</div>
+            <div style="font-size: 10pt; margin-bottom: 2mm;">${carta.paginaRosto.enderecoMorador}</div>
+            <div style="font-size: 10pt; margin-bottom: 2mm;">${carta.paginaRosto.cepMorador} - ${carta.paginaRosto.bairroMorador} - ${carta.paginaRosto.cidadeEstadoMorador}</div>
+            <div style="font-size: 10pt; margin: 4mm 0;">-</div>
+            <div style="font-size: 10pt; color: #0066cc;">https://raunaimer.com.br</div>
           </div>
         </div>
 
-        <div style="page-break-after: auto; width: 210mm; min-height: 297mm; padding: 15mm; margin: 0; background: white; box-shadow: none; border: none;">
-          <!-- CARTA DE COBRANÇA -->
-          <div style="width: 100%; height: 100%; display: flex; flex-direction: column;">
-            <!-- Cabeçalho da carta -->
-            <div style="margin-bottom: 15mm;">
-              <div style="text-align: right; font-size: 9pt; color: #666; margin-bottom: 6mm;">${new Date().toLocaleDateString('pt-BR')}</div>
-              <div style="font-size: 12pt; font-weight: bold;">${carta.condominio}</div>
-            </div>
+        <!-- CARTA DE COBRANÇA -->
+        <div style="page-break-after: auto; width: 210mm; min-height: 297mm; padding: 20mm; margin: 0; background: white; box-shadow: none; border: none;">
+          <!-- Cabeçalho da carta -->
+          <div style="margin-bottom: 20mm;">
+            <div style="text-align: right; font-size: 10pt; color: #666; margin-bottom: 8mm;">${new Date().toLocaleDateString('pt-BR')}</div>
+            <div style="font-size: 14pt; font-weight: bold;">${carta.condominio}</div>
+          </div>
 
-            <!-- Destinatário -->
-            <div style="margin-bottom: 15mm;">
-              <div style="font-size: 11pt; font-weight: bold; margin-bottom: 3mm;">Para:</div>
-              <div style="border-left: 3px solid #0066cc; padding-left: 6mm;">
-                <div style="font-weight: bold; font-size: 11pt;">${carta.destinatario.nome}</div>
-                <div style="font-size: 9pt; color: #666; margin-bottom: 1mm;">Unidade: ${carta.destinatario.unidade}</div>
-                ${carta.destinatario.endereco.map(linha => `<div style="font-size: 9pt; color: #666;">${linha}</div>`).join('')}
-              </div>
+          <!-- Destinatário -->
+          <div style="margin-bottom: 20mm;">
+            <div style="font-size: 12pt; font-weight: bold; margin-bottom: 4mm;">Para:</div>
+            <div style="border-left: 4px solid #0066cc; padding-left: 8mm;">
+              <div style="font-weight: bold; font-size: 12pt;">${carta.destinatario.nome}</div>
+              <div style="font-size: 10pt; color: #666; margin-bottom: 2mm;">Unidade: ${carta.destinatario.unidade}</div>
+              ${carta.destinatario.endereco.map(linha => `<div style="font-size: 10pt; color: #666;">${linha}</div>`).join('')}
             </div>
+          </div>
 
-            <!-- Conteúdo da carta -->
-            <div style="margin-bottom: 15mm; line-height: 1.5; font-size: 10pt; flex-grow: 1;">
-              ${carta.conteudo}
-            </div>
+          <!-- Conteúdo da carta -->
+          <div style="margin-bottom: 20mm; line-height: 1.6; font-size: 11pt;">
+            ${carta.conteudo}
+          </div>
 
-            <!-- Informações de cobrança -->
-            <div style="border-top: 1px solid #ccc; padding-top: 6mm; margin-top: 10mm;">
-              <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 6mm;">
-                <div style="font-size: 9pt;"><span style="font-weight: bold;">Valor:</span> ${carta.valor}</div>
-                <div style="font-size: 9pt;"><span style="font-weight: bold;">Vencimento:</span> ${carta.vencimento}</div>
-              </div>
+          <!-- Informações de cobrança -->
+          <div style="border-top: 1px solid #ccc; padding-top: 8mm; margin-top: 20mm;">
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8mm;">
+              <div style="font-size: 10pt;"><span style="font-weight: bold;">Valor:</span> ${carta.valor}</div>
+              <div style="font-size: 10pt;"><span style="font-weight: bold;">Vencimento:</span> ${carta.vencimento}</div>
             </div>
+          </div>
 
-            <!-- Rodapé -->
-            <div style="margin-top: 10mm; padding-top: 6mm; border-top: 1px solid #ccc; text-align: center; font-size: 9pt; color: #666;">
-              Sistema Raunaimer - Gestão de Condomínios
-            </div>
+          <!-- Rodapé -->
+          <div style="margin-top: 20mm; padding-top: 8mm; border-top: 1px solid #ccc; text-align: center; font-size: 10pt; color: #666;">
+            Sistema Raunaimer - Gestão de Condomínios
           </div>
         </div>
       `).join('');
