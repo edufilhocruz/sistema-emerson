@@ -37,7 +37,7 @@ export const ImpressaoA4: React.FC<ImpressaoA4Props> = ({ cartas }) => {
   return (
     <div className="impressao-a4-container">
       {cartas.map((carta, index) => (
-        <div key={carta.id} className="carta-a4">
+        <div key={`carta-${carta.id}`} className="carta-a4">
           {/* PÁGINA DE ROSTO */}
           <div className="pagina-a4 pagina-rosto">
             {/* Logo e Cabeçalho */}
