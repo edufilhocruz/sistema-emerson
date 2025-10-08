@@ -57,7 +57,12 @@ export function Sidebar({ className }: SidebarProps) {
   return (
     <aside className={cn("w-64 bg-sidebar-bg border-r border-border flex flex-col", className)}>
       <div className="h-20 flex items-center justify-center px-6 border-b border-border">
-        <img src="/logotipo.png" alt="Logotipo Raunaimer Monfre" className="h-24" />
+        <img 
+          src="/logotipo.png" 
+          alt="Logotipo Raunaimer Monfre" 
+          className="h-16 w-auto object-contain" 
+          style={{ display: 'block', maxHeight: '64px' }}
+        />
       </div>
 
       <nav className="flex-1 p-4 space-y-1">
