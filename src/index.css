@@ -66,6 +66,13 @@
     border-radius: 0 !important;
   }
   
+  /* PROTEGER LOGOTIPO DO SIDEBAR */
+  aside img[alt="Logotipo Raunaimer Monfre"] {
+    display: block !important;
+    visibility: visible !important;
+    opacity: 1 !important;
+  }
+  
   /* REMOVER ESPECIFICAMENTE ESTILOS DE DIALOG E MODAL */
   [role="dialog"],
   .dialog-content,
@@ -152,6 +159,16 @@
     background: white !important;
     color: black !important;
   }
+}
+
+/* GARANTIR QUE O LOGOTIPO DO SIDEBAR SEJA SEMPRE VISÍVEL */
+aside img[alt="Logotipo Raunaimer Monfre"] {
+  display: block !important;
+  visibility: visible !important;
+  opacity: 1 !important;
+  max-height: 80px !important;
+  min-height: 60px !important;
+  object-fit: contain !important;
 }
 
 /* CondoAdmin Design System - Gold Theme with Enhanced Animations */

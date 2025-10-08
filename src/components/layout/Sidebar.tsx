@@ -60,8 +60,8 @@ export function Sidebar({ className }: SidebarProps) {
         <img 
           src="/logotipo.png" 
           alt="Logotipo Raunaimer Monfre" 
-          className="h-16 w-auto object-contain" 
-          style={{ display: 'block', maxHeight: '64px' }}
+          className="h-20 w-auto object-contain" 
+          style={{ display: 'block', maxHeight: '80px', minHeight: '60px' }}
         />
       </div>
 
