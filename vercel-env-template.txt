@@ -1,0 +1,36 @@
+# Vercel Environment Variables Template
+# Copy these to your Vercel dashboard under Settings > Environment Variables
+
+# Database
+DATABASE_URL=postgresql://username:password@host:port/database
+
+# JWT Secret
+JWT_SECRET=your-super-secret-jwt-key-here
+
+# Email Configuration
+EMAIL_HOST=smtp.gmail.com
+EMAIL_PORT=587
+EMAIL_USER=your-email@gmail.com
+EMAIL_PASS=your-app-password
+
+# Application
+NODE_ENV=production
+PORT=3000
+
+# CORS
+CORS_ORIGIN=https://your-domain.vercel.app
+
+# Redis (if using)
+REDIS_URL=redis://localhost:6379
+
+# File Upload
+MAX_FILE_SIZE=10485760
+UPLOAD_PATH=uploads/
+
+# Security
+BCRYPT_ROUNDS=12
+JWT_EXPIRES_IN=24h
+
+# Rate Limiting
+THROTTLE_TTL=60
+THROTTLE_LIMIT=100

@@ -1,0 +1,6 @@
+{
+  "scripts": {
+    "vercel-build": "npm run build && cd backend && npm run build",
+    "vercel-dev": "npm run dev:all"
+  }
+}
