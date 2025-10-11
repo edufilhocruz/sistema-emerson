@@ -50,8 +50,8 @@ import { ProcessoModule } from './processo/processo.module';
     SharedModule,
     ProcessoModule,
     JwtModule.register({
-      secret: process.env.JWT_SECRET || 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiYWRtaW4iOnRydWUsImlhdCI6MTUxNjIzOTAyMn0.KMUFsIDTnFmyG3nMiGM6H9FNFUROf3wh7SmqJp-QV30',
-      signOptions: { expiresIn: process.env.JWT_EXPIRES_IN || '24h' },
+      secret: 'sua_chave_secreta_aqui', // Troque por variável de ambiente em produção
+      signOptions: { expiresIn: '1d' },
     }),
   ],
   controllers: [AppController, EmailConfigController, UsuarioController, PermissaoController, LogAuditoriaController, AuthController, RegisterController, ContactController],

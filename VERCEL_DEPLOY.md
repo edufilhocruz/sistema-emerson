@@ -10,7 +10,7 @@ Configure estas variáveis no painel do Vercel (Settings > Environment Variables
 DATABASE_URL=postgresql://username:password@host:port/database
 
 # JWT Secret
-JWT_SECRET=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiYWRtaW4iOnRydWUsImlhdCI6MTUxNjIzOTAyMn0.KMUFsIDTnFmyG3nMiGM6H9FNFUROf3wh7SmqJp-QV30
+JWT_SECRET=your-super-secret-jwt-key-here
 
 # Email Configuration
 EMAIL_HOST=smtp.gmail.com
