@@ -113,14 +113,14 @@ export const ImpressaoModal = ({ isOpen, onClose, cobrancaIds }: Props) => {
         const paginaRostoHtml = ReactDOMServer.renderToStaticMarkup(<PaginaRostoA4 carta={carta} />);
         
         const cartaCobrancaHtml = `
-          <div style="page-break-after: auto; width: 210mm; min-height: 297mm; padding: 20mm; margin: 0; background: white; box-shadow: none; border: none; font-family: sans-serif;">
+          <div style="page-break-after: always; width: 210mm; height: 297mm; padding: 16mm; margin: 0; background: white; box-shadow: none; border: none; font-family: sans-serif; overflow: hidden;">
             <!-- Cabeçalho com logotipo (colorido) e data -->
-            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12mm;">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10mm;">
               <img src="/logotipo.png" alt="Logotipo Raunaimer" style="height: 12mm; width: auto; -webkit-print-color-adjust: exact; print-color-adjust: exact; filter: none;" />
               <div style="text-align: right; font-size: 10pt; color: #666;">${new Date().toLocaleDateString('pt-BR')}</div>
             </div>
-            <div style="margin-bottom: 12mm; font-size: 14pt; font-weight: bold;">${carta.condominio}</div>
-            <div style="margin-bottom: 20mm;">
+            <div style="margin-bottom: 10mm; font-size: 14pt; font-weight: bold;">${carta.condominio}</div>
+            <div style="margin-bottom: 12mm;">
               <div style="font-size: 12pt; font-weight: bold; margin-bottom: 4mm;">Para:</div>
               <div style="border-left: 4px solid #0066cc; padding-left: 8mm;">
                 <div style="font-weight: bold; font-size: 12pt;">${carta.destinatario.nome}</div>
@@ -128,14 +128,14 @@ export const ImpressaoModal = ({ isOpen, onClose, cobrancaIds }: Props) => {
                 ${carta.destinatario.endereco.map(linha => `<div style="font-size: 10pt; color: #666;">${linha}</div>`).join('')}
               </div>
             </div>
-            <div style="margin-bottom: 20mm; line-height: 1.6; font-size: 11pt;">${carta.conteudo}</div>
-            <div style="border-top: 1px solid #ccc; padding-top: 8mm; margin-top: 20mm;">
-              <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8mm;">
+            <div style="line-height: 1.45; font-size: 10.5pt;">${carta.conteudo}</div>
+            <div style="border-top: 1px solid #ccc; padding-top: 6mm; margin-top: 12mm;">
+              <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 6mm;">
                 <div style="font-size: 10pt;"><span style="font-weight: bold;">Valor:</span> ${carta.valor}</div>
                 <div style="font-size: 10pt;"><span style="font-weight: bold;">Vencimento:</span> ${carta.vencimento}</div>
               </div>
             </div>
-            <div style="margin-top: 20mm; padding-top: 8mm; border-top: 1px solid #ccc; text-align: center; font-size: 10pt; color: #666;">Sistema Raunaimer - Gestão de Condomínios</div>
+            <div style="margin-top: 12mm; padding-top: 6mm; border-top: 1px solid #ccc; text-align: center; font-size: 9.5pt; color: #666;">Sistema Raunaimer - Gestão de Condomínios</div>
           </div>
         `;
         return paginaRostoHtml + cartaCobrancaHtml;
@@ -152,6 +152,9 @@ export const ImpressaoModal = ({ isOpen, onClose, cobrancaIds }: Props) => {
             * { box-sizing: border-box; }
             /* Garantir impressão colorida de imagens */
             img { -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; filter: none !important; }
+            /* Evitar quebras inesperadas */
+            .carta-pagina { page-break-after: always; }
+            .carta-pagina * { page-break-inside: avoid; }
           </style>
         </head>
         <body>${cartasHtml}</body>
