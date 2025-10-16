@@ -3,6 +3,7 @@ import ReactDOMServer from 'react-dom/server';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { Printer, X } from 'lucide-react';
+import cobrancaService from '../services/cobrancaService';
 
 // --- Interfaces movidas para dentro do arquivo para autossuficiência ---
 interface CartaImpressao {
@@ -79,44 +80,7 @@ const PaginaRostoA4 = ({ carta }: ImpressaoA4Props) => {
   );
 };
 
-// --- Mock do serviço para simular a busca de dados ---
-const mockCobrancaService = {
-  gerarCartasImpressao: async (ids: string[]): Promise<{ cartas: CartaImpressao[] }> => {
-    console.log('🔄 Gerando cartas MOCK para IDs:', ids);
-    await new Promise(resolve => setTimeout(resolve, 500)); // Simula delay da rede
-
-    const mockCartas = ids.map((id, index) => ({
-      id: id,
-      destinatario: {
-        nome: `Morador de Exemplo ${index + 1}`,
-        endereco: [`Rua das Flores, 123`, `Apto ${101 + index}`],
-        unidade: `Unidade ${101 + index}`,
-      },
-      conteudo: 'Prezado(a) morador(a),<br/><br/>Segue o boleto para pagamento da taxa condominial referente a este mês.<br/><br/>Agradecemos a sua colaboração para a manutenção e bom funcionamento do nosso condomínio.<br/><br/>Atenciosamente,<br/>A Administração.',
-      modelo: 'Padrão',
-      valor: `R$ ${(500 + index * 50).toFixed(2)}`,
-      vencimento: '10/11/2025',
-      condominio: 'Condomínio Residencial Nova Aurora',
-      paginaRosto: {
-        mesAno: '10/2025',
-        nomeMorador: `Morador de Exemplo ${index + 1}`,
-        nomeCondominio: 'Condomínio Residencial Nova Aurora',
-        enderecoCondominio: 'Rua Cerro de Mateus Simões, 349',
-        complementoCondominio: '',
-        cepCondominio: '03805-010',
-        bairroCondominio: 'Parque Boturussu',
-        cidadeEstadoCondominio: 'São Paulo - SP',
-        unidade: `Unidade ${101 + index}`,
-        enderecoMorador: 'Rua das Flores, 123',
-        cepMorador: '01234-567',
-        bairroMorador: 'Centro',
-        cidadeEstadoCondominio: 'São Paulo - SP',
-      },
-    }));
-
-    return { cartas: mockCartas };
-  }
-};
+// --- Fim do MOCK: usamos o serviço real de cobrança ---
 
 interface Props {
   isOpen: boolean;
@@ -132,8 +96,7 @@ export const ImpressaoModal = ({ isOpen, onClose, cobrancaIds }: Props) => {
   const handleGerar = async () => {
     setLoading(true);
     try {
-      // Usa o serviço MOCK no lugar do import
-      const response = await mockCobrancaService.gerarCartasImpressao(cobrancaIds);
+      const response = await cobrancaService.gerarCartasImpressao(cobrancaIds);
       setCartas(response.cartas);
       setGerado(true);
     } catch (error) {
