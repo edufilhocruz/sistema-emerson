@@ -1,10 +1,10 @@
 import React, { useState } from 'react';
+import ReactDOMServer from 'react-dom/server';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { Printer, X } from 'lucide-react';
 import cobrancaService from '../services/cobrancaService';
-import { ImpressaoA4 } from './ImpressaoA4';
-import './ImpressaoA4.css';
+import { PaginaRostoA4 } from './ImpressaoA4';
 
 interface CartaImpressao {
   id: string;
@@ -49,10 +49,7 @@ export const ImpressaoModal = ({ isOpen, onClose, cobrancaIds }: Props) => {
   const handleGerar = async () => {
     setLoading(true);
     try {
-      console.log('🔄 Gerando cartas para IDs:', cobrancaIds);
       const response = await cobrancaService.gerarCartasImpressao(cobrancaIds);
-      console.log('✅ Resposta recebida:', response);
-      console.log('✅ Cartas geradas:', response.cartas);
       setCartas(response.cartas);
       setGerado(true);
     } catch (error) {
@@ -63,79 +60,37 @@ export const ImpressaoModal = ({ isOpen, onClose, cobrancaIds }: Props) => {
   };
 
   const handleImprimir = () => {
-    // Forçar impressão com JavaScript - FORMATO CORRETO
     const printWindow = window.open('', '_blank');
     if (printWindow) {
-      const cartasHtml = cartas.map((carta) => `
-        <!-- PÁGINA DE ROSTO (A4 com posicionamento absoluto em mm) -->
-        <div style="page-break-after: always; width: 210mm; height: 297mm; margin: 0; background: white; box-shadow: none; border: none; position: relative;">
-          <!-- Margem interna da página -->
-          <div style="position: absolute; inset: 0; padding: 15mm;">
-            <!-- Logo (esquerda) -->
-            <img src="/logotipo.png" alt="Logotipo Raunaimer" style="position: absolute; left: 15mm; top: 112mm; height: 35mm; width: auto; max-width: 50mm;" />
-
-            <!-- Quadro do título (direita) -->
-            <div style="position: absolute; right: 15mm; top: 112mm; border: 0.3mm solid #333; padding: 6mm; min-width: 50mm; text-align: center;">
-              <div style="font-weight: bold; font-size: 12pt; margin-bottom: 3mm;">BOLETO DE COBRANÇA - ${carta.paginaRosto.mesAno}</div>
-              <div style="font-weight: bold; font-size: 12pt;">${carta.paginaRosto.nomeMorador}</div>
+      const cartasHtml = cartas.map((carta) => {
+        const paginaRostoHtml = ReactDOMServer.renderToStaticMarkup(<PaginaRostoA4 carta={carta} />);
+        
+        const cartaCobrancaHtml = `
+          <div style="page-break-after: auto; width: 210mm; min-height: 297mm; padding: 20mm; margin: 0; background: white; box-shadow: none; border: none; font-family: sans-serif;">
+            <div style="margin-bottom: 20mm;">
+              <div style="text-align: right; font-size: 10pt; color: #666; margin-bottom: 8mm;">${new Date().toLocaleDateString('pt-BR')}</div>
+              <div style="font-size: 14pt; font-weight: bold;">${carta.condominio}</div>
             </div>
-
-            <!-- Bloco do condomínio (largura total) -->
-            <div style="position: absolute; left: 15mm; width: 180mm; top: 150mm; border: 0.3mm solid #333; padding: 6mm;">
-              <div style="font-weight: bold; font-size: 11pt; margin-bottom: 3mm;">${carta.paginaRosto.nomeCondominio}</div>
-              <div style="font-size: 9pt; margin-bottom: 1.5mm;">${carta.paginaRosto.enderecoCondominio}${carta.paginaRosto.complementoCondominio ? ', ' + carta.paginaRosto.complementoCondominio : ''}</div>
-              <div style="font-size: 9pt; margin-bottom: 1.5mm;">${carta.paginaRosto.cepCondominio} - ${carta.paginaRosto.bairroCondominio} - ${carta.paginaRosto.cidadeEstadoCondominio}</div>
-              <div style="text-align: right; font-size: 9pt; margin-top: 3mm;">Unidade: ${carta.paginaRosto.unidade}</div>
+            <div style="margin-bottom: 20mm;">
+              <div style="font-size: 12pt; font-weight: bold; margin-bottom: 4mm;">Para:</div>
+              <div style="border-left: 4px solid #0066cc; padding-left: 8mm;">
+                <div style="font-weight: bold; font-size: 12pt;">${carta.destinatario.nome}</div>
+                <div style="font-size: 10pt; color: #666; margin-bottom: 2mm;">Unidade: ${carta.destinatario.unidade}</div>
+                ${carta.destinatario.endereco.map(linha => `<div style="font-size: 10pt; color: #666;">${linha}</div>`).join('')}
+              </div>
             </div>
-
-            <!-- Bloco do morador (fixo próximo ao rodapé) -->
-            <div style="position: absolute; left: 15mm; width: 180mm; bottom: 30mm; border: 0.3mm solid #333; padding: 6mm;">
-              <div style="font-weight: bold; font-size: 11pt; margin-bottom: 3mm;">${carta.paginaRosto.nomeMorador}</div>
-              <div style="font-size: 9pt; margin-bottom: 1.5mm;">${carta.paginaRosto.enderecoMorador}</div>
-              <div style="font-size: 9pt; margin-bottom: 1.5mm;">${carta.paginaRosto.cepMorador} - ${carta.paginaRosto.bairroMorador} - ${carta.paginaRosto.cidadeEstadoMorador}</div>
-              <div style="font-size: 9pt; margin: 6mm 0;">-</div>
-              <div style="font-size: 9pt; color: #0066cc;">https://raunaimer.com.br</div>
+            <div style="margin-bottom: 20mm; line-height: 1.6; font-size: 11pt;">${carta.conteudo}</div>
+            <div style="border-top: 1px solid #ccc; padding-top: 8mm; margin-top: 20mm;">
+              <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8mm;">
+                <div style="font-size: 10pt;"><span style="font-weight: bold;">Valor:</span> ${carta.valor}</div>
+                <div style="font-size: 10pt;"><span style="font-weight: bold;">Vencimento:</span> ${carta.vencimento}</div>
+              </div>
             </div>
+            <div style="margin-top: 20mm; padding-top: 8mm; border-top: 1px solid #ccc; text-align: center; font-size: 10pt; color: #666;">Sistema Raunaimer - Gestão de Condomínios</div>
           </div>
-        </div>
-
-        <!-- CARTA DE COBRANÇA -->
-        <div style="page-break-after: auto; width: 210mm; min-height: 297mm; padding: 20mm; margin: 0; background: white; box-shadow: none; border: none;">
-          <!-- Cabeçalho da carta -->
-          <div style="margin-bottom: 20mm;">
-            <div style="text-align: right; font-size: 10pt; color: #666; margin-bottom: 8mm;">${new Date().toLocaleDateString('pt-BR')}</div>
-            <div style="font-size: 14pt; font-weight: bold;">${carta.condominio}</div>
-          </div>
-
-          <!-- Destinatário -->
-          <div style="margin-bottom: 20mm;">
-            <div style="font-size: 12pt; font-weight: bold; margin-bottom: 4mm;">Para:</div>
-            <div style="border-left: 4px solid #0066cc; padding-left: 8mm;">
-              <div style="font-weight: bold; font-size: 12pt;">${carta.destinatario.nome}</div>
-              <div style="font-size: 10pt; color: #666; margin-bottom: 2mm;">Unidade: ${carta.destinatario.unidade}</div>
-              ${carta.destinatario.endereco.map(linha => `<div style="font-size: 10pt; color: #666;">${linha}</div>`).join('')}
-            </div>
-          </div>
-
-          <!-- Conteúdo da carta -->
-          <div style="margin-bottom: 20mm; line-height: 1.6; font-size: 11pt;">
-            ${carta.conteudo}
-          </div>
-
-          <!-- Informações de cobrança -->
-          <div style="border-top: 1px solid #ccc; padding-top: 8mm; margin-top: 20mm;">
-            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8mm;">
-              <div style="font-size: 10pt;"><span style="font-weight: bold;">Valor:</span> ${carta.valor}</div>
-              <div style="font-size: 10pt;"><span style="font-weight: bold;">Vencimento:</span> ${carta.vencimento}</div>
-            </div>
-          </div>
-
-          <!-- Rodapé -->
-          <div style="margin-top: 20mm; padding-top: 8mm; border-top: 1px solid #ccc; text-align: center; font-size: 10pt; color: #666;">
-            Sistema Raunaimer - Gestão de Condomínios
-          </div>
-        </div>
-      `).join('');
+        `;
+        return paginaRostoHtml + cartaCobrancaHtml;
+      }).join('');
 
       printWindow.document.write(`
         <!DOCTYPE html>
@@ -143,24 +98,12 @@ export const ImpressaoModal = ({ isOpen, onClose, cobrancaIds }: Props) => {
         <head>
           <title>Impressão de Cobranças</title>
           <style>
-            @page {
-              size: A4;
-              margin: 0;
-            }
-            body {
-              margin: 0;
-              padding: 0;
-              background: white;
-            }
-            * {
-              box-shadow: none !important;
-              border-radius: 0 !important;
-            }
+            @page { size: A4; margin: 0; }
+            body { margin: 0; padding: 0; background: #f0f0f0; }
+            * { box-sizing: border-box; }
           </style>
         </head>
-        <body>
-          ${cartasHtml}
-        </body>
+        <body>${cartasHtml}</body>
         </html>
       `);
       
@@ -168,9 +111,6 @@ export const ImpressaoModal = ({ isOpen, onClose, cobrancaIds }: Props) => {
       printWindow.focus();
       printWindow.print();
       printWindow.close();
-    } else {
-      // Fallback para navegadores que bloqueiam popups
-      window.print();
     }
   };
 
@@ -188,7 +128,7 @@ export const ImpressaoModal = ({ isOpen, onClose, cobrancaIds }: Props) => {
 
   return (
     <Dialog open={isOpen} onOpenChange={handleClose}>
-      <DialogContent className="max-w-6xl h-[90vh] overflow-hidden">
+      <DialogContent className="max-w-6xl h-[90vh] overflow-hidden flex flex-col">
         <DialogHeader className="print:hidden">
           <DialogTitle className="flex items-center justify-between">
             <span>Cartas para Impressão ({cobrancaIds.length} selecionadas)</span>
@@ -203,8 +143,8 @@ export const ImpressaoModal = ({ isOpen, onClose, cobrancaIds }: Props) => {
             </div>
           </DialogTitle>
         </DialogHeader>
-
-        <div className="h-full overflow-y-auto print:overflow-visible">
+        
+        <div className="h-full p-8 overflow-y-auto bg-gray-200 print:hidden">
           {loading ? (
             <div className="flex items-center justify-center h-full">
               <div className="text-center">
@@ -213,35 +153,15 @@ export const ImpressaoModal = ({ isOpen, onClose, cobrancaIds }: Props) => {
               </div>
             </div>
           ) : (
-            <>
-              {/* Preview para tela */}
-              <div className="print:hidden">
-                <div className="space-y-8">
-                  {cartas.map((carta, index) => (
-                    <div key={carta.id} className="p-6 bg-white border rounded-lg">
-                      <div className="mb-4 text-sm text-gray-600">
-                        Carta {index + 1} de {cartas.length} - {carta.destinatario.nome}
-                      </div>
-                      <div className="mb-2 text-lg font-bold">
-                        {carta.condominio}
-                      </div>
-                      <div className="text-sm text-gray-600">
-                        Unidade: {carta.destinatario.unidade}
-                      </div>
-                      <div className="text-sm text-gray-600">
-                        Valor: {carta.valor} | Vencimento: {carta.vencimento}
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              </div>
-              
-              {/* Componente A4 para impressão */}
-              <ImpressaoA4 cartas={cartas} />
-            </>
+             <div className="space-y-4">
+              {cartas.map((carta) => (
+                <PaginaRostoA4 key={carta.id} carta={carta} />
+              ))}
+            </div>
           )}
         </div>
       </DialogContent>
     </Dialog>
   );
 };
+

@@ -1,14 +1,10 @@
 import React from 'react';
 
-interface CartaImpressao {
+// Define o tipo para a prop 'carta' para maior segurança
+interface Carta {
   id: string;
-  destinatario: {
-    nome: string;
-    endereco: string[];
-    unidade: string;
-  };
+  destinatario: { nome: string; unidade: string; endereco: string[] };
   conteudo: string;
-  modelo: string;
   valor: string;
   vencimento: string;
   condominio: string;
@@ -17,7 +13,7 @@ interface CartaImpressao {
     nomeMorador: string;
     nomeCondominio: string;
     enderecoCondominio: string;
-    complementoCondominio: string;
+    complementoCondominio?: string;
     cepCondominio: string;
     bairroCondominio: string;
     cidadeEstadoCondominio: string;
@@ -30,107 +26,53 @@ interface CartaImpressao {
 }
 
 interface ImpressaoA4Props {
-  cartas: CartaImpressao[];
+  carta: Carta;
 }
 
-export const ImpressaoA4: React.FC<ImpressaoA4Props> = ({ cartas }) => {
+// Este componente renderiza UMA PÁGINA A4 com o layout CORRETO.
+export const PaginaRostoA4 = ({ carta }: ImpressaoA4Props) => {
   return (
-    <div className="impressao-a4-container">
-      {cartas.map((carta, index) => (
-        <div key={`carta-${carta.id}`} className="carta-a4">
-          {/* PÁGINA DE ROSTO */}
-          <div className="pagina-a4 pagina-rosto">
-            {/* Logo e Cabeçalho */}
-            <div className="cabecalho-rosto">
-              <div className="logo-container">
-                <img 
-                  src="/logotipo.png" 
-                  alt="Logotipo Raunaimer" 
-                  className="logo-raunaimer"
-                />
-              </div>
-              
-              {/* Cabeçalho de Cobrança */}
-              <div className="cabecalho-cobranca">
-                <div className="titulo-cobranca">BOLETO DE COBRANÇA - {carta.paginaRosto.mesAno}</div>
-                <div className="nome-morador">{carta.paginaRosto.nomeMorador}</div>
-              </div>
-            </div>
+    <div style={{
+      pageBreakAfter: 'always',
+      width: '210mm',
+      height: '297mm',
+      margin: '0 auto 10mm auto', // Adiciona margem para separar as páginas no preview
+      background: 'white',
+      border: '1px solid #eee',
+      boxShadow: '0 0 5px rgba(0,0,0,0.1)',
+      position: 'relative',
+      fontFamily: 'sans-serif'
+    }}>
+      {/* Margem interna da página */}
+      <div style={{ position: 'absolute', inset: '0', padding: '15mm' }}>
+        
+        {/* Logo (esquerda) */}
+        <img src="/logotipo.png" alt="Logotipo Raunaimer" style={{ position: 'absolute', left: '15mm', top: '112mm', height: '35mm', width: 'auto', maxWidth: '50mm' }} />
 
-            {/* Informações do Condomínio */}
-            <div className="caixa-endereco">
-              <div className="titulo-caixa">{carta.paginaRosto.nomeCondominio}</div>
-              <div className="endereco-linha">
-                {carta.paginaRosto.enderecoCondominio}
-                {carta.paginaRosto.complementoCondominio && `, ${carta.paginaRosto.complementoCondominio}`}
-              </div>
-              <div className="endereco-linha">
-                {carta.paginaRosto.cepCondominio} - {carta.paginaRosto.bairroCondominio} - {carta.paginaRosto.cidadeEstadoCondominio}
-              </div>
-              <div className="unidade-info">Unidade: {carta.paginaRosto.unidade}</div>
-            </div>
-
-            {/* Informações do Morador */}
-            <div className="caixa-endereco">
-              <div className="titulo-caixa">{carta.paginaRosto.nomeMorador}</div>
-              <div className="endereco-linha">{carta.paginaRosto.enderecoMorador}</div>
-              <div className="endereco-linha">
-                {carta.paginaRosto.cepMorador} - {carta.paginaRosto.bairroMorador} - {carta.paginaRosto.cidadeEstadoMorador}
-              </div>
-              <div className="linha-separadora">-</div>
-              <div className="website-url">https://raunaimer.com.br</div>
-            </div>
-          </div>
-
-          {/* CARTA DE COBRANÇA */}
-          <div className="pagina-a4 pagina-carta">
-            {/* Cabeçalho da carta */}
-            <div className="cabecalho-carta">
-              <div className="data-carta">
-                {new Date().toLocaleDateString('pt-BR')}
-              </div>
-              <div className="nome-condominio">
-                {carta.condominio}
-              </div>
-            </div>
-
-            {/* Destinatário */}
-            <div className="destinatario-section">
-              <div className="label-destinatario">Para:</div>
-              <div className="dados-destinatario">
-                <div className="nome-destinatario">{carta.destinatario.nome}</div>
-                <div className="unidade-destinatario">Unidade: {carta.destinatario.unidade}</div>
-                {carta.destinatario.endereco.map((linha, i) => (
-                  <div key={i} className="endereco-destinatario">{linha}</div>
-                ))}
-              </div>
-            </div>
-
-            {/* Conteúdo da carta */}
-            <div 
-              className="conteudo-carta"
-              dangerouslySetInnerHTML={{ __html: carta.conteudo }}
-            />
-
-            {/* Informações de cobrança */}
-            <div className="info-cobranca">
-              <div className="grid-cobranca">
-                <div className="info-item">
-                  <span className="label-info">Valor:</span> {carta.valor}
-                </div>
-                <div className="info-item">
-                  <span className="label-info">Vencimento:</span> {carta.vencimento}
-                </div>
-              </div>
-            </div>
-
-            {/* Rodapé */}
-            <div className="rodape-carta">
-              Sistema Raunaimer - Gestão de Condomínios
-            </div>
-          </div>
+        {/* Quadro do título (direita) */}
+        <div style={{ position: 'absolute', right: '15mm', top: '112mm', border: '0.3mm solid #333', padding: '6mm', minWidth: '50mm', textAlign: 'center' }}>
+          <div style={{ fontWeight: 'bold', fontSize: '12pt', marginBottom: '3mm' }}>BOLETO DE COBRANÇA - {carta.paginaRosto.mesAno}</div>
+          <div style={{ fontWeight: 'bold', fontSize: '12pt' }}>{carta.paginaRosto.nomeMorador}</div>
         </div>
-      ))}
+
+        {/* Bloco do condomínio (largura total) */}
+        <div style={{ position: 'absolute', left: '15mm', width: '180mm', top: '150mm', border: '0.3mm solid #333', padding: '6mm' }}>
+          <div style={{ fontWeight: 'bold', fontSize: '11pt', marginBottom: '3mm' }}>{carta.paginaRosto.nomeCondominio}</div>
+          <div style={{ fontSize: '9pt', marginBottom: '1.5mm' }}>{carta.paginaRosto.enderecoCondominio}{carta.paginaRosto.complementoCondominio ? ', ' + carta.paginaRosto.complementoCondominio : ''}</div>
+          <div style={{ fontSize: '9pt', marginBottom: '1.5mm' }}>{carta.paginaRosto.cepCondominio} - {carta.paginaRosto.bairroCondominio} - {carta.paginaRosto.cidadeEstadoCondominio}</div>
+          <div style={{ textAlign: 'right', fontSize: '9pt', marginTop: '3mm' }}>Unidade: {carta.paginaRosto.unidade}</div>
+        </div>
+
+        {/* Bloco do morador (fixo próximo ao rodapé) */}
+        <div style={{ position: 'absolute', left: '15mm', width: '180mm', bottom: '30mm', border: '0.3mm solid #333', padding: '6mm' }}>
+          <div style={{ fontWeight: 'bold', fontSize: '11pt', marginBottom: '3mm' }}>{carta.paginaRosto.nomeMorador}</div>
+          <div style={{ fontSize: '9pt', marginBottom: '1.5mm' }}>{carta.paginaRosto.enderecoMorador}</div>
+          <div style={{ fontSize: '9pt', marginBottom: '1.5mm' }}>{carta.paginaRosto.cepMorador} - {carta.paginaRosto.bairroMorador} - {carta.paginaRosto.cidadeEstadoMorador}</div>
+          <div style={{ fontSize: '9pt', margin: '6mm 0' }}>-</div>
+          <div style={{ fontSize: '9pt', color: '#0066cc' }}>https://raunaimer.com.br</div>
+        </div>
+      </div>
     </div>
   );
 };
+
