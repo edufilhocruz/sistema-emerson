@@ -54,7 +54,7 @@ const PaginaRostoA4 = ({ carta }: ImpressaoA4Props) => {
     }}>
       <div style={{ position: 'absolute', inset: '0', padding: '15mm' }}>
         {/* Itens movidos 20mm para cima */}
-        <img src="/logotipo.png" alt="Logotipo Raunaimer" style={{ position: 'absolute', left: '15mm', top: '92mm', height: '35mm', width: 'auto', maxWidth: '50mm', filter: 'grayscale(1)', opacity: '0.5' }} />
+        <img src="/logotipo.png" alt="Logotipo Raunaimer" style={{ position: 'absolute', left: '15mm', top: '92mm', height: '35mm', width: 'auto', maxWidth: '50mm', filter: 'none', WebkitPrintColorAdjust: 'exact', printColorAdjust: 'exact' }} />
         <div style={{ position: 'absolute', right: '15mm', top: '92mm', border: '0.3mm solid #333', padding: '6mm', minWidth: '50mm', textAlign: 'center' }}>
           <div style={{ fontWeight: 'bold', fontSize: '12pt', marginBottom: '3mm' }}>BOLETO DE COBRANÇA - {carta.paginaRosto.mesAno}</div>
           <div style={{ fontWeight: 'bold', fontSize: '12pt' }}>{carta.paginaRosto.nomeMorador}</div>
@@ -151,10 +151,12 @@ export const ImpressaoModal = ({ isOpen, onClose, cobrancaIds }: Props) => {
         
         const cartaCobrancaHtml = `
           <div style="page-break-after: auto; width: 210mm; min-height: 297mm; padding: 20mm; margin: 0; background: white; box-shadow: none; border: none; font-family: sans-serif;">
-            <div style="margin-bottom: 20mm;">
-              <div style="text-align: right; font-size: 10pt; color: #666; margin-bottom: 8mm;">${new Date().toLocaleDateString('pt-BR')}</div>
-              <div style="font-size: 14pt; font-weight: bold;">${carta.condominio}</div>
+            <!-- Cabeçalho com logotipo (colorido) e data -->
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12mm;">
+              <img src="/logotipo.png" alt="Logotipo Raunaimer" style="height: 12mm; width: auto; -webkit-print-color-adjust: exact; print-color-adjust: exact; filter: none;" />
+              <div style="text-align: right; font-size: 10pt; color: #666;">${new Date().toLocaleDateString('pt-BR')}</div>
             </div>
+            <div style="margin-bottom: 12mm; font-size: 14pt; font-weight: bold;">${carta.condominio}</div>
             <div style="margin-bottom: 20mm;">
               <div style="font-size: 12pt; font-weight: bold; margin-bottom: 4mm;">Para:</div>
               <div style="border-left: 4px solid #0066cc; padding-left: 8mm;">
@@ -163,7 +165,7 @@ export const ImpressaoModal = ({ isOpen, onClose, cobrancaIds }: Props) => {
                 ${carta.destinatario.endereco.map(linha => `<div style="font-size: 10pt; color: #666;">${linha}</div>`).join('')}
               </div>
             </div>
-            <div style="margin-bottom: 20mm; line-height: 1.6; font-size: 11pt;" dangerouslySetInnerHTML={{ __html: carta.conteudo }}></div>
+            <div style="margin-bottom: 20mm; line-height: 1.6; font-size: 11pt;">${carta.conteudo}</div>
             <div style="border-top: 1px solid #ccc; padding-top: 8mm; margin-top: 20mm;">
               <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8mm;">
                 <div style="font-size: 10pt;"><span style="font-weight: bold;">Valor:</span> ${carta.valor}</div>
@@ -185,6 +187,8 @@ export const ImpressaoModal = ({ isOpen, onClose, cobrancaIds }: Props) => {
             @page { size: A4; margin: 0; }
             body { margin: 0; padding: 0; background: #f0f0f0; }
             * { box-sizing: border-box; }
+            /* Garantir impressão colorida de imagens */
+            img { -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; filter: none !important; }
           </style>
         </head>
         <body>${cartasHtml}</body>
