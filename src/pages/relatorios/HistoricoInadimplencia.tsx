@@ -12,6 +12,7 @@ import { useState } from "react";
 const HistoricoInadimplenciaPage = () => {
   const [condominioId, setCondominioId] = useState<string | undefined>();
   const [minDiasAtraso, setMinDiasAtraso] = useState<number | undefined>(undefined);
+  const [dataRef, setDataRef] = useState<Date | undefined>(undefined);
   const { data, kpis, loading, error } = useInadimplenciaReport(condominioId, minDiasAtraso);
 
   const renderContent = () => {
@@ -45,7 +46,7 @@ const HistoricoInadimplenciaPage = () => {
             <InadimplenciaKpiCards kpis={kpis} loading={loading} />
           </section>
           
-          <InadimplenciaFilters onFilter={(id, dias) => { setCondominioId(id); setMinDiasAtraso(dias); }} />
+          <InadimplenciaFilters onFilter={(id, dias, date) => { setCondominioId(id); setMinDiasAtraso(dias); setDataRef(date); }} />
 
           {renderContent()}
         </div>

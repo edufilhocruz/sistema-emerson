@@ -151,9 +151,11 @@ export class CobrancaController {
   async getInadimplencia(
     @Query('condominioId') condominioId?: string,
     @Query('minDiasAtraso') minDiasAtraso?: string,
+    @Query('dataRef') dataRef?: string,
   ) {
     const minDias = minDiasAtraso ? parseInt(minDiasAtraso, 10) : undefined;
-    return this.cobrancaService.getInadimplencia(condominioId, minDias);
+    const data = dataRef ? new Date(dataRef) : undefined;
+    return this.cobrancaService.getInadimplencia(condominioId, minDias, data);
   }
 
   /**

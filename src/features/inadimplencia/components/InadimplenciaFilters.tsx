@@ -1,12 +1,13 @@
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Search } from "lucide-react";
 import { useCondominios } from '@/features/condominio/hooks/useCondominios';
 import { useState } from 'react';
 
 interface InadimplenciaFiltersProps {
-  onFilter: (condominioId: string | undefined, minDiasAtraso?: number) => void;
+  onFilter: (condominioId: string | undefined, minDiasAtraso?: number, dataRef?: Date) => void;
 }
 
 export const InadimplenciaFilters = ({ onFilter }: InadimplenciaFiltersProps) => {
@@ -14,6 +15,7 @@ export const InadimplenciaFilters = ({ onFilter }: InadimplenciaFiltersProps) =>
   const [condominioId, setCondominioId] = useState<string | undefined>();
   const [dias, setDias] = useState<string | undefined>();
   const [periodo, setPeriodo] = useState<string | undefined>();
+  const [dataRefStr, setDataRefStr] = useState<string | undefined>();
 
   return (
     <Card className="rounded-2xl shadow-sm border">
@@ -22,7 +24,7 @@ export const InadimplenciaFilters = ({ onFilter }: InadimplenciaFiltersProps) =>
         <CardDescription>Refine sua busca para encontrar informações específicas.</CardDescription>
       </CardHeader>
       <CardContent>
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-6">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-6 gap-6">
           <Select disabled={loading} value={condominioId} onValueChange={setCondominioId}>
             <SelectTrigger><SelectValue placeholder="Selecionar Condomínio" /></SelectTrigger>
             <SelectContent>
@@ -31,6 +33,10 @@ export const InadimplenciaFilters = ({ onFilter }: InadimplenciaFiltersProps) =>
               ))}
             </SelectContent>
           </Select>
+          {/* Filtro de Dia específico */}
+          <div className="flex flex-col gap-2">
+            <Input type="date" value={dataRefStr || ""} onChange={(e) => setDataRefStr(e.target.value || undefined)} />
+          </div>
           <Select value={dias} onValueChange={setDias}>
             <SelectTrigger><SelectValue placeholder="Dias em atraso" /></SelectTrigger>
             <SelectContent>
@@ -50,10 +56,11 @@ export const InadimplenciaFilters = ({ onFilter }: InadimplenciaFiltersProps) =>
             </SelectContent>
           </Select>
           <div className="lg:col-span-2 md:col-span-2 flex justify-end items-center gap-4">
-            <Button variant="outline" onClick={() => { setCondominioId(undefined); setDias(undefined); setPeriodo(undefined); onFilter(undefined, undefined); }}>Limpar Filtros</Button>
+            <Button variant="outline" onClick={() => { setCondominioId(undefined); setDias(undefined); setPeriodo(undefined); setDataRefStr(undefined); onFilter(undefined, undefined, undefined); }}>Limpar Filtros</Button>
             <Button className="bg-gold hover:bg-gold-hover" onClick={() => {
               const mapped = dias ? parseInt(dias, 10) : (periodo === 'dia' ? 1 : periodo === 'semana' ? 7 : undefined);
-              onFilter(condominioId, mapped);
+              const dataRef = dataRefStr ? new Date(dataRefStr) : undefined;
+              onFilter(condominioId, mapped, dataRef);
             }}><Search className="mr-2 h-4 w-4" /> Aplicar Filtros</Button>
           </div>
         </div>

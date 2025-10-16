@@ -2,7 +2,7 @@ import { useState, useEffect, useMemo } from 'react';
 import { InadimplenciaItem, InadimplenciaKpis } from '../types';
 import relatoriosService from '../services/relatoriosService';
 
-export const useInadimplenciaReport = (condominioId?: string, minDiasAtraso?: number) => {
+export const useInadimplenciaReport = (condominioId?: string, minDiasAtraso?: number, dataRef?: Date) => {
   const [data, setData] = useState<InadimplenciaItem[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -11,7 +11,7 @@ export const useInadimplenciaReport = (condominioId?: string, minDiasAtraso?: nu
     const fetchData = async () => {
       try {
         setLoading(true);
-        const reportData = await relatoriosService.getInadimplenciaReport(condominioId, minDiasAtraso);
+        const reportData = await relatoriosService.getInadimplenciaReport(condominioId, minDiasAtraso, dataRef);
         setData(reportData);
       } catch (err) {
         setError('Falha ao carregar o relatório de inadimplência.');
@@ -20,7 +20,7 @@ export const useInadimplenciaReport = (condominioId?: string, minDiasAtraso?: nu
       }
     };
     fetchData();
-  }, [condominioId, minDiasAtraso]);
+  }, [condominioId, minDiasAtraso, dataRef]);
 
   const kpis = useMemo<InadimplenciaKpis | null>(() => {
     if (data.length === 0) return null;

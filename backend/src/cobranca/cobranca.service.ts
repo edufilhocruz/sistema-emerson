@@ -391,7 +391,7 @@ export class CobrancaService {
   /**
    * Busca cobranças em inadimplência
    */
-  async getInadimplencia(condominioId?: string, minDiasAtraso?: number) {
+  async getInadimplencia(condominioId?: string, minDiasAtraso?: number, dataRef?: Date) {
     console.log('=== BUSCANDO COBRANÇAS EM INADIMPLÊNCIA ===');
     
     const where: any = { status: 'ATRASADO' };
@@ -408,11 +408,11 @@ export class CobrancaService {
     });
 
     // Mapeia para o formato esperado pelo frontend
+    const ref = dataRef || new Date();
     const mapped = cobrancas.map((c) => {
       // Calcula dias em atraso
-      const hoje = new Date();
       const venc = new Date(c.vencimento);
-      const diasAtraso = Math.max(0, Math.floor((hoje.getTime() - venc.getTime()) / (1000 * 60 * 60 * 24)));
+      const diasAtraso = Math.max(0, Math.floor((ref.getTime() - venc.getTime()) / (1000 * 60 * 60 * 24)));
       
       return {
         id: c.id,
