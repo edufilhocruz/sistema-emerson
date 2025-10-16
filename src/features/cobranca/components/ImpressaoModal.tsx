@@ -81,7 +81,7 @@ export const ImpressaoModal = ({ isOpen, onClose, cobrancaIds }: Props) => {
             </div>
 
             <!-- Bloco do condomínio (largura total) -->
-            <div style="position: absolute; left: 15mm; right: 15mm; top: 120mm; border: 0.3mm solid #333; padding: 6mm;">
+            <div style="position: absolute; left: 15mm; width: 180mm; top: 120mm; border: 0.3mm solid #333; padding: 6mm;">
               <div style="font-weight: bold; font-size: 11pt; margin-bottom: 3mm;">${carta.paginaRosto.nomeCondominio}</div>
               <div style="font-size: 9pt; margin-bottom: 1.5mm;">${carta.paginaRosto.enderecoCondominio}${carta.paginaRosto.complementoCondominio ? ', ' + carta.paginaRosto.complementoCondominio : ''}</div>
               <div style="font-size: 9pt; margin-bottom: 1.5mm;">${carta.paginaRosto.cepCondominio} - ${carta.paginaRosto.bairroCondominio} - ${carta.paginaRosto.cidadeEstadoCondominio}</div>
@@ -89,7 +89,7 @@ export const ImpressaoModal = ({ isOpen, onClose, cobrancaIds }: Props) => {
             </div>
 
             <!-- Bloco do morador (fixo próximo ao rodapé) -->
-            <div style="position: absolute; left: 15mm; right: 15mm; bottom: 10mm; border: 0.3mm solid #333; padding: 6mm;">
+            <div style="position: absolute; left: 15mm; width: 180mm; bottom: 10mm; border: 0.3mm solid #333; padding: 6mm;">
               <div style="font-weight: bold; font-size: 11pt; margin-bottom: 3mm;">${carta.paginaRosto.nomeMorador}</div>
               <div style="font-size: 9pt; margin-bottom: 1.5mm;">${carta.paginaRosto.enderecoMorador}</div>
               <div style="font-size: 9pt; margin-bottom: 1.5mm;">${carta.paginaRosto.cepMorador} - ${carta.paginaRosto.bairroMorador} - ${carta.paginaRosto.cidadeEstadoMorador}</div>
