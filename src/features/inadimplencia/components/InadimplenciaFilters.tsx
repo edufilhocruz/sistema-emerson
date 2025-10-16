@@ -6,12 +6,13 @@ import { useCondominios } from '@/features/condominio/hooks/useCondominios';
 import { useState } from 'react';
 
 interface InadimplenciaFiltersProps {
-  onFilter: (condominioId: string | undefined) => void;
+  onFilter: (condominioId: string | undefined, minDiasAtraso?: number) => void;
 }
 
 export const InadimplenciaFilters = ({ onFilter }: InadimplenciaFiltersProps) => {
   const { condominioOptions, loading } = useCondominios();
   const [condominioId, setCondominioId] = useState<string | undefined>();
+  const [dias, setDias] = useState<string | undefined>();
 
   return (
     <Card className="rounded-2xl shadow-sm border">
@@ -29,7 +30,7 @@ export const InadimplenciaFilters = ({ onFilter }: InadimplenciaFiltersProps) =>
               ))}
             </SelectContent>
           </Select>
-          <Select>
+          <Select value={dias} onValueChange={setDias}>
             <SelectTrigger><SelectValue placeholder="Dias em atraso" /></SelectTrigger>
             <SelectContent>
               <SelectItem value="15">Mais de 15 dias</SelectItem>
@@ -38,8 +39,8 @@ export const InadimplenciaFilters = ({ onFilter }: InadimplenciaFiltersProps) =>
             </SelectContent>
           </Select>
           <div className="lg:col-span-2 flex justify-end items-center gap-4">
-            <Button variant="outline" onClick={() => { setCondominioId(undefined); onFilter(undefined); }}>Limpar Filtros</Button>
-            <Button className="bg-gold hover:bg-gold-hover" onClick={() => onFilter(condominioId)}><Search className="mr-2 h-4 w-4" /> Aplicar Filtros</Button>
+            <Button variant="outline" onClick={() => { setCondominioId(undefined); setDias(undefined); onFilter(undefined, undefined); }}>Limpar Filtros</Button>
+            <Button className="bg-gold hover:bg-gold-hover" onClick={() => onFilter(condominioId, dias ? parseInt(dias, 10) : undefined)}><Search className="mr-2 h-4 w-4" /> Aplicar Filtros</Button>
           </div>
         </div>
       </CardContent>

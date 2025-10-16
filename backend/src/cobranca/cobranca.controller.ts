@@ -148,8 +148,12 @@ export class CobrancaController {
    * Retorna o relatório de inadimplência (cobranças em atraso).
    */
   @Get('inadimplencia')
-  async getInadimplencia(@Query('condominioId') condominioId?: string) {
-    return this.cobrancaService.getInadimplencia(condominioId);
+  async getInadimplencia(
+    @Query('condominioId') condominioId?: string,
+    @Query('minDiasAtraso') minDiasAtraso?: string,
+  ) {
+    const minDias = minDiasAtraso ? parseInt(minDiasAtraso, 10) : undefined;
+    return this.cobrancaService.getInadimplencia(condominioId, minDias);
   }
 
   /**
