@@ -13,6 +13,7 @@ export const InadimplenciaFilters = ({ onFilter }: InadimplenciaFiltersProps) =>
   const { condominioOptions, loading } = useCondominios();
   const [condominioId, setCondominioId] = useState<string | undefined>();
   const [dias, setDias] = useState<string | undefined>();
+  const [periodo, setPeriodo] = useState<string | undefined>();
 
   return (
     <Card className="rounded-2xl shadow-sm border">
@@ -21,7 +22,7 @@ export const InadimplenciaFilters = ({ onFilter }: InadimplenciaFiltersProps) =>
         <CardDescription>Refine sua busca para encontrar informações específicas.</CardDescription>
       </CardHeader>
       <CardContent>
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-6">
           <Select disabled={loading} value={condominioId} onValueChange={setCondominioId}>
             <SelectTrigger><SelectValue placeholder="Selecionar Condomínio" /></SelectTrigger>
             <SelectContent>
@@ -33,14 +34,27 @@ export const InadimplenciaFilters = ({ onFilter }: InadimplenciaFiltersProps) =>
           <Select value={dias} onValueChange={setDias}>
             <SelectTrigger><SelectValue placeholder="Dias em atraso" /></SelectTrigger>
             <SelectContent>
+              <SelectItem value="1">Dia</SelectItem>
+              <SelectItem value="7">Semana</SelectItem>
               <SelectItem value="15">Mais de 15 dias</SelectItem>
               <SelectItem value="30">Mais de 30 dias</SelectItem>
               <SelectItem value="60">Mais de 60 dias</SelectItem>
             </SelectContent>
           </Select>
-          <div className="lg:col-span-2 flex justify-end items-center gap-4">
-            <Button variant="outline" onClick={() => { setCondominioId(undefined); setDias(undefined); onFilter(undefined, undefined); }}>Limpar Filtros</Button>
-            <Button className="bg-gold hover:bg-gold-hover" onClick={() => onFilter(condominioId, dias ? parseInt(dias, 10) : undefined)}><Search className="mr-2 h-4 w-4" /> Aplicar Filtros</Button>
+          {/* Filtro adicional de Período (dia/semana) */}
+          <Select value={periodo} onValueChange={setPeriodo}>
+            <SelectTrigger><SelectValue placeholder="Período" /></SelectTrigger>
+            <SelectContent>
+              <SelectItem value="dia">Dia</SelectItem>
+              <SelectItem value="semana">Semana</SelectItem>
+            </SelectContent>
+          </Select>
+          <div className="lg:col-span-2 md:col-span-2 flex justify-end items-center gap-4">
+            <Button variant="outline" onClick={() => { setCondominioId(undefined); setDias(undefined); setPeriodo(undefined); onFilter(undefined, undefined); }}>Limpar Filtros</Button>
+            <Button className="bg-gold hover:bg-gold-hover" onClick={() => {
+              const mapped = dias ? parseInt(dias, 10) : (periodo === 'dia' ? 1 : periodo === 'semana' ? 7 : undefined);
+              onFilter(condominioId, mapped);
+            }}><Search className="mr-2 h-4 w-4" /> Aplicar Filtros</Button>
           </div>
         </div>
       </CardContent>
