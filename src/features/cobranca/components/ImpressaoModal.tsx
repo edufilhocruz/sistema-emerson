@@ -3,9 +3,8 @@ import ReactDOMServer from 'react-dom/server';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { Printer, X } from 'lucide-react';
-import cobrancaService from '../services/cobrancaService';
-import { PaginaRostoA4 } from './ImpressaoA4';
 
+// --- Interfaces movidas para dentro do arquivo para autossuficiência ---
 interface CartaImpressao {
   id: string;
   destinatario: {
@@ -35,6 +34,90 @@ interface CartaImpressao {
   };
 }
 
+interface ImpressaoA4Props {
+  carta: CartaImpressao;
+}
+
+// --- Componente PaginaRostoA4 movido para dentro do arquivo ---
+const PaginaRostoA4 = ({ carta }: ImpressaoA4Props) => {
+  return (
+    <div style={{
+      pageBreakAfter: 'always',
+      width: '210mm',
+      height: '297mm',
+      margin: '0 auto 10mm auto',
+      background: 'white',
+      border: '1px solid #eee',
+      boxShadow: '0 0 5px rgba(0,0,0,0.1)',
+      position: 'relative',
+      fontFamily: 'sans-serif'
+    }}>
+      <div style={{ position: 'absolute', inset: '0', padding: '15mm' }}>
+        {/* Itens movidos 20mm para cima */}
+        <img src="/logotipo.png" alt="Logotipo Raunaimer" style={{ position: 'absolute', left: '15mm', top: '92mm', height: '35mm', width: 'auto', maxWidth: '50mm', filter: 'grayscale(1)', opacity: '0.5' }} />
+        <div style={{ position: 'absolute', right: '15mm', top: '92mm', border: '0.3mm solid #333', padding: '6mm', minWidth: '50mm', textAlign: 'center' }}>
+          <div style={{ fontWeight: 'bold', fontSize: '12pt', marginBottom: '3mm' }}>BOLETO DE COBRANÇA - {carta.paginaRosto.mesAno}</div>
+          <div style={{ fontWeight: 'bold', fontSize: '12pt' }}>{carta.paginaRosto.nomeMorador}</div>
+        </div>
+        <div style={{ position: 'absolute', left: '15mm', width: '180mm', top: '130mm', border: '0.3mm solid #333', padding: '6mm' }}>
+          <div style={{ fontWeight: 'bold', fontSize: '11pt', marginBottom: '3mm' }}>{carta.paginaRosto.nomeCondominio}</div>
+          <div style={{ fontSize: '9pt', marginBottom: '1.5mm' }}>{carta.paginaRosto.enderecoCondominio}{carta.paginaRosto.complementoCondominio ? ', ' + carta.paginaRosto.complementoCondominio : ''}</div>
+          <div style={{ fontSize: '9pt', marginBottom: '1.5mm' }}>{carta.paginaRosto.cepCondominio} - {carta.paginaRosto.bairroCondominio} - {carta.paginaRosto.cidadeEstadoCondominio}</div>
+          <div style={{ textAlign: 'right', fontSize: '9pt', marginTop: '3mm' }}>Unidade: {carta.paginaRosto.unidade}</div>
+        </div>
+        
+        {/* Bloco inferior mantém a posição original */}
+        <div style={{ position: 'absolute', left: '15mm', width: '180mm', bottom: '30mm', border: '0.3mm solid #333', padding: '6mm' }}>
+          <div style={{ fontWeight: 'bold', fontSize: '11pt', marginBottom: '3mm' }}>{carta.paginaRosto.nomeMorador}</div>
+          <div style={{ fontSize: '9pt', marginBottom: '1.5mm' }}>{carta.paginaRosto.enderecoMorador}</div>
+          <div style={{ fontSize: '9pt', marginBottom: '1.5mm' }}>{carta.paginaRosto.cepMorador} - {carta.paginaRosto.bairroMorador} - {carta.paginaRosto.cidadeEstadoMorador}</div>
+          <div style={{ fontSize: '9pt', margin: '6mm 0' }}>-</div>
+          <div style={{ fontSize: '9pt', color: '#0066cc' }}>https://raunaimer.com.br</div>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+// --- Mock do serviço para simular a busca de dados ---
+const mockCobrancaService = {
+  gerarCartasImpressao: async (ids: string[]): Promise<{ cartas: CartaImpressao[] }> => {
+    console.log('🔄 Gerando cartas MOCK para IDs:', ids);
+    await new Promise(resolve => setTimeout(resolve, 500)); // Simula delay da rede
+
+    const mockCartas = ids.map((id, index) => ({
+      id: id,
+      destinatario: {
+        nome: `Morador de Exemplo ${index + 1}`,
+        endereco: [`Rua das Flores, 123`, `Apto ${101 + index}`],
+        unidade: `Unidade ${101 + index}`,
+      },
+      conteudo: 'Prezado(a) morador(a),<br/><br/>Segue o boleto para pagamento da taxa condominial referente a este mês.<br/><br/>Agradecemos a sua colaboração para a manutenção e bom funcionamento do nosso condomínio.<br/><br/>Atenciosamente,<br/>A Administração.',
+      modelo: 'Padrão',
+      valor: `R$ ${(500 + index * 50).toFixed(2)}`,
+      vencimento: '10/11/2025',
+      condominio: 'Condomínio Residencial Nova Aurora',
+      paginaRosto: {
+        mesAno: '10/2025',
+        nomeMorador: `Morador de Exemplo ${index + 1}`,
+        nomeCondominio: 'Condomínio Residencial Nova Aurora',
+        enderecoCondominio: 'Rua Cerro de Mateus Simões, 349',
+        complementoCondominio: '',
+        cepCondominio: '03805-010',
+        bairroCondominio: 'Parque Boturussu',
+        cidadeEstadoCondominio: 'São Paulo - SP',
+        unidade: `Unidade ${101 + index}`,
+        enderecoMorador: 'Rua das Flores, 123',
+        cepMorador: '01234-567',
+        bairroMorador: 'Centro',
+        cidadeEstadoCondominio: 'São Paulo - SP',
+      },
+    }));
+
+    return { cartas: mockCartas };
+  }
+};
+
 interface Props {
   isOpen: boolean;
   onClose: () => void;
@@ -49,7 +132,8 @@ export const ImpressaoModal = ({ isOpen, onClose, cobrancaIds }: Props) => {
   const handleGerar = async () => {
     setLoading(true);
     try {
-      const response = await cobrancaService.gerarCartasImpressao(cobrancaIds);
+      // Usa o serviço MOCK no lugar do import
+      const response = await mockCobrancaService.gerarCartasImpressao(cobrancaIds);
       setCartas(response.cartas);
       setGerado(true);
     } catch (error) {
@@ -79,7 +163,7 @@ export const ImpressaoModal = ({ isOpen, onClose, cobrancaIds }: Props) => {
                 ${carta.destinatario.endereco.map(linha => `<div style="font-size: 10pt; color: #666;">${linha}</div>`).join('')}
               </div>
             </div>
-            <div style="margin-bottom: 20mm; line-height: 1.6; font-size: 11pt;">${carta.conteudo}</div>
+            <div style="margin-bottom: 20mm; line-height: 1.6; font-size: 11pt;" dangerouslySetInnerHTML={{ __html: carta.conteudo }}></div>
             <div style="border-top: 1px solid #ccc; padding-top: 8mm; margin-top: 20mm;">
               <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8mm;">
                 <div style="font-size: 10pt;"><span style="font-weight: bold;">Valor:</span> ${carta.valor}</div>
@@ -124,7 +208,7 @@ export const ImpressaoModal = ({ isOpen, onClose, cobrancaIds }: Props) => {
     if (isOpen && !gerado) {
       handleGerar();
     }
-  }, [isOpen]);
+  }, [isOpen, gerado]);
 
   return (
     <Dialog open={isOpen} onOpenChange={handleClose}>
