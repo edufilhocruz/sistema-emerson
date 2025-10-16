@@ -72,7 +72,7 @@ export const ImpressaoModal = ({ isOpen, onClose, cobrancaIds }: Props) => {
           <!-- Margem interna da página -->
           <div style="position: absolute; inset: 0; padding: 15mm;">
             <!-- Logo (esquerda) -->
-            <img src="/logotipo.png" alt="Logotipo Raunaimer" style="position: absolute; left: 15mm; top: 160mm; height: 35mm; width: auto; max-width: 50mm;" />
+            <img src="/logotipo.png" alt="Logotipo Raunaimer" style="position: absolute; left: 15mm; top: 150mm; height: 35mm; width: auto; max-width: 50mm;" />
 
             <!-- Quadro do título (direita) -->
             <div style="position: absolute; right: 15mm; top: 140mm; border: 0.3mm solid #333; padding: 6mm 8mm; min-width: 70mm; text-align: center;">
@@ -81,7 +81,7 @@ export const ImpressaoModal = ({ isOpen, onClose, cobrancaIds }: Props) => {
             </div>
 
             <!-- Bloco do condomínio (largura total) -->
-            <div style="position: absolute; left: 15mm; right: 15mm; top: 180mm; border: 0.3mm solid #333; padding: 6mm;">
+            <div style="position: absolute; left: 15mm; right: 15mm; top: 170mm; border: 0.3mm solid #333; padding: 6mm;">
               <div style="font-weight: bold; font-size: 11pt; margin-bottom: 3mm;">${carta.paginaRosto.nomeCondominio}</div>
               <div style="font-size: 9pt; margin-bottom: 1.5mm;">${carta.paginaRosto.enderecoCondominio}${carta.paginaRosto.complementoCondominio ? ', ' + carta.paginaRosto.complementoCondominio : ''}</div>
               <div style="font-size: 9pt; margin-bottom: 1.5mm;">${carta.paginaRosto.cepCondominio} - ${carta.paginaRosto.bairroCondominio} - ${carta.paginaRosto.cidadeEstadoCondominio}</div>
