@@ -81,7 +81,7 @@ export const ImpressaoModal = ({ isOpen, onClose, cobrancaIds }: Props) => {
             </div>
 
             <!-- Bloco do condomínio (largura total) -->
-            <div style="position: absolute; left: 15mm; right: 15mm; top: 170mm; border: 0.3mm solid #333; padding: 6mm;">
+            <div style="position: absolute; left: 15mm; right: 15mm; top: 120mm; border: 0.3mm solid #333; padding: 6mm;">
               <div style="font-weight: bold; font-size: 11pt; margin-bottom: 3mm;">${carta.paginaRosto.nomeCondominio}</div>
               <div style="font-size: 9pt; margin-bottom: 1.5mm;">${carta.paginaRosto.enderecoCondominio}${carta.paginaRosto.complementoCondominio ? ', ' + carta.paginaRosto.complementoCondominio : ''}</div>
               <div style="font-size: 9pt; margin-bottom: 1.5mm;">${carta.paginaRosto.cepCondominio} - ${carta.paginaRosto.bairroCondominio} - ${carta.paginaRosto.cidadeEstadoCondominio}</div>
@@ -208,7 +208,7 @@ export const ImpressaoModal = ({ isOpen, onClose, cobrancaIds }: Props) => {
           {loading ? (
             <div className="flex items-center justify-center h-full">
               <div className="text-center">
-                <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto mb-4"></div>
+                <div className="w-12 h-12 mx-auto mb-4 border-b-2 rounded-full animate-spin border-primary"></div>
                 <p>Gerando cartas para impressão...</p>
               </div>
             </div>
@@ -218,11 +218,11 @@ export const ImpressaoModal = ({ isOpen, onClose, cobrancaIds }: Props) => {
               <div className="print:hidden">
                 <div className="space-y-8">
                   {cartas.map((carta, index) => (
-                    <div key={carta.id} className="border rounded-lg p-6 bg-white">
-                      <div className="text-sm text-gray-600 mb-4">
+                    <div key={carta.id} className="p-6 bg-white border rounded-lg">
+                      <div className="mb-4 text-sm text-gray-600">
                         Carta {index + 1} de {cartas.length} - {carta.destinatario.nome}
                       </div>
-                      <div className="text-lg font-bold mb-2">
+                      <div className="mb-2 text-lg font-bold">
                         {carta.condominio}
                       </div>
                       <div className="text-sm text-gray-600">
