@@ -120,14 +120,7 @@ export const ImpressaoModal = ({ isOpen, onClose, cobrancaIds }: Props) => {
               <div style="text-align: right; font-size: 10pt; color: #666;">${new Date().toLocaleDateString('pt-BR')}</div>
             </div>
             <div style="margin-bottom: 10mm; font-size: 14pt; font-weight: bold;">${carta.condominio}</div>
-            <div style="margin-bottom: 12mm;">
-              <div style="font-size: 12pt; font-weight: bold; margin-bottom: 4mm;">Para:</div>
-              <div style="border-left: 4px solid #0066cc; padding-left: 8mm;">
-                <div style="font-weight: bold; font-size: 12pt;">${carta.destinatario.nome}</div>
-                <div style="font-size: 10pt; color: #666; margin-bottom: 2mm;">Unidade: ${carta.destinatario.unidade}</div>
-                ${carta.destinatario.endereco.map(linha => `<div style="font-size: 10pt; color: #666;">${linha}</div>`).join('')}
-              </div>
-            </div>
+            <!-- Bloco 'Para:' removido conforme solicitação -->
             <div style="line-height: 1.45; font-size: 10.5pt;">${carta.conteudo}</div>
             <div style="border-top: 1px solid #ccc; padding-top: 6mm; margin-top: 12mm;">
               <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 6mm;">
