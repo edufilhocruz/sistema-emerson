@@ -75,7 +75,7 @@ export const ImpressaoModal = ({ isOpen, onClose, cobrancaIds }: Props) => {
             <img src="/logotipo.png" alt="Logotipo Raunaimer" style="position: absolute; left: 15mm; top: 112mm; height: 35mm; width: auto; max-width: 50mm;" />
 
             <!-- Quadro do título (direita) -->
-            <div style="position: absolute; right: 10mm; top: 105mm; border: 0.3mm solid #333; padding: 6mm 8mm; width: 95mm; min-width: 95mm; text-align: center;">
+            <div style="position: absolute; right: 15mm; top: 105mm; border: 0.3mm solid #333; padding: 6mm; min-width: 50mm; text-align: center;">
               <div style="font-weight: bold; font-size: 12pt; margin-bottom: 3mm;">BOLETO DE COBRANÇA - ${carta.paginaRosto.mesAno}</div>
               <div style="font-weight: bold; font-size: 12pt;">${carta.paginaRosto.nomeMorador}</div>
             </div>
