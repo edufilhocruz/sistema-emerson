@@ -1,8 +1,6 @@
 import React, { useState } from 'react';
 import ReactDOMServer from 'react-dom/server';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
-import { Button } from '@/components/ui/button';
-import { Printer, X } from 'lucide-react';
 import cobrancaService from '../services/cobrancaService';
 
 // --- Interfaces movidas para dentro do arquivo para autossuficiência ---
@@ -173,39 +171,27 @@ export const ImpressaoModal = ({ isOpen, onClose, cobrancaIds }: Props) => {
     }
   }, [isOpen, gerado]);
 
+  // Imprimir automaticamente quando as cartas forem geradas
+  React.useEffect(() => {
+    if (gerado && cartas.length > 0) {
+      handleImprimir();
+      handleClose();
+    }
+  }, [gerado, cartas]);
+
   return (
     <Dialog open={isOpen} onOpenChange={handleClose}>
-      <DialogContent className="max-w-6xl h-[90vh] overflow-hidden flex flex-col">
-        <DialogHeader className="print:hidden">
-          <DialogTitle className="flex items-center justify-between">
-            <span>Cartas para Impressão ({cobrancaIds.length} selecionadas)</span>
-            <div className="flex gap-2">
-              <Button onClick={handleImprimir} disabled={!gerado || loading}>
-                <Printer className="w-4 h-4 mr-2" />
-                Imprimir
-              </Button>
-              <Button variant="ghost" onClick={handleClose}>
-                <X className="w-4 h-4" />
-              </Button>
-            </div>
-          </DialogTitle>
+      <DialogContent className="max-w-md">
+        <DialogHeader>
+          <DialogTitle>Preparando Impressão</DialogTitle>
         </DialogHeader>
         
-        <div className="h-full p-8 overflow-y-auto bg-gray-200 print:hidden">
-          {loading ? (
-            <div className="flex items-center justify-center h-full">
-              <div className="text-center">
-                <div className="w-12 h-12 mx-auto mb-4 border-b-2 rounded-full animate-spin border-primary"></div>
-                <p>Gerando cartas para impressão...</p>
-              </div>
-            </div>
-          ) : (
-             <div className="space-y-4">
-              {cartas.map((carta) => (
-                <PaginaRostoA4 key={carta.id} carta={carta} />
-              ))}
-            </div>
-          )}
+        <div className="flex items-center justify-center py-8">
+          <div className="text-center">
+            <div className="w-12 h-12 mx-auto mb-4 border-b-2 rounded-full animate-spin border-primary"></div>
+            <p>Gerando cartas para impressão...</p>
+            <p className="text-sm text-gray-500 mt-2">{cobrancaIds.length} cobrança(s) selecionada(s)</p>
+          </div>
         </div>
       </DialogContent>
     </Dialog>
