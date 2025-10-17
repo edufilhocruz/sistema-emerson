@@ -115,7 +115,7 @@ export const ImpressaoModal = ({ isOpen, onClose, cobrancaIds }: Props) => {
         const paginaRostoHtml = ReactDOMServer.renderToStaticMarkup(<PaginaRostoA4 carta={carta} logoUrl={absoluteLogo} />);
         
         const cartaCobrancaHtml = `
-          <div class="carta-cobranca" style="page-break-after: always; width: 100%; height: 100%; padding: 0; margin: 0; background: white; box-shadow: none; border: none; font-family: sans-serif; overflow: hidden;">
+          <div style="page-break-after: always; width: 210mm; height: 297mm; padding: 16mm; margin: 0; background: white; box-shadow: none; border: none; font-family: sans-serif; overflow: hidden;">
             <!-- Cabeçalho com logotipo (colorido) e data -->
             <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10mm;">
               <img src="${absoluteLogo}" alt="Logotipo Raunaimer" style="height: 12mm; width: auto; -webkit-print-color-adjust: exact; print-color-adjust: exact; filter: none;" />
@@ -148,8 +148,6 @@ export const ImpressaoModal = ({ isOpen, onClose, cobrancaIds }: Props) => {
             /* Evitar quebras inesperadas */
             .carta-pagina { page-break-after: always; }
             .carta-pagina * { page-break-inside: avoid; }
-            /* Margens moderadas apenas para a segunda página */
-            .carta-cobranca { margin: 12.7mm; }
           </style>
         </head>
         <body>${cartasHtml}</body>
