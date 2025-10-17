@@ -54,14 +54,14 @@ const PaginaRostoA4 = ({ carta, logoUrl }: ImpressaoA4Props) => {
       position: 'relative',
       fontFamily: 'sans-serif'
     }}>
-      <div style={{ position: 'absolute', inset: '0', padding: '15mm 25mm' }}>
-        {/* Itens movidos 20mm para cima e centralizados */}
-        <img src={logoUrl || '/logotipo.png'} alt="Logotipo Raunaimer" style={{ position: 'absolute', left: '0mm', top: '77mm', height: '35mm', width: 'auto', maxWidth: '50mm', filter: 'none', WebkitPrintColorAdjust: 'exact', printColorAdjust: 'exact' }} />
-        <div style={{ position: 'absolute', right: '0mm', top: '77mm', border: '0.3mm solid #333', padding: '6mm', minWidth: '50mm', textAlign: 'center' }}>
+      <div style={{ position: 'absolute', inset: '0', padding: '15mm' }}>
+        {/* Itens movidos 20mm para cima */}
+        <img src={logoUrl || '/logotipo.png'} alt="Logotipo Raunaimer" style={{ position: 'absolute', left: '15mm', top: '92mm', height: '35mm', width: 'auto', maxWidth: '50mm', filter: 'none', WebkitPrintColorAdjust: 'exact', printColorAdjust: 'exact' }} />
+        <div style={{ position: 'absolute', right: '15mm', top: '92mm', border: '0.3mm solid #333', padding: '6mm', minWidth: '50mm', textAlign: 'center' }}>
           <div style={{ fontWeight: 'bold', fontSize: '12pt', marginBottom: '3mm' }}>BOLETO DE COBRANÇA - {carta.paginaRosto.mesAno}</div>
           <div style={{ fontWeight: 'bold', fontSize: '12pt' }}>{carta.paginaRosto.nomeMorador}</div>
         </div>
-        <div style={{ position: 'absolute', left: '0mm', width: '160mm', top: '115mm', border: '0.3mm solid #333', padding: '6mm' }}>
+        <div style={{ position: 'absolute', left: '15mm', width: '180mm', top: '130mm', border: '0.3mm solid #333', padding: '6mm' }}>
           <div style={{ fontWeight: 'bold', fontSize: '11pt', marginBottom: '3mm' }}>{carta.paginaRosto.nomeCondominio}</div>
           <div style={{ fontSize: '9pt', marginBottom: '1.5mm' }}>{carta.paginaRosto.enderecoCondominio}{carta.paginaRosto.complementoCondominio ? ', ' + carta.paginaRosto.complementoCondominio : ''}</div>
           <div style={{ fontSize: '9pt', marginBottom: '1.5mm' }}>{carta.paginaRosto.cepCondominio} - {carta.paginaRosto.bairroCondominio} - {carta.paginaRosto.cidadeEstadoCondominio}</div>
@@ -69,7 +69,7 @@ const PaginaRostoA4 = ({ carta, logoUrl }: ImpressaoA4Props) => {
         </div>
         
         {/* Bloco inferior mantém a posição original */}
-        <div style={{ position: 'absolute', left: '0mm', width: '160mm', bottom: '15mm', border: '0.3mm solid #333', padding: '6mm' }}>
+        <div style={{ position: 'absolute', left: '15mm', width: '180mm', bottom: '30mm', border: '0.3mm solid #333', padding: '6mm' }}>
           <div style={{ fontWeight: 'bold', fontSize: '11pt', marginBottom: '3mm' }}>{carta.paginaRosto.nomeMorador}</div>
           <div style={{ fontSize: '9pt', marginBottom: '1.5mm' }}>{carta.paginaRosto.enderecoMorador}</div>
           <div style={{ fontSize: '9pt', marginBottom: '1.5mm' }}>{carta.paginaRosto.cepMorador} - {carta.paginaRosto.bairroMorador} - {carta.paginaRosto.cidadeEstadoMorador}</div>
