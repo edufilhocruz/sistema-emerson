@@ -56,7 +56,7 @@ const PaginaRostoA4 = ({ carta, logoUrl }: ImpressaoA4Props) => {
         {/* Itens movidos 20mm para cima */}
         <img src={logoUrl || '/logotipo.png'} alt="Logotipo Raunaimer" style={{ position: 'absolute', left: '15mm', top: '92mm', height: '35mm', width: 'auto', maxWidth: '50mm', filter: 'none', WebkitPrintColorAdjust: 'exact', printColorAdjust: 'exact' }} />
         <div style={{ position: 'absolute', right: '15mm', top: '92mm', border: '0.3mm solid #333', padding: '6mm', minWidth: '50mm', textAlign: 'center' }}>
-          <div style={{ fontWeight: 'bold', fontSize: '12pt', marginBottom: '3mm' }}>BOLETO DE COBRANÇA - {carta.paginaRosto.mesAno}</div>
+          <div style={{ fontWeight: 'bold', fontSize: '12pt', marginBottom: '3mm' }}>AVISO - DÉBITOS CONDOMINIAIS - {carta.paginaRosto.mesAno}</div>
           <div style={{ fontWeight: 'bold', fontSize: '12pt' }}>{carta.paginaRosto.nomeMorador}</div>
         </div>
         <div style={{ position: 'absolute', left: '15mm', width: '180mm', top: '130mm', border: '0.3mm solid #333', padding: '6mm' }}>
@@ -190,7 +190,7 @@ export const ImpressaoModal = ({ isOpen, onClose, cobrancaIds }: Props) => {
           <div className="text-center">
             <div className="w-12 h-12 mx-auto mb-4 border-b-2 rounded-full animate-spin border-primary"></div>
             <p>Gerando cartas para impressão...</p>
-            <p className="text-sm text-gray-500 mt-2">{cobrancaIds.length} cobrança(s) selecionada(s)</p>
+            <p className="mt-2 text-sm text-gray-500">{cobrancaIds.length} cobrança(s) selecionada(s)</p>
           </div>
         </div>
       </DialogContent>
