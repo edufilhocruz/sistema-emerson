@@ -45,9 +45,9 @@ const PaginaRostoA4 = ({ carta, logoUrl }: ImpressaoA4Props) => {
   return (
     <div style={{
       pageBreakAfter: 'always',
-      width: '100%',
-      height: '100%',
-      margin: '0',
+      width: '210mm',
+      height: '297mm',
+      margin: '0 auto 10mm auto',
       background: 'white',
       border: '1px solid #eee',
       boxShadow: '0 0 5px rgba(0,0,0,0.1)',
@@ -115,7 +115,7 @@ export const ImpressaoModal = ({ isOpen, onClose, cobrancaIds }: Props) => {
         const paginaRostoHtml = ReactDOMServer.renderToStaticMarkup(<PaginaRostoA4 carta={carta} logoUrl={absoluteLogo} />);
         
         const cartaCobrancaHtml = `
-          <div style="page-break-after: always; width: 100%; height: 100%; padding: 0; margin: 0; background: white; box-shadow: none; border: none; font-family: sans-serif; overflow: hidden;">
+          <div class="carta-cobranca" style="page-break-after: always; width: 100%; height: 100%; padding: 0; margin: 0; background: white; box-shadow: none; border: none; font-family: sans-serif; overflow: hidden;">
             <!-- Cabeçalho com logotipo (colorido) e data -->
             <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10mm;">
               <img src="${absoluteLogo}" alt="Logotipo Raunaimer" style="height: 12mm; width: auto; -webkit-print-color-adjust: exact; print-color-adjust: exact; filter: none;" />
@@ -136,7 +136,7 @@ export const ImpressaoModal = ({ isOpen, onClose, cobrancaIds }: Props) => {
         <head>
           <title>Impressão de Cobranças</title>
           <style>
-            @page { size: A4; margin: 12.7mm; }
+            @page { size: A4; margin: 0; }
             body { margin: 0; padding: 0; background: #f0f0f0; }
             * { box-sizing: border-box; }
             /* Garantir impressão colorida de imagens */
@@ -148,6 +148,8 @@ export const ImpressaoModal = ({ isOpen, onClose, cobrancaIds }: Props) => {
             /* Evitar quebras inesperadas */
             .carta-pagina { page-break-after: always; }
             .carta-pagina * { page-break-inside: avoid; }
+            /* Margens moderadas apenas para a segunda página */
+            .carta-cobranca { margin: 12.7mm; }
           </style>
         </head>
         <body>${cartasHtml}</body>
