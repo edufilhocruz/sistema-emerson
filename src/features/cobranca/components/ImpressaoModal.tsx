@@ -45,9 +45,9 @@ const PaginaRostoA4 = ({ carta, logoUrl }: ImpressaoA4Props) => {
   return (
     <div style={{
       pageBreakAfter: 'always',
-      width: '210mm',
-      height: '297mm',
-      margin: '0 auto 10mm auto',
+      width: '100%',
+      height: '100%',
+      margin: '0',
       background: 'white',
       border: '1px solid #eee',
       boxShadow: '0 0 5px rgba(0,0,0,0.1)',
@@ -115,7 +115,7 @@ export const ImpressaoModal = ({ isOpen, onClose, cobrancaIds }: Props) => {
         const paginaRostoHtml = ReactDOMServer.renderToStaticMarkup(<PaginaRostoA4 carta={carta} logoUrl={absoluteLogo} />);
         
         const cartaCobrancaHtml = `
-          <div style="page-break-after: always; width: 210mm; height: 297mm; padding: 16mm; margin: 0; background: white; box-shadow: none; border: none; font-family: sans-serif; overflow: hidden;">
+          <div style="page-break-after: always; width: 100%; height: 100%; padding: 0; margin: 0; background: white; box-shadow: none; border: none; font-family: sans-serif; overflow: hidden;">
             <!-- Cabeçalho com logotipo (colorido) e data -->
             <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10mm;">
               <img src="${absoluteLogo}" alt="Logotipo Raunaimer" style="height: 12mm; width: auto; -webkit-print-color-adjust: exact; print-color-adjust: exact; filter: none;" />
@@ -136,7 +136,7 @@ export const ImpressaoModal = ({ isOpen, onClose, cobrancaIds }: Props) => {
         <head>
           <title>Impressão de Cobranças</title>
           <style>
-            @page { size: A4; margin: 0; }
+            @page { size: A4; margin: 12.7mm; }
             body { margin: 0; padding: 0; background: #f0f0f0; }
             * { box-sizing: border-box; }
             /* Garantir impressão colorida de imagens */
