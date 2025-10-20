@@ -6,6 +6,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Edit, Trash2, Printer, Save, X, CheckCircle } from 'lucide-react';
 import processoService, { Processo } from '../services/processoService';
+import condominioService from '@/features/condominio/services/condominioService';
 import { ProcessoForm } from './ProcessoForm';
 import { DeleteConfirmationModal } from './DeleteConfirmationModal';
 
@@ -48,6 +49,8 @@ export const ProcessosTable: React.FC = () => {
   const [deleteModalOpen, setDeleteModalOpen] = useState(false);
   const [processoToDelete, setProcessoToDelete] = useState<Processo | null>(null);
   const [showDeleteSuccess, setShowDeleteSuccess] = useState(false);
+  const [condominios, setCondominios] = useState<any[]>([]);
+  const [filtroCondominio, setFiltroCondominio] = useState<string>('');
 
   const loadProcessos = async () => {
     try {
@@ -61,8 +64,18 @@ export const ProcessosTable: React.FC = () => {
     }
   };
 
+  const loadCondominios = async () => {
+    try {
+      const data = await condominioService.getCondominios();
+      setCondominios(data);
+    } catch (error) {
+      console.error('Erro ao carregar condomínios:', error);
+    }
+  };
+
   useEffect(() => {
     loadProcessos();
+    loadCondominios();
   }, []);
 
   const handleDeleteClick = (processo: Processo) => {
@@ -149,6 +162,12 @@ export const ProcessosTable: React.FC = () => {
     label,
   }));
 
+  // Filtrar processos por condomínio
+  const processosFiltrados = processos.filter(processo => {
+    if (!filtroCondominio) return true;
+    return processo.condominioId === filtroCondominio;
+  });
+
   if (loading) {
     return (
       <Card>
@@ -167,6 +186,37 @@ export const ProcessosTable: React.FC = () => {
             <CardTitle>Gestão de Processos Jurídicos</CardTitle>
             <ProcessoForm onSuccess={loadProcessos} />
           </div>
+          <div className="mt-4">
+            <div className="flex items-center space-x-4">
+              <div className="flex items-center space-x-2">
+                <label htmlFor="filtro-condominio" className="text-sm font-medium">
+                  Filtrar por Condomínio:
+                </label>
+                <Select value={filtroCondominio} onValueChange={setFiltroCondominio}>
+                  <SelectTrigger className="w-64">
+                    <SelectValue placeholder="Todos os condomínios" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="">Todos os condomínios</SelectItem>
+                    {condominios.map((condominio) => (
+                      <SelectItem key={condominio.id} value={condominio.id}>
+                        {condominio.nome}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+              {filtroCondominio && (
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => setFiltroCondominio('')}
+                >
+                  Limpar Filtro
+                </Button>
+              )}
+            </div>
+          </div>
         </CardHeader>
       </Card>
 
@@ -179,6 +229,8 @@ export const ProcessosTable: React.FC = () => {
                   <TableHead>Número do Processo</TableHead>
                   <TableHead>Nome</TableHead>
                   <TableHead>Unidade</TableHead>
+                  <TableHead>Bloco</TableHead>
+                  <TableHead>Parte</TableHead>
                   <TableHead>Condomínio</TableHead>
                   <TableHead>Ação De</TableHead>
                   <TableHead>Situação</TableHead>
@@ -188,20 +240,28 @@ export const ProcessosTable: React.FC = () => {
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {processos.length === 0 ? (
+                {processosFiltrados.length === 0 ? (
                   <TableRow>
-                    <TableCell colSpan={9} className="py-8 text-center text-gray-500">
-                      Nenhum processo encontrado
+                    <TableCell colSpan={11} className="py-8 text-center text-gray-500">
+                      {filtroCondominio ? 'Nenhum processo encontrado para o condomínio selecionado' : 'Nenhum processo encontrado'}
                     </TableCell>
                   </TableRow>
                 ) : (
-                  processos.map((processo) => (
+                  processosFiltrados.map((processo) => (
                     <TableRow key={processo.id}>
                       <TableCell className="font-medium">
                         {processo.numeroProcesso}
                       </TableCell>
                       <TableCell>{processo.nome}</TableCell>
                       <TableCell>{processo.unidade}</TableCell>
+                      <TableCell>{processo.bloco || 'N/A'}</TableCell>
+                      <TableCell>
+                        <Badge variant="outline">
+                          {processo.parte === 'AUTOR' ? 'Autor' : 
+                           processo.parte === 'REU' ? 'Réu' : 
+                           'Terceiro Interessado'}
+                        </Badge>
+                      </TableCell>
                       <TableCell>
                         {(processo as any).condominio?.nome || 'N/A'}
                       </TableCell>

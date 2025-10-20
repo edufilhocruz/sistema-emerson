@@ -4,6 +4,8 @@ export interface Processo {
   id: string;
   nome: string;
   unidade: string;
+  bloco?: string | null;
+  parte: string;
   acaoDe: string;
   situacao: string;
   numeroProcesso: string;
@@ -39,6 +41,10 @@ const processoService = {
   },
   getSituacoes: async () => {
     const res = await apiClient.get('/processos/situacoes');
+    return res.data;
+  },
+  getTiposParte: async () => {
+    const res = await apiClient.get('/processos/tipos-parte');
     return res.data;
   },
   updateSituacao: async (id: string, situacao: string): Promise<Processo> => {

@@ -12,10 +12,17 @@ export type SituacaoProcesso =
   | 'CUMP_SENTENCA'
   | 'GRAU_DE_RECURSO';
 
+export type TipoParte = 
+  | 'AUTOR'
+  | 'REU'
+  | 'TERCEIRO_INTERESSADO';
+
 export interface ProcessoData {
   id: string;
   nome: string;
   unidade: string;
+  bloco?: string | null;
+  parte: TipoParte;
   acaoDe: string;
   situacao: SituacaoProcesso;
   numeroProcesso: string;
@@ -37,4 +44,9 @@ export interface SituacaoOption {
   value: SituacaoProcesso;
   label: string;
   color: 'default' | 'secondary' | 'destructive' | 'outline';
+}
+
+export interface TipoParteOption {
+  value: TipoParte;
+  label: string;
 }

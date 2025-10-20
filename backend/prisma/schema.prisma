@@ -128,6 +128,8 @@ model Processo {
   id             String          @id @default(uuid())
   nome           String
   unidade        String
+  bloco          String?         // novo campo: bloco
+  parte          TipoParte      @default(AUTOR) // novo campo: tipo de parte
   acaoDe         String
   situacao       SituacaoProcesso @default(CITACAO)
   numeroProcesso String
@@ -178,4 +180,10 @@ enum SituacaoProcesso {
   EXTINTO
   CUMP_SENTENCA
   GRAU_DE_RECURSO
+}
+
+enum TipoParte {
+  AUTOR
+  REU
+  TERCEIRO_INTERESSADO
 }

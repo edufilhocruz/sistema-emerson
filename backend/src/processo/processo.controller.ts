@@ -1,7 +1,7 @@
 import { Body, Controller, Delete, Get, Param, Post, Patch, Res } from '@nestjs/common';
 import { Response } from 'express';
 import { ProcessoService } from './processo.service';
-import { CreateProcessoDto, SituacaoProcesso } from './dto/create-processo.dto';
+import { CreateProcessoDto, SituacaoProcesso, TipoParte } from './dto/create-processo.dto';
 import { UpdateProcessoDto } from './dto/update-processo.dto';
 
 @Controller('processos')
@@ -26,6 +26,16 @@ export class ProcessoController {
       situacoes: Object.values(SituacaoProcesso).map(value => ({
         value,
         label: this.getSituacaoLabel(value)
+      }))
+    };
+  }
+
+  @Get('tipos-parte')
+  getTiposParte() {
+    return {
+      tiposParte: Object.values(TipoParte).map(value => ({
+        value,
+        label: this.getTipoParteLabel(value)
       }))
     };
   }
@@ -75,6 +85,15 @@ export class ProcessoController {
       [SituacaoProcesso.GRAU_DE_RECURSO]: 'Grau de Recurso',
     };
     return labels[situacao] || situacao;
+  }
+
+  private getTipoParteLabel(tipoParte: TipoParte): string {
+    const labels = {
+      [TipoParte.AUTOR]: 'Autor',
+      [TipoParte.REU]: 'Réu',
+      [TipoParte.TERCEIRO_INTERESSADO]: 'Terceiro Interessado',
+    };
+    return labels[tipoParte] || tipoParte;
   }
 }
 

@@ -22,6 +22,8 @@ export const ProcessoForm: React.FC<ProcessoFormProps> = ({ processo, onSuccess 
   const [formData, setFormData] = useState<ProcessoCreate>({
     nome: '',
     unidade: '',
+    bloco: '',
+    parte: 'AUTOR',
     acaoDe: '',
     situacao: 'CITACAO',
     numeroProcesso: '',
@@ -36,8 +38,10 @@ export const ProcessoForm: React.FC<ProcessoFormProps> = ({ processo, onSuccess 
       setFormData({
         nome: processo.nome || '',
         unidade: processo.unidade || '',
+        bloco: processo.bloco || '',
+        parte: processo.parte || 'AUTOR',
         acaoDe: processo.acaoDe || '',
-        situacao: processo.situacao || 'EM_ANDAMENTO',
+        situacao: processo.situacao || 'CITACAO',
         numeroProcesso: processo.numeroProcesso || '',
         valorDivida: processo.valorDivida || undefined,
         movimentacoes: processo.movimentacoes || '',
@@ -133,6 +137,8 @@ export const ProcessoForm: React.FC<ProcessoFormProps> = ({ processo, onSuccess 
         setFormData({
           nome: '',
           unidade: '',
+          bloco: '',
+          parte: 'AUTOR',
           acaoDe: '',
           situacao: 'CITACAO',
           numeroProcesso: '',
@@ -225,6 +231,32 @@ export const ProcessoForm: React.FC<ProcessoFormProps> = ({ processo, onSuccess 
                 onChange={(e) => handleChange('unidade', e.target.value)}
                 required
               />
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="bloco">Bloco (opcional)</Label>
+              <Input
+                id="bloco"
+                value={formData.bloco || ''}
+                onChange={(e) => handleChange('bloco', e.target.value)}
+                placeholder="Ex: A, B, 1, 2..."
+              />
+            </div>
+          </div>
+
+          <div className="grid grid-cols-2 gap-4">
+            <div className="space-y-2">
+              <Label htmlFor="parte">Parte</Label>
+              <Select value={formData.parte} onValueChange={(value) => handleChange('parte', value)}>
+                <SelectTrigger>
+                  <SelectValue placeholder="Selecione a parte" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="AUTOR">Autor</SelectItem>
+                  <SelectItem value="REU">Réu</SelectItem>
+                  <SelectItem value="TERCEIRO_INTERESSADO">Terceiro Interessado</SelectItem>
+                </SelectContent>
+              </Select>
             </div>
 
             <div className="space-y-2">

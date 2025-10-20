@@ -15,12 +15,25 @@ export enum SituacaoProcesso {
   GRAU_DE_RECURSO = 'GRAU_DE_RECURSO',
 }
 
+export enum TipoParte {
+  AUTOR = 'AUTOR',
+  REU = 'REU',
+  TERCEIRO_INTERESSADO = 'TERCEIRO_INTERESSADO',
+}
+
 export class CreateProcessoDto {
   @IsString()
   nome: string;
 
   @IsString()
   unidade: string;
+
+  @IsOptional()
+  @IsString()
+  bloco?: string;
+
+  @IsEnum(TipoParte)
+  parte: TipoParte;
 
   @IsString()
   acaoDe: string;
