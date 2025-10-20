@@ -8,6 +8,7 @@ import { Edit, Trash2, Printer, Save, X, CheckCircle } from 'lucide-react';
 import processoService, { Processo } from '../services/processoService';
 import condominioService from '@/features/condominio/services/condominioService';
 import { ProcessoForm } from './ProcessoForm';
+import { ProcessoFilters } from './ProcessoFilters';
 import { DeleteConfirmationModal } from './DeleteConfirmationModal';
 
 const SITUACAO_CORES = {
@@ -50,7 +51,13 @@ export const ProcessosTable: React.FC = () => {
   const [processoToDelete, setProcessoToDelete] = useState<Processo | null>(null);
   const [showDeleteSuccess, setShowDeleteSuccess] = useState(false);
   const [condominios, setCondominios] = useState<any[]>([]);
-  const [filtroCondominio, setFiltroCondominio] = useState<string>('');
+  const [filtros, setFiltros] = useState({
+    condominio: '',
+    autor: '',
+    numeroProcesso: '',
+    acao: '',
+    situacao: '',
+  });
 
   const loadProcessos = async () => {
     try {
@@ -162,10 +169,48 @@ export const ProcessosTable: React.FC = () => {
     label,
   }));
 
-  // Filtrar processos por condomínio
+  const handleFilterChange = (novosFiltros: any) => {
+    setFiltros(novosFiltros);
+  };
+
+  const handleClearFilters = () => {
+    setFiltros({
+      condominio: '',
+      autor: '',
+      numeroProcesso: '',
+      acao: '',
+      situacao: '',
+    });
+  };
+
+  // Filtrar processos por todos os critérios
   const processosFiltrados = processos.filter(processo => {
-    if (!filtroCondominio) return true;
-    return processo.condominioId === filtroCondominio;
+    // Filtro por condomínio
+    if (filtros.condominio && processo.condominioId !== filtros.condominio) {
+      return false;
+    }
+
+    // Filtro por autor (tipo de parte)
+    if (filtros.autor && processo.parte !== filtros.autor) {
+      return false;
+    }
+
+    // Filtro por número do processo (busca parcial)
+    if (filtros.numeroProcesso && !processo.numeroProcesso.toLowerCase().includes(filtros.numeroProcesso.toLowerCase())) {
+      return false;
+    }
+
+    // Filtro por ação (busca parcial)
+    if (filtros.acao && !processo.acaoDe.toLowerCase().includes(filtros.acao.toLowerCase())) {
+      return false;
+    }
+
+    // Filtro por situação
+    if (filtros.situacao && processo.situacao !== filtros.situacao) {
+      return false;
+    }
+
+    return true;
   });
 
   if (loading) {
@@ -186,39 +231,16 @@ export const ProcessosTable: React.FC = () => {
             <CardTitle>Gestão de Processos Jurídicos</CardTitle>
             <ProcessoForm onSuccess={loadProcessos} />
           </div>
-          <div className="mt-4">
-            <div className="flex items-center space-x-4">
-              <div className="flex items-center space-x-2">
-                <label htmlFor="filtro-condominio" className="text-sm font-medium">
-                  Filtrar por Condomínio:
-                </label>
-                <Select value={filtroCondominio} onValueChange={setFiltroCondominio}>
-                  <SelectTrigger className="w-64">
-                    <SelectValue placeholder="Todos os condomínios" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="">Todos os condomínios</SelectItem>
-                    {condominios.map((condominio) => (
-                      <SelectItem key={condominio.id} value={condominio.id}>
-                        {condominio.nome}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </div>
-              {filtroCondominio && (
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={() => setFiltroCondominio('')}
-                >
-                  Limpar Filtro
-                </Button>
-              )}
-            </div>
-          </div>
         </CardHeader>
       </Card>
+
+      {/* Componente de Filtros */}
+      <ProcessoFilters
+        condominios={condominios}
+        filtros={filtros}
+        onFilterChange={handleFilterChange}
+        onClearFilters={handleClearFilters}
+      />
 
       <Card>
         <CardContent className="p-6">
@@ -243,7 +265,9 @@ export const ProcessosTable: React.FC = () => {
                 {processosFiltrados.length === 0 ? (
                   <TableRow>
                     <TableCell colSpan={11} className="py-8 text-center text-gray-500">
-                      {filtroCondominio ? 'Nenhum processo encontrado para o condomínio selecionado' : 'Nenhum processo encontrado'}
+                      {Object.values(filtros).some(f => f && f.trim() !== '') 
+                        ? 'Nenhum processo encontrado com os filtros aplicados' 
+                        : 'Nenhum processo encontrado'}
                     </TableCell>
                   </TableRow>
                 ) : (
