@@ -10,8 +10,25 @@ export class ProcessoRepository {
       console.log('=== PROCESSO REPOSITORY CREATE ===');
       console.log('Dados para criar:', JSON.stringify(data, null, 2));
       
+      // Filtrar apenas os campos que existem no banco
+      const camposValidos = {
+        nome: data.nome,
+        unidade: data.unidade,
+        acaoDe: data.acaoDe,
+        situacao: data.situacao,
+        numeroProcesso: data.numeroProcesso,
+        valorDivida: data.valorDivida,
+        movimentacoes: data.movimentacoes,
+        condominioId: data.condominioId,
+        // Adicionar novos campos apenas se existirem
+        ...(data.bloco && { bloco: data.bloco }),
+        ...(data.parte && { parte: data.parte }),
+      };
+      
+      console.log('Campos válidos para criar:', JSON.stringify(camposValidos, null, 2));
+      
       const resultado = await this.prisma.processo.create({
-        data,
+        data: camposValidos,
         include: {
           condominio: true,
         },
@@ -25,8 +42,22 @@ export class ProcessoRepository {
       // Tentar criar sem include se falhar
       console.log('Tentando criar sem include...');
       try {
+        const camposValidos = {
+          nome: data.nome,
+          unidade: data.unidade,
+          acaoDe: data.acaoDe,
+          situacao: data.situacao,
+          numeroProcesso: data.numeroProcesso,
+          valorDivida: data.valorDivida,
+          movimentacoes: data.movimentacoes,
+          condominioId: data.condominioId,
+          // Adicionar novos campos apenas se existirem
+          ...(data.bloco && { bloco: data.bloco }),
+          ...(data.parte && { parte: data.parte }),
+        };
+        
         const resultado = await this.prisma.processo.create({
-          data,
+          data: camposValidos,
         });
         console.log('Processo criado sem include:', JSON.stringify(resultado, null, 2));
         return resultado;

@@ -32,8 +32,9 @@ export class CreateProcessoDto {
   @IsString()
   bloco?: string;
 
+  @IsOptional()
   @IsEnum(TipoParte)
-  parte: TipoParte;
+  parte?: TipoParte;
 
   @IsString()
   acaoDe: string;
