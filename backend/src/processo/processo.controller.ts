@@ -12,6 +12,8 @@ export class ProcessoController {
   create(@Body() createProcessoDto: CreateProcessoDto) {
     console.log('=== CRIAÇÃO DE PROCESSO ===');
     console.log('DTO recebido:', JSON.stringify(createProcessoDto, null, 2));
+    console.log('Tipo do campo parte:', typeof createProcessoDto.parte);
+    console.log('Valor do campo parte:', createProcessoDto.parte);
     return this.service.create(createProcessoDto);
   }
 

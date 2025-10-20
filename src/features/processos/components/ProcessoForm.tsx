@@ -105,6 +105,8 @@ export const ProcessoForm: React.FC<ProcessoFormProps> = ({ processo, onSuccess 
       const submitData = {
         nome: formData.nome.trim(),
         unidade: formData.unidade.trim(),
+        bloco: formData.bloco?.trim() || null,
+        parte: formData.parte,
         acaoDe: formData.acaoDe.trim(),
         situacao: formData.situacao,
         numeroProcesso: formData.numeroProcesso.trim(),
