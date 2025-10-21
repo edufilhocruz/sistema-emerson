@@ -1,0 +1,40 @@
+version: '3.8'
+
+services:
+  # --- Banco de Dados PostgreSQL para Emerson ---
+  postgres-emerson:
+    image: astraonline/postgrespgvector:2024
+    container_name: postgres-emerson
+    environment:
+      - POSTGRES_USER=emerson
+      - POSTGRES_PASSWORD=qbO#259Qq # Mesma senha do sistema anterior
+      - POSTGRES_DB=emersonadv
+      - TZ=America/Sao_Paulo
+      - PG_MAX_CONNECTIONS=100
+    ports:
+      - "5433:5432" # Porta diferente para evitar conflito
+    volumes:
+      - postgres_emerson_data:/var/lib/postgresql/data
+    restart: unless-stopped
+    networks:
+      - emerson_network
+
+  # --- Cache em Memória com Redis para Emerson ---
+  redis-emerson:
+    image: redis:7-alpine
+    container_name: redis-emerson
+    ports:
+      - "6380:6379" # Porta diferente para evitar conflito
+    volumes:
+      - redis_emerson_data:/data
+    restart: unless-stopped
+    networks:
+      - emerson_network
+
+volumes:
+  postgres_emerson_data:
+  redis_emerson_data:
+
+networks:
+  emerson_network:
+    driver: bridge

@@ -126,7 +126,7 @@ export const Contact: React.FC = () => {
             </p>
             <button
               onClick={() => setShowSuccess(false)}
-              className="bg-gradient-to-r from-raunaimer-gold to-yellow-400 text-raunaimer-dark px-6 py-2 rounded-lg font-semibold hover:shadow-lg transition-all duration-300"
+              className="bg-gradient-to-r from-raunaimer-gold to-gray-400 text-raunaimer-dark px-6 py-2 rounded-lg font-semibold hover:shadow-lg transition-all duration-300"
             >
               Enviar Nova Mensagem
             </button>

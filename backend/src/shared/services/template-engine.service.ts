@@ -314,7 +314,7 @@ export class TemplateEngineService {
         }
         
         .header {
-            background: linear-gradient(135deg, #CDA434 0%, #B8942A 100%);
+            background: linear-gradient(135deg, #3f3f3f 0%, #2a2a2a 100%);
             color: white;
             padding: 30px;
             text-align: center;
@@ -340,11 +340,11 @@ export class TemplateEngineService {
             border-radius: 10px;
             padding: 25px;
             margin-bottom: 25px;
-            border-left: 4px solid #CDA434;
+            border-left: 4px solid #3f3f3f;
         }
         
         .info-card h3 {
-            color: #CDA434;
+            color: #3f3f3f;
             font-size: 18px;
             font-weight: 600;
             margin-bottom: 15px;
@@ -383,7 +383,7 @@ export class TemplateEngineService {
         
         .cobranca-destaque {
             background: linear-gradient(135deg, #fff3cd 0%, #ffeaa7 100%);
-            border: 2px solid #CDA434;
+            border: 2px solid #3f3f3f;
             border-radius: 10px;
             padding: 25px;
             margin: 25px 0;
@@ -393,7 +393,7 @@ export class TemplateEngineService {
         .valor-cobranca {
             font-size: 32px;
             font-weight: 700;
-            color: #CDA434;
+            color: #3f3f3f;
             margin: 10px 0;
         }
         
@@ -412,7 +412,7 @@ export class TemplateEngineService {
         }
         
         .mensagem-principal h2 {
-            color: #CDA434;
+            color: #3f3f3f;
             font-size: 20px;
             margin-bottom: 15px;
         }
@@ -438,7 +438,7 @@ export class TemplateEngineService {
         
         .btn-primary {
             display: inline-block;
-            background: linear-gradient(135deg, #CDA434 0%, #B8942A 100%);
+            background: linear-gradient(135deg, #3f3f3f 0%, #2a2a2a 100%);
             color: white;
             padding: 12px 30px;
             text-decoration: none;

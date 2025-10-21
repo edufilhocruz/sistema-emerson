@@ -47,7 +47,7 @@ export const PaginaRostoA4 = ({ carta }: ImpressaoA4Props) => {
       <div style={{ position: 'absolute', inset: '0', padding: '15mm' }}>
         
         {/* Logo (esquerda) */}
-        <img src="/logotipo.png" alt="Logotipo Raunaimer" style={{ position: 'absolute', left: '15mm', top: '112mm', height: '35mm', width: 'auto', maxWidth: '50mm' }} />
+        <img src="/logotipo.png" alt="Logotipo Emerson Reis" style={{ position: 'absolute', left: '15mm', top: '112mm', height: '35mm', width: 'auto', maxWidth: '50mm' }} />
 
         {/* Quadro do título (direita) */}
         <div style={{ position: 'absolute', right: '15mm', top: '112mm', border: '0.3mm solid #333', padding: '6mm', minWidth: '50mm', textAlign: 'center' }}>

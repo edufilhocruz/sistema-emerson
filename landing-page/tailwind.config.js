@@ -8,7 +8,7 @@ export default {
     extend: {
       colors: {
         'raunaimer-dark': '#1a365d',
-        'raunaimer-gold': '#d69e2e',
+        'raunaimer-gold': '#3f3f3f',
         'raunaimer-gray': '#4a5568',
         'raunaimer-white': '#ffffff',
       },

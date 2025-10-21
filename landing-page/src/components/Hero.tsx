@@ -38,7 +38,7 @@ export const Hero: React.FC = () => {
           >
             <h1 className="text-5xl md:text-7xl font-bold leading-tight text-white mb-6">
               Especialistas em{' '}
-              <span className="bg-gradient-to-r from-raunaimer-gold to-yellow-400 bg-clip-text text-transparent">
+              <span className="bg-gradient-to-r from-raunaimer-gold to-gray-400 bg-clip-text text-transparent">
                 Direito Condominial
               </span>
             </h1>
@@ -56,7 +56,7 @@ export const Hero: React.FC = () => {
           >
             <button
               onClick={() => scrollToSection('contato')}
-              className="bg-gradient-to-r from-raunaimer-gold to-yellow-400 text-raunaimer-dark px-8 py-4 rounded-lg font-bold text-lg hover:shadow-xl hover:-translate-y-1 transition-all duration-300 flex items-center justify-center space-x-2"
+              className="bg-gradient-to-r from-raunaimer-gold to-gray-400 text-raunaimer-dark px-8 py-4 rounded-lg font-bold text-lg hover:shadow-xl hover:-translate-y-1 transition-all duration-300 flex items-center justify-center space-x-2"
             >
               <span>Fale Conosco</span>
               <ArrowRight className="w-5 h-5" />

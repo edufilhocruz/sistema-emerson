@@ -60,7 +60,7 @@ const Login: React.FC = () => {
           </div>
           <Button
             type="submit"
-            className="w-full font-bold bg-[#CDA434] text-white rounded-md transition-none border-none"
+            className="w-full font-bold bg-[#3f3f3f] hover:bg-[#5a5a5a] text-white rounded-md transition-all border-none"
             style={{ boxShadow: 'none' }}
             disabled={loading}
           >
@@ -71,7 +71,7 @@ const Login: React.FC = () => {
           <Button
             asChild
             variant="ghost"
-            className="w-full mt-2 font-semibold bg-[#F6F3EA] text-[#CDA434] hover:bg-[#EFE6CC] hover:text-[#CDA434] rounded-md transition-all shadow-none border-none"
+            className="w-full mt-2 font-semibold bg-gray-100 text-[#3f3f3f] hover:bg-gray-200 hover:text-[#3f3f3f] rounded-md transition-all shadow-none border-none"
           >
             <Link to="/register">
               Cadastre-se

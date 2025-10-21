@@ -59,7 +59,7 @@ export function Sidebar({ className }: SidebarProps) {
       <div className="h-20 flex items-center justify-center px-6 border-b border-border">
         <img 
           src="/logotipo.png" 
-          alt="Logotipo Raunaimer Monfre" 
+          alt="Logotipo Emerson Reis" 
           className="h-20 w-auto object-contain" 
           style={{ display: 'block', maxHeight: '80px', minHeight: '60px' }}
         />

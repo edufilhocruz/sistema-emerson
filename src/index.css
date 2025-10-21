@@ -67,7 +67,7 @@
   }
   
   /* PROTEGER LOGOTIPO DO SIDEBAR */
-  aside img[alt="Logotipo Raunaimer Monfre"] {
+  aside img[alt="Logotipo Emerson Reis"] {
     display: block !important;
     visibility: visible !important;
     opacity: 1 !important;
@@ -162,7 +162,7 @@
 }
 
 /* GARANTIR QUE O LOGOTIPO DO SIDEBAR SEJA SEMPRE VISÍVEL */
-aside img[alt="Logotipo Raunaimer Monfre"] {
+aside img[alt="Logotipo Emerson Reis"] {
   display: block !important;
   visibility: visible !important;
   opacity: 1 !important;
@@ -176,10 +176,10 @@ aside img[alt="Logotipo Raunaimer Monfre"] {
 @layer base {
   :root {
     /* Primary Gold Theme */
-    --primary-gold: 40 45% 55%;
-    --primary-gold-hover: 43 50% 65%;
-    --primary-gold-light: 45 55% 85%;
-    --primary-gold-dark: 38 40% 45%;
+    --primary-gold: 0 0% 25%;
+    --primary-gold-hover: 0 0% 35%;
+    --primary-gold-light: 0 0% 45%;
+    --primary-gold-dark: 0 0% 15%;
     
     /* Background Colors */
     --background: 0 0% 100%;
@@ -200,7 +200,7 @@ aside img[alt="Logotipo Raunaimer Monfre"] {
     /* Border & Input */
     --border: 220 13% 91%;
     --input: 220 13% 91%;
-    --ring: 40 45% 55%;
+    --ring: 0 0% 25%;
     
     /* Status Colors */
     --success: 120 50% 45%;
@@ -213,7 +213,7 @@ aside img[alt="Logotipo Raunaimer Monfre"] {
     --info-light: 220 70% 95%;
     
     /* Chart Colors */
-    --chart-primary: 40 45% 55%;
+    --chart-primary: 0 0% 25%;
     --chart-secondary: 220 13% 91%;
     
     /* Animation & Shadows */
@@ -229,7 +229,7 @@ aside img[alt="Logotipo Raunaimer Monfre"] {
     --transition-slow: 500ms cubic-bezier(0.4, 0, 0.2, 1);
     
     /* Legacy shadcn variables for compatibility */
-    --primary: 40 45% 55%;
+    --primary: 0 0% 25%;
     --primary-foreground: 0 0% 100%;
     --secondary: 220 14% 97%;
     --secondary-foreground: 0 0% 0%;

@@ -21,7 +21,7 @@ export const Header: React.FC = () => {
           <div className="flex items-center space-x-3">
             <img 
               src="/logotipo.png" 
-              alt="Raunaimer Monfre Advocacia" 
+              alt="Emerson Reis Advocacia" 
               className="w-auto h-24"
             />
           </div>

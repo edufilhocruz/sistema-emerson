@@ -24,7 +24,7 @@ const statusPagamentoConfig: Record<StatusPagamento, { variant: "default" | "des
 const cobrancaStatusConfig: Record<StatusCobranca, { icon: React.ReactNode, label: string }> = {
     'Enviado': { icon: <CheckCircle2 className="h-4 w-4 text-green-500" />, label: 'Enviado' },
     'Erro': { icon: <XCircle className="h-4 w-4 text-destructive" />, label: 'Erro' },
-    'Pendente': { icon: <AlertCircle className="h-4 w-4 text-amber-500" />, label: 'Pendente' },
+    'Pendente': { icon: <AlertCircle className="h-4 w-4 text-gray-500" />, label: 'Pendente' },
 };
 
 /**

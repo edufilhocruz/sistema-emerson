@@ -62,7 +62,7 @@ export const Features: React.FC = () => {
         >
           <h2 className="text-4xl md:text-5xl font-bold text-gray-900 mb-6">
             Soluções Jurídicas{' '}
-            <span className="bg-gradient-to-r from-raunaimer-gold to-yellow-400 bg-clip-text text-transparent">
+            <span className="bg-gradient-to-r from-raunaimer-gold to-gray-400 bg-clip-text text-transparent">
               Completas
             </span>
           </h2>
@@ -83,7 +83,7 @@ export const Features: React.FC = () => {
               className="group"
             >
               <div className="bg-white rounded-2xl p-8 border border-gray-200 hover:border-raunaimer-gold transition-all duration-300 hover:shadow-xl hover:-translate-y-2 h-full flex flex-col">
-                <div className="w-16 h-16 bg-gradient-to-r from-raunaimer-gold to-yellow-400 rounded-2xl flex items-center justify-center mb-6 group-hover:scale-110 transition-transform duration-300">
+                <div className="w-16 h-16 bg-gradient-to-r from-raunaimer-gold to-gray-400 rounded-2xl flex items-center justify-center mb-6 group-hover:scale-110 transition-transform duration-300">
                   <feature.icon className="w-8 h-8 text-white" />
                 </div>
                 <h3 className="text-xl font-bold text-gray-900 mb-4">{feature.title}</h3>
@@ -131,7 +131,7 @@ export const Features: React.FC = () => {
                   viewport={{ once: true }}
                   className="flex items-start space-x-4 group"
                 >
-                  <div className="w-12 h-12 bg-gradient-to-r from-raunaimer-gold to-yellow-400 rounded-lg flex items-center justify-center flex-shrink-0 group-hover:scale-110 transition-transform duration-300">
+                  <div className="w-12 h-12 bg-gradient-to-r from-raunaimer-gold to-gray-400 rounded-lg flex items-center justify-center flex-shrink-0 group-hover:scale-110 transition-transform duration-300">
                     <service.icon className="w-6 h-6 text-white" />
                   </div>
                   <div>
@@ -165,7 +165,7 @@ export const Features: React.FC = () => {
                     element.scrollIntoView({ behavior: 'smooth' })
                   }
                 }}
-                className="bg-gradient-to-r from-raunaimer-gold to-yellow-400 text-raunaimer-dark px-8 py-4 rounded-lg font-bold text-lg hover:shadow-xl hover:-translate-y-1 transition-all duration-300"
+                className="bg-gradient-to-r from-raunaimer-gold to-gray-400 text-raunaimer-dark px-8 py-4 rounded-lg font-bold text-lg hover:shadow-xl hover:-translate-y-1 transition-all duration-300"
               >
                 Fale Conosco Agora
               </button>

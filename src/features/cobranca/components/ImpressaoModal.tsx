@@ -54,7 +54,7 @@ const PaginaRostoA4 = ({ carta, logoUrl }: ImpressaoA4Props) => {
     }}>
       <div style={{ position: 'absolute', inset: '0', padding: '15mm' }}>
         {/* Itens movidos 20mm para cima */}
-        <img src={logoUrl || '/logotipo.png'} alt="Logotipo Raunaimer" style={{ position: 'absolute', left: '15mm', top: '92mm', height: '35mm', width: 'auto', maxWidth: '50mm', filter: 'none', WebkitPrintColorAdjust: 'exact', printColorAdjust: 'exact' }} />
+        <img src={logoUrl || '/logotipo.png'} alt="Logotipo Emerson Reis" style={{ position: 'absolute', left: '15mm', top: '92mm', height: '35mm', width: 'auto', maxWidth: '50mm', filter: 'none', WebkitPrintColorAdjust: 'exact', printColorAdjust: 'exact' }} />
         <div style={{ position: 'absolute', right: '15mm', top: '92mm', border: '0.3mm solid #333', padding: '6mm', minWidth: '50mm', textAlign: 'center' }}>
           <div style={{ fontWeight: 'bold', fontSize: '12pt', marginBottom: '3mm' }}>AVISO - DÉBITOS CONDOMINIAIS - {carta.paginaRosto.mesAno}</div>
           <div style={{ fontWeight: 'bold', fontSize: '12pt' }}>{carta.paginaRosto.nomeMorador}</div>
@@ -116,7 +116,7 @@ export const ImpressaoModal = ({ isOpen, onClose, cobrancaIds }: Props) => {
           <div style="page-break-after: always; width: 210mm; height: 297mm; padding: 16mm; margin: 0; background: white; box-shadow: none; border: none; font-family: sans-serif; overflow: hidden;">
             <!-- Cabeçalho com logotipo (colorido) e data -->
             <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10mm;">
-              <img src="${absoluteLogo}" alt="Logotipo Raunaimer" style="height: 12mm; width: auto; -webkit-print-color-adjust: exact; print-color-adjust: exact; filter: none;" />
+              <img src="${absoluteLogo}" alt="Logotipo Emerson Reis" style="height: 12mm; width: auto; -webkit-print-color-adjust: exact; print-color-adjust: exact; filter: none;" />
               <div style="text-align: right; font-size: 10pt; color: #666;">${new Date().toLocaleDateString('pt-BR')}</div>
             </div>
             <div style="margin-bottom: 10mm; font-size: 14pt; font-weight: bold;">${carta.condominio}</div>
