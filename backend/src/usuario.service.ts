@@ -65,7 +65,7 @@ export class UsuarioService {
 
   async existsAdmin(): Promise<boolean> {
     const adminCount = await this.prisma.usuario.count({
-      where: { role: 'Admin' },
+      where: { role: 'ADMIN' },
     });
     return adminCount > 0;
   }

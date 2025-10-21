@@ -56,12 +56,12 @@ export function Sidebar({ className }: SidebarProps) {
 
   return (
     <aside className={cn("w-64 bg-sidebar-bg border-r border-border flex flex-col", className)}>
-      <div className="h-20 flex items-center justify-center px-6 border-b border-border">
+      <div className="h-24 flex items-center justify-center px-6 border-b border-border">
         <img 
           src="/logotipo.png" 
           alt="Logotipo Emerson Reis" 
-          className="h-20 w-auto object-contain" 
-          style={{ display: 'block', maxHeight: '80px', minHeight: '60px' }}
+          className="h-24 w-auto object-contain" 
+          style={{ display: 'block', maxHeight: '100px', minHeight: '80px' }}
         />
       </div>
 

@@ -22,7 +22,7 @@ export const Header: React.FC = () => {
             <img 
               src="/logotipo.png" 
               alt="Emerson Reis Advocacia" 
-              className="w-auto h-24"
+              className="w-auto h-32"
             />
           </div>
 
