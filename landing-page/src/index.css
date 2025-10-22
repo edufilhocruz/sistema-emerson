@@ -30,10 +30,10 @@ html {
 }
 
 ::-webkit-scrollbar-thumb {
-  background: #d69e2e;
+  background: #3f3f3f;
   border-radius: 4px;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: #b7791f;
+  background: #2a2a2a;
 } 
