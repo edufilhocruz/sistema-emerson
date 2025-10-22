@@ -66,8 +66,8 @@ export function Header({ title }: HeaderProps) {
   };
 
   return (
-    <header className="h-20 flex items-center justify-between px-6 bg-sidebar-bg border-b border-border">
-      <h2 className="text-2xl font-semibold text-text-secondary">{title}</h2>
+    <header className="h-20 flex items-center justify-between px-6 bg-gray-800 border-b border-border">
+      <h2 className="text-2xl font-semibold text-white">{title}</h2>
       <div className="flex items-center gap-4">
         <div className="relative group">
           <Avatar.Root className="w-10 h-10 rounded-full border overflow-hidden bg-muted flex items-center justify-center select-none">
