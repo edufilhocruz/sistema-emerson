@@ -11,7 +11,7 @@ export const Hero: React.FC = () => {
   }
 
   return (
-    <section className="relative min-h-screen bg-gradient-to-br from-gray-50 to-white overflow-hidden">
+    <section className="relative min-h-screen overflow-hidden">
       {/* Background Image */}
       <motion.div
         initial={{ opacity: 0 }}
@@ -21,10 +21,10 @@ export const Hero: React.FC = () => {
       >
         <img
           src="/banner_001.jpg"
-          alt="Raunaimer Advocacia - Especialistas em Direito Condominial"
+          alt="Emerson Reis Advocacia - Especialistas em Direito Condominial"
           className="w-full h-full object-cover"
         />
-        <div className="absolute inset-0 bg-black/40"></div>
+        <div className="absolute inset-0 bg-black/30"></div>
       </motion.div>
 
       <div className="relative z-10 container mx-auto px-4 py-20">
