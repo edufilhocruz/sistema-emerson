@@ -186,7 +186,7 @@ export const Contact: React.FC = () => {
                     viewport={{ once: true }}
                     className="flex items-start space-x-4 p-6 bg-white rounded-xl shadow-sm border border-gray-100 hover:shadow-md transition-shadow"
                   >
-                    <div className="w-12 h-12 bg-gradient-to-r from-blue-600 to-purple-600 rounded-lg flex items-center justify-center flex-shrink-0">
+                    <div className="w-12 h-12 bg-gradient-to-r from-gray-600 to-gray-700 rounded-lg flex items-center justify-center flex-shrink-0">
                       <info.icon className="w-6 h-6 text-white" />
                     </div>
                     <div>
@@ -203,7 +203,7 @@ export const Contact: React.FC = () => {
                 whileInView={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.6, delay: 0.6 }}
                 viewport={{ once: true }}
-                className="bg-gradient-to-r from-blue-600 to-purple-600 rounded-2xl p-8 text-white"
+                className="bg-gradient-to-r from-gray-600 to-gray-700 rounded-2xl p-8 text-white"
               >
                 <h4 className="text-xl font-bold mb-4">Por que escolher o Raunaimer?</h4>
                 <div className="grid grid-cols-2 gap-4 text-center">
