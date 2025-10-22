@@ -66,7 +66,7 @@ export function Header({ title }: HeaderProps) {
   };
 
   return (
-    <header className="h-20 flex items-center justify-between px-6 bg-gray-800 border-b border-border">
+    <header className="h-20 flex items-center justify-between px-6 border-b border-border" style={{ backgroundColor: '#3f3f3f' }}>
       <h2 className="text-2xl font-semibold text-white">{title}</h2>
       <div className="flex items-center gap-4">
         <div className="relative group">
