@@ -25,7 +25,7 @@ const contactInfo = [
   {
     type: 'email',
     label: 'Email',
-    value: 'contato@raunaimer.adv.br',
+    value: 'juridico.emersonreis@gmail.com',
     icon: Mail
   },
   {
