@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react'
+import { Logo } from './Logo'
 
 export const Header: React.FC = () => {
   const [isScrolled, setIsScrolled] = useState(false)
@@ -19,11 +20,7 @@ export const Header: React.FC = () => {
       <div className="container px-4 mx-auto">
         <div className="flex items-center justify-between h-16">
           <div className="flex items-center space-x-3">
-            <img 
-              src="/logotipo.png" 
-              alt="Emerson Reis Advocacia" 
-              className="w-auto h-32"
-            />
+            <Logo size="xl" />
           </div>
 
 

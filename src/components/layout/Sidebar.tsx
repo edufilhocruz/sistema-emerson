@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import { useLocation, Link } from "react-router-dom";
 import { Home, Building2, Users, DollarSign, Settings, BarChart2, ChevronDown, UploadCloud, FileText, Send, FileCheck, Printer } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { Logo } from "@/components/ui/Logo";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 
 interface SidebarProps {
@@ -57,12 +58,7 @@ export function Sidebar({ className }: SidebarProps) {
   return (
     <aside className={cn("w-64 bg-sidebar-bg border-r border-border flex flex-col", className)}>
       <div className="h-24 flex items-center justify-center px-6 border-b border-border">
-        <img 
-          src="/logotipo.png" 
-          alt="Logotipo Emerson Reis" 
-          className="h-24 w-auto object-contain" 
-          style={{ display: 'block', maxHeight: '100px', minHeight: '80px' }}
-        />
+        <Logo size="lg" />
       </div>
 
       <nav className="flex-1 p-4 space-y-1">
