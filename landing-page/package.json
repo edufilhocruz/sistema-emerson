@@ -1,7 +1,7 @@
 {
   "name": "raunaimer-landing-page",
   "version": "1.0.0",
-  "description": "Landing page da Raunaimer Monfre Advocacia",
+  "description": "Landing page da Emerson Advogado",
   "scripts": {
     "dev": "vite",
     "build": "vite build",
