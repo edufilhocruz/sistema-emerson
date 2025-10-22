@@ -21,7 +21,7 @@ export const Hero: React.FC = () => {
       >
         <img
           src="/banner_001.jpg"
-          alt="Emerson Reis Advocacia - Especialistas em Direito Condominial"
+          alt="Emerson Reis Advocacia - Assessoria Jurídica Especializada"
           className="w-full h-full object-cover"
         />
         <div className="absolute inset-0 bg-black/30"></div>
@@ -37,9 +37,9 @@ export const Hero: React.FC = () => {
             className="mb-8"
           >
             <h1 className="text-5xl md:text-7xl font-bold leading-tight text-white mb-6">
-              Especialistas em{' '}
+              Assessoria Jurídica{' '}
               <span className="bg-gradient-to-r from-raunaimer-gold to-gray-400 bg-clip-text text-transparent">
-                Direito Condominial
+                Especializada
               </span>
             </h1>
             <p className="text-xl md:text-2xl text-white/90 leading-relaxed max-w-3xl mx-auto">
