@@ -14,7 +14,7 @@ export const Header: React.FC = () => {
 
   return (
     <header className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${
-      isScrolled ? 'bg-black/95 backdrop-blur-md shadow-xl' : 'bg-black'
+      isScrolled ? 'bg-gray-800/95 backdrop-blur-md shadow-xl' : 'bg-gray-800'
     }`}>
       <div className="container px-4 mx-auto">
         <div className="flex items-center justify-between h-16">
