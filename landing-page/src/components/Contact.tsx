@@ -37,7 +37,7 @@ const contactInfo = [
   {
     type: 'address',
     label: 'Endereço',
-    value: 'São Paulo, SP - Brasil',
+    value: 'Avenida Paulista, 2073, Conj. 1104 - Bela Vista - SP',
     icon: MapPin
   }
 ]

@@ -27,7 +27,7 @@ export const Footer: React.FC = () => {
             <ul className="space-y-3 text-gray-300">
               <li className="flex items-center space-x-2">
                 <MapPin className="w-4 h-4 text-raunaimer-gold" />
-                <span>Avenida Regente Feijó 944, Conj. 1604A Anália Franco, São Paulo/SP</span>
+                <span>Avenida Paulista, 2073, Conj. 1104 - Bela Vista - SP</span>
               </li>
               <li className="flex items-center space-x-2">
                 <Clock className="w-4 h-4 text-raunaimer-gold" />
