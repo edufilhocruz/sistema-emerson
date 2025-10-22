@@ -151,7 +151,7 @@ export const Contact: React.FC = () => {
             Entre em Contato
           </h2>
           <p className="text-xl text-gray-600 max-w-2xl mx-auto">
-            Quer saber mais sobre o Sistema Raunaimer? Preencha o formulário abaixo e entraremos em contato em até 24 horas.
+            Quer saber mais sobre o Emerson Advogado? Preencha o formulário abaixo e entraremos em contato em até 24 horas.
           </p>
         </motion.div>
 
