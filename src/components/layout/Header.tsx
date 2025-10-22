@@ -66,7 +66,7 @@ export function Header({ title }: HeaderProps) {
   };
 
   return (
-    <header className="h-20 flex items-center justify-between px-6 bg-background border-b border-border">
+    <header className="h-20 flex items-center justify-between px-6 bg-sidebar-bg border-b border-border">
       <h2 className="text-2xl font-semibold text-text-secondary">{title}</h2>
       <div className="flex items-center gap-4">
         <div className="relative group">
