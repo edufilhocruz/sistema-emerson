@@ -205,7 +205,7 @@ export const Contact: React.FC = () => {
                 viewport={{ once: true }}
                 className="bg-gradient-to-r from-gray-600 to-gray-700 rounded-2xl p-8 text-white"
               >
-                <h4 className="text-xl font-bold mb-4">Por que escolher o Raunaimer?</h4>
+                <h4 className="text-xl font-bold mb-4">Por que escolher o Emerson Advogado?</h4>
                 <div className="grid grid-cols-2 gap-4 text-center">
                   <div>
                     <div className="text-2xl font-bold">500+</div>
