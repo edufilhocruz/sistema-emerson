@@ -34,7 +34,7 @@ export class ContactService {
       const htmlContent = `
         <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
           <h2 style="color: #1a365d; border-bottom: 2px solid #d69e2e; padding-bottom: 10px;">
-            Novo Contato - Raunaimer Monfre Advocacia
+            Novo Contato - Emerson Advogado
           </h2>
           
           <div style="background-color: #f7fafc; padding: 20px; border-radius: 8px; margin: 20px 0;">
@@ -61,15 +61,15 @@ export class ContactService {
           </div>
           
           <div style="margin-top: 30px; padding-top: 20px; border-top: 1px solid #e2e8f0; text-align: center; color: #718096;">
-            <p>Este email foi enviado através do formulário de contato do site raunaimer.adv.br</p>
+            <p>Este email foi enviado através do formulário de contato do site Emerson Advogado</p>
           </div>
         </div>
       `;
 
       // Enviar email usando o serviço existente
       const result = await this.emailConfigService.sendMail({
-        to: 'contato@raunaimer.adv.br',
-        subject: `Novo Contato - ${from_name} - Raunaimer Monfre Advocacia`,
+        to: 'juridico.emersonreis@gmail.com',
+        subject: `Novo Contato - ${from_name} - Emerson Advogado`,
         html: htmlContent
       });
 
