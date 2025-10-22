@@ -86,7 +86,7 @@ export function Header({ title }: HeaderProps) {
             <Pencil className="w-4 h-4 text-gray-600" />
           </button>
         </div>
-        <span className="font-medium text-foreground">Olá, {user?.nome ? user.nome : 'Usuário'}</span>
+        <span className="font-medium text-white">Olá, {user?.nome ? user.nome : 'Usuário'}</span>
         <Button variant="outline" onClick={logout}>Sair</Button>
       </div>
       <Dialog open={open} onOpenChange={setOpen}>
