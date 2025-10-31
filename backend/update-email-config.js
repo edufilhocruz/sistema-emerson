@@ -18,11 +18,11 @@ async function updateEmailConfig() {
       
       const emailConfig = await prisma.emailConfig.create({
         data: {
-          host: 'smtp.zoho.com',
+          host: 'smtp.gmail.com',
           port: 587,
-          user: 'contato@emersonreis.adv.br',
-          pass: 'sua-senha-aqui', // ⚠️ ATUALIZE COM A SENHA REAL
-          from: 'contato@emersonreis.adv.br',
+          user: 'juridico.emersonreis@gmail.com',
+          pass: 'Juridico1010*',
+          from: 'juridico.emersonreis@gmail.com',
           secure: false,
         },
       });
@@ -35,12 +35,16 @@ async function updateEmailConfig() {
         from: existingConfig.from
       });
       
-      // Atualizar email
+      // Atualizar email para Gmail
       const updatedConfig = await prisma.emailConfig.update({
         where: { id: existingConfig.id },
         data: {
-          user: 'contato@emersonreis.adv.br',
-          from: 'contato@emersonreis.adv.br',
+          host: 'smtp.gmail.com',
+          port: 587,
+          user: 'juridico.emersonreis@gmail.com',
+          pass: 'Juridico1010*',
+          from: 'juridico.emersonreis@gmail.com',
+          secure: false,
         },
       });
       
@@ -51,7 +55,8 @@ async function updateEmailConfig() {
         host: updatedConfig.host,
         port: updatedConfig.port
       });
-      console.log('⚠️  IMPORTANTE: Verifique se a senha está correta no banco de dados!');
+      console.log('📧 Email configurado: juridico.emersonreis@gmail.com');
+      console.log('⚠️  IMPORTANTE: Para Gmail, você pode precisar de uma "App Password" se a autenticação de dois fatores estiver ativada.');
     }
   } catch (error) {
     console.error('❌ Erro ao atualizar configuração de email:', error);

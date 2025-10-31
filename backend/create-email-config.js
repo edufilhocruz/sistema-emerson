@@ -14,11 +14,11 @@ async function createEmailConfig() {
     
     const emailConfig = await prisma.emailConfig.create({
       data: {
-        host: 'smtp.zoho.com',
+        host: 'smtp.gmail.com',
         port: 587,
-        user: 'contato@raunaimer.adv.br',
-        pass: 'Raunaimer1010*',
-        from: 'contato@raunaimer.adv.br',
+        user: 'juridico.emersonreis@gmail.com',
+        pass: 'Juridico1010*',
+        from: 'juridico.emersonreis@gmail.com',
         secure: false,
       },
     });
