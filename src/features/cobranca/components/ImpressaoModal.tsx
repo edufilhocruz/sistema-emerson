@@ -122,7 +122,7 @@ export const ImpressaoModal = ({ isOpen, onClose, cobrancaIds }: Props) => {
             <div style="margin-bottom: 10mm; font-size: 14pt; font-weight: bold;">${carta.condominio}</div>
             <!-- Bloco 'Para:' removido conforme solicitação -->
             <div style="line-height: 1.45; font-size: 10.5pt;">${carta.conteudo}</div>
-            <div style="margin-top: 12mm; padding-top: 6mm; border-top: 1px solid #ccc; text-align: center; font-size: 9.5pt; color: #666;">Sistema Raunaimer - Gestão de Condomínios</div>
+            <div style="margin-top: 12mm; padding-top: 6mm; border-top: 1px solid #ccc; text-align: center; font-size: 9.5pt; color: #666;">Sistema Emerson Reis - Gestão de Condomínios</div>
           </div>
         `;
         return paginaRostoHtml + cartaCobrancaHtml;

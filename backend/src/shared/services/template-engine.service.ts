@@ -182,7 +182,7 @@ export class TemplateEngineService {
     // Partial para cabeçalho padrão
     this.handlebars.registerPartial('header', `
       <div style="background-color: {{#if colors.primary}}{{colors.primary}}{{else}}#2563eb{{/if}}; color: white; padding: 20px; text-align: center;">
-        <h1 style="margin: 0; font-size: 24px; font-weight: bold;">{{#if nome_condominio}}{{nome_condominio}}{{else}}Sistema Raunaimer{{/if}}</h1>
+        <h1 style="margin: 0; font-size: 24px; font-weight: bold;">{{#if nome_condominio}}{{nome_condominio}}{{else}}Sistema Emerson Reis{{/if}}</h1>
         {{#if headerImageUrl}}
         <div style="margin-top: 15px;">
           <img src="cid:header_image" alt="Cabeçalho" style="max-width: 100%; height: auto; max-height: 150px;">
@@ -199,7 +199,7 @@ export class TemplateEngineService {
           <img src="cid:footer_image" alt="Rodapé" style="max-width: 100%; height: auto; max-height: 100px;">
         </div>
         {{/if}}
-        <p style="margin: 0; color: #666; font-size: 12px;">Esta é uma cobrança automática do sistema Raunaimer.</p>
+        <p style="margin: 0; color: #666; font-size: 12px;">Esta é uma cobrança automática do sistema Emerson Reis.</p>
         <p style="margin: 5px 0 0 0; color: #666; font-size: 12px;">Para dúvidas, entre em contato conosco.</p>
       </div>
     `);
@@ -559,15 +559,15 @@ export class TemplateEngineService {
             {{/if}}
             
             <div class="alert alert-info">
-                <strong>ℹ️ Informação:</strong> Esta é uma cobrança automática do sistema Raunaimer. 
+                <strong>ℹ️ Informação:</strong> Esta é uma cobrança automática do sistema Emerson Reis. 
                 Para dúvidas, entre em contato conosco.
             </div>
         </div>
         
         <div class="footer">
-            <p><strong>Raunaimer - Sistema de Gestão de Condomínios</strong></p>
-            <p>📧 suporte@raunaimer.adv.br | 📞 (11) 99999-9999</p>
-            <p>© 2024 Raunaimer. Todos os direitos reservados.</p>
+            <p><strong>Emerson Reis - Sistema de Gestão de Condomínios</strong></p>
+            <p>📧 contato@emersonreis.adv.br | 📞 (11) 99999-9999</p>
+            <p>© 2024 Emerson Reis. Todos os direitos reservados.</p>
         </div>
     </div>
 </body>

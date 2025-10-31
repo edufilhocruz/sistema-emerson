@@ -90,7 +90,7 @@ export class ProcessoService {
 
       // Rodapé
       doc.fontSize(8);
-      doc.text('Sistema Raunaimer - Gestão de Condomínios', 50, doc.page.height - 50, { align: 'center' });
+      doc.text('Sistema Emerson Reis - Gestão de Condomínios', 50, doc.page.height - 50, { align: 'center' });
 
       doc.end();
     });
