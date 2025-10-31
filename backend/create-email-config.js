@@ -17,7 +17,7 @@ async function createEmailConfig() {
         host: 'smtp.gmail.com',
         port: 587,
         user: 'juridico.emersonreis@gmail.com',
-        pass: 'Juridico1010*',
+        pass: 'iffk tcwt ddkc aisv',
         from: 'juridico.emersonreis@gmail.com',
         secure: false,
       },
